@@ -8,20 +8,20 @@ import Link from 'next/link'
 export function HeroSection() {
   return (
     <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Animated gradient orbs - Soothing colors */}
+      {/* Animated gradient orbs - Light theme */}
       <motion.div
-        className="absolute top-20 -left-40 w-[500px] h-[500px] bg-teal-400/15 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15] }}
+        className="absolute top-20 -left-40 w-[500px] h-[500px] bg-teal-300/30 rounded-full blur-3xl"
+        animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute top-40 -right-40 w-[400px] h-[400px] bg-purple-400/10 rounded-full blur-3xl"
-        animate={{ scale: [1.1, 1, 1.1], opacity: [0.1, 0.2, 0.1] }}
+        className="absolute top-40 -right-40 w-[400px] h-[400px] bg-purple-300/25 rounded-full blur-3xl"
+        animate={{ scale: [1.1, 1, 1.1], opacity: [0.25, 0.4, 0.25] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute -bottom-20 left-1/3 w-[350px] h-[350px] bg-cyan-400/10 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.18, 0.1] }}
+        className="absolute -bottom-20 left-1/3 w-[350px] h-[350px] bg-cyan-300/25 rounded-full blur-3xl"
+        animate={{ scale: [1, 1.2, 1], opacity: [0.25, 0.4, 0.25] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
       />
 
@@ -31,13 +31,13 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-slate-200 shadow-sm mb-8"
         >
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span className="text-sm text-slate-300">Trusted by 10,000+ professionals</span>
+          <span className="text-sm text-slate-600">Trusted by 10,000+ professionals</span>
         </motion.div>
 
         {/* Main heading */}
@@ -45,12 +45,12 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight"
+          className="text-4xl sm:text-5xl lg:text-7xl font-bold text-slate-800 tracking-tight leading-tight"
         >
           Build Resumes That
           <br />
           <span className="relative">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-purple-400 animate-gradient">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-cyan-500 to-purple-500 animate-gradient">
               Get You Hired
             </span>
             <motion.svg
@@ -83,7 +83,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-8 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed"
+          className="mt-8 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed"
         >
           Create AI-powered resumes tailored to specific job descriptions. 
           Stand out with professional templates and digital business cards.
@@ -97,7 +97,7 @@ export function HeroSection() {
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Link href="/signup">
-            <Button size="lg" className="text-lg px-8 h-14 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 shadow-lg shadow-teal-500/20 border-0 transition-all duration-300">
+            <Button size="lg" className="text-lg px-8 h-14 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 shadow-lg shadow-teal-500/30 border-0 transition-all duration-300 text-white">
               Start Building Free
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -105,7 +105,7 @@ export function HeroSection() {
           <Button 
             size="lg" 
             variant="outline" 
-            className="text-lg px-8 h-14 border-white/20 text-white hover:bg-white/10 group"
+            className="text-lg px-8 h-14 border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400 group"
           >
             <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
             Watch Demo
@@ -132,8 +132,8 @@ export function HeroSection() {
               transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
               className="text-center"
             >
-              <div className="text-3xl sm:text-4xl font-bold text-white">{stat.value}</div>
-              <div className="text-sm text-slate-400 mt-1">{stat.label}</div>
+              <div className="text-3xl sm:text-4xl font-bold text-slate-800">{stat.value}</div>
+              <div className="text-sm text-slate-500 mt-1">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>

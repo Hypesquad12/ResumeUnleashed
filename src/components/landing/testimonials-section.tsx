@@ -58,7 +58,7 @@ export function TestimonialsSection() {
   return (
     <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-500/5 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-100/50 to-transparent" />
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section header */}
@@ -70,11 +70,11 @@ export function TestimonialsSection() {
           className="text-center mb-16"
         >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">Testimonials</span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800">
             Loved by
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-400"> Professionals</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-purple-500"> Professionals</span>
           </h2>
-          <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
             Join thousands of job seekers who have landed their dream jobs with ResumeAI
           </p>
         </motion.div>
@@ -92,11 +92,11 @@ export function TestimonialsSection() {
               className="group relative"
             >
               {/* Card glow */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-15 transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-teal-400 to-purple-400 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
               
-              <div className="relative p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all h-full">
+              <div className="relative p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-all h-full">
                 {/* Quote icon */}
-                <Quote className="h-8 w-8 text-primary/30 mb-4" />
+                <Quote className="h-8 w-8 text-teal-300 mb-4" />
                 
                 {/* Rating */}
                 <div className="flex gap-1 mb-4">
@@ -114,7 +114,7 @@ export function TestimonialsSection() {
                 </div>
 
                 {/* Content */}
-                <p className="text-slate-300 mb-6 leading-relaxed">&quot;{testimonial.content}&quot;</p>
+                <p className="text-slate-600 mb-6 leading-relaxed">&quot;{testimonial.content}&quot;</p>
 
                 {/* Author */}
                 <div className="flex items-center gap-3">
@@ -122,8 +122,8 @@ export function TestimonialsSection() {
                     {testimonial.avatar}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{testimonial.name}</p>
-                    <p className="text-sm text-slate-400">{testimonial.role} at {testimonial.company}</p>
+                    <p className="font-semibold text-slate-800">{testimonial.name}</p>
+                    <p className="text-sm text-slate-500">{testimonial.role} at {testimonial.company}</p>
                   </div>
                 </div>
               </div>
@@ -142,7 +142,7 @@ export function TestimonialsSection() {
           <p className="text-slate-500 text-sm mb-6">Trusted by professionals from</p>
           <div className="flex flex-wrap justify-center items-center gap-8 opacity-50">
             {['Google', 'Meta', 'Apple', 'Amazon', 'Netflix', 'Spotify'].map((company) => (
-              <span key={company} className="text-xl font-bold text-slate-400">{company}</span>
+              <span key={company} className="text-xl font-bold text-slate-500">{company}</span>
             ))}
           </div>
         </motion.div>

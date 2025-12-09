@@ -60,11 +60,11 @@ export function FeaturesSection() {
           className="text-center mb-16"
         >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">Features</span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800">
             Everything You Need to
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-400"> Stand Out</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-purple-500"> Stand Out</span>
           </h2>
-          <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
             Powerful tools designed to help you create, customize, and share your professional profile
           </p>
         </motion.div>
@@ -90,7 +90,7 @@ export function FeaturesSection() {
                 }}
               />
               
-              <div className="relative p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-white/20 transition-all duration-300 h-full">
+              <div className="relative p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 h-full">
                 <motion.div
                   className={`p-3 rounded-xl w-fit mb-4 bg-gradient-to-br ${feature.gradient}`}
                   whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
@@ -99,10 +99,10 @@ export function FeaturesSection() {
                   <feature.icon className="h-6 w-6 text-white" />
                 </motion.div>
                 
-                <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-300 transition-all">
+                <h3 className="text-xl font-semibold text-slate-800 mb-2 transition-all">
                   {feature.title}
                 </h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
+                <p className="text-slate-600 text-sm leading-relaxed">{feature.description}</p>
                 
                 {/* Animated arrow */}
                 <motion.div
@@ -140,10 +140,10 @@ export function FeaturesSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
               whileHover={{ y: -5, scale: 1.02 }}
-              className="p-4 rounded-xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-all cursor-pointer"
+              className="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-center hover:shadow-md hover:border-slate-300 transition-all cursor-pointer"
             >
               <feature.icon className="h-5 w-5 text-primary mx-auto mb-2" />
-              <h4 className="font-medium text-white text-sm">{feature.title}</h4>
+              <h4 className="font-medium text-slate-800 text-sm">{feature.title}</h4>
               <p className="text-xs text-slate-500 mt-1">{feature.description}</p>
             </motion.div>
           ))}

@@ -17,19 +17,19 @@ export function CTASection() {
           className="relative"
         >
           {/* Background glow */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/20 via-purple-500/15 to-cyan-500/20 rounded-3xl blur-3xl" />
+          <div className="absolute -inset-4 bg-gradient-to-r from-teal-300/40 via-purple-300/30 to-cyan-300/40 rounded-3xl blur-3xl" />
           
           {/* Card */}
-          <div className="relative p-8 sm:p-12 lg:p-16 rounded-3xl bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-white/10 backdrop-blur-xl overflow-hidden">
+          <div className="relative p-8 sm:p-12 lg:p-16 rounded-3xl bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-2xl overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0 overflow-hidden">
               <motion.div
-                className="absolute -top-20 -right-20 w-60 h-60 bg-teal-500/12 rounded-full blur-3xl"
+                className="absolute -top-20 -right-20 w-60 h-60 bg-teal-200/50 rounded-full blur-3xl"
                 animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.3, 0.2] }}
                 transition={{ duration: 5, repeat: Infinity }}
               />
               <motion.div
-                className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl"
+                className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-200/40 rounded-full blur-3xl"
                 animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.3, 0.2] }}
                 transition={{ duration: 6, repeat: Infinity }}
               />
@@ -53,11 +53,11 @@ export function CTASection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6"
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-6"
               >
                 Ready to Land Your
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-purple-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-cyan-500 to-purple-500">
                   Dream Job?
                 </span>
               </motion.h2>
@@ -68,7 +68,7 @@ export function CTASection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto"
+                className="text-lg text-slate-600 mb-10 max-w-2xl mx-auto"
               >
                 Join thousands of professionals who have already improved their job search with ResumeAI. 
                 Start building your perfect resume today — it&apos;s free!
@@ -85,7 +85,7 @@ export function CTASection() {
                 <Link href="/signup">
                   <Button 
                     size="lg" 
-                    className="text-lg px-10 h-14 bg-white text-slate-900 hover:bg-slate-100 shadow-xl shadow-white/10 group"
+                    className="text-lg px-10 h-14 bg-gradient-to-r from-teal-500 to-cyan-500 text-white hover:from-teal-600 hover:to-cyan-600 shadow-xl shadow-teal-500/25 group"
                   >
                     Get Started Free
                     <motion.span
@@ -101,7 +101,7 @@ export function CTASection() {
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="text-lg px-10 h-14 border-white/20 text-white hover:bg-white/10"
+                    className="text-lg px-10 h-14 border-slate-300 text-slate-700 hover:bg-slate-100"
                   >
                     Browse Templates
                   </Button>

@@ -49,11 +49,11 @@ export function PreviewSection() {
             transition={{ duration: 0.6 }}
           >
             <span className="text-primary font-semibold text-sm uppercase tracking-wider">How It Works</span>
-            <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+            <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 leading-tight">
               Create Your Perfect Resume in
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-400"> Minutes</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-purple-500"> Minutes</span>
             </h2>
-            <p className="mt-6 text-lg text-slate-400 leading-relaxed">
+            <p className="mt-6 text-lg text-slate-600 leading-relaxed">
               Our AI-powered platform analyzes job descriptions and optimizes your resume 
               to pass ATS systems and impress hiring managers. Get more interviews with less effort.
             </p>
@@ -69,10 +69,10 @@ export function PreviewSection() {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="flex items-center gap-3 group"
                 >
-                  <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <benefit.icon className="h-5 w-5 text-primary" />
+                  <div className="p-2 rounded-lg bg-teal-100 group-hover:bg-teal-200 transition-colors">
+                    <benefit.icon className="h-5 w-5 text-teal-600" />
                   </div>
-                  <span className="text-slate-300 group-hover:text-white transition-colors">{benefit.text}</span>
+                  <span className="text-slate-600 group-hover:text-slate-800 transition-colors">{benefit.text}</span>
                 </motion.div>
               ))}
             </div>
@@ -85,8 +85,8 @@ export function PreviewSection() {
                   onClick={() => setActiveSection(index)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     activeSection === index
-                      ? 'bg-gradient-to-r text-white ' + section.color
-                      : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                      ? 'bg-gradient-to-r text-white shadow-md ' + section.color
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -110,7 +110,7 @@ export function PreviewSection() {
               transition={{ duration: 0.6 }}
               className="relative z-10"
             >
-              <div className="aspect-[3/4] rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 p-6 shadow-2xl backdrop-blur-xl">
+              <div className="aspect-[3/4] rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300 p-6 shadow-2xl">
                 <div className="h-full bg-white rounded-xl p-5 space-y-4 overflow-hidden">
                   {sections.map((section, i) => (
                     <motion.div
@@ -190,7 +190,7 @@ export function PreviewSection() {
             </motion.div>
 
             {/* Background decoration */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/15 to-purple-500/15 rounded-3xl blur-3xl -z-10" />
+            <div className="absolute -inset-4 bg-gradient-to-r from-teal-300/30 to-purple-300/30 rounded-3xl blur-3xl -z-10" />
           </motion.div>
         </div>
       </div>

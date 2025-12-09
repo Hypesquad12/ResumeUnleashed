@@ -39,7 +39,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-[#0a0a0f]">
+    <footer className="border-t border-slate-200 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Brand */}
@@ -52,10 +52,10 @@ export function Footer() {
                 <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg">
                   <FileText className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-bold text-lg text-white">ResumeAI</span>
+                <span className="font-bold text-lg text-slate-800">ResumeAI</span>
               </motion.div>
             </Link>
-            <p className="text-slate-400 text-sm mb-6 max-w-xs">
+            <p className="text-slate-600 text-sm mb-6 max-w-xs">
               Build AI-powered resumes that get you hired. Stand out with professional templates and smart optimization.
             </p>
             
@@ -65,7 +65,7 @@ export function Footer() {
                 <motion.a
                   key={social.label}
                   href={social.href}
-                  className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                  className="p-2 rounded-lg bg-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-300 transition-colors"
                   whileHover={{ y: -3 }}
                   whileTap={{ scale: 0.95 }}
                   aria-label={social.label}
@@ -78,11 +78,11 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Product</h3>
+            <h3 className="font-semibold text-slate-800 mb-4">Product</h3>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <a href={link.href} className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     {link.label}
                   </a>
                 </li>
@@ -91,11 +91,11 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-white mb-4">Resources</h3>
+            <h3 className="font-semibold text-slate-800 mb-4">Resources</h3>
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <a href={link.href} className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     {link.label}
                   </a>
                 </li>
@@ -104,11 +104,11 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-white mb-4">Company</h3>
+            <h3 className="font-semibold text-slate-800 mb-4">Company</h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <a href={link.href} className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     {link.label}
                   </a>
                 </li>
@@ -117,11 +117,11 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-white mb-4">Legal</h3>
+            <h3 className="font-semibold text-slate-800 mb-4">Legal</h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <a href={link.href} className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     {link.label}
                   </a>
                 </li>
@@ -131,15 +131,15 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-500">
             © {new Date().getFullYear()} ResumeAI. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+            <a href="#" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+            <a href="#" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
               Terms of Service
             </a>
           </div>
