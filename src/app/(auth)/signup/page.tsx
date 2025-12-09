@@ -72,8 +72,11 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-teal-50 p-4 relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-teal-200/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-200/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+        <Card className="w-full max-w-md relative z-10 shadow-xl border-slate-200/50 backdrop-blur-sm bg-white/80">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="p-3 bg-green-500/10 rounded-full">
@@ -97,8 +100,12 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-teal-50 p-4 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-teal-200/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-200/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+      <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-cyan-200/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+      <Card className="w-full max-w-md relative z-10 shadow-xl border-slate-200/50 backdrop-blur-sm bg-white/80">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-primary/10 rounded-full">
