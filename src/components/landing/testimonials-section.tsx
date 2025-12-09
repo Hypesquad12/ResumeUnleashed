@@ -72,7 +72,7 @@ export function TestimonialsSection() {
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">Testimonials</span>
           <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
             Loved by
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> Professionals</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-400"> Professionals</span>
           </h2>
           <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
             Join thousands of job seekers who have landed their dream jobs with ResumeAI
@@ -92,7 +92,7 @@ export function TestimonialsSection() {
               className="group relative"
             >
               {/* Card glow */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-15 transition-opacity duration-500" />
               
               <div className="relative p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all h-full">
                 {/* Quote icon */}
@@ -118,7 +118,7 @@ export function TestimonialsSection() {
 
                 {/* Author */}
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/25">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold shadow-lg shadow-teal-500/20">
                     {testimonial.avatar}
                   </div>
                   <div>

@@ -45,7 +45,7 @@ export function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg shadow-lg shadow-blue-500/25">
+                <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg shadow-lg shadow-teal-500/20">
                   <FileText className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-bold text-lg text-white">ResumeAI</span>
@@ -62,7 +62,7 @@ export function Navbar() {
                   whileHover={{ y: -2 }}
                 >
                   {item.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 group-hover:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-500 to-cyan-500 group-hover:w-full transition-all duration-300" />
                 </motion.a>
               ))}
             </div>
@@ -76,7 +76,7 @@ export function Navbar() {
               </Link>
               <Link href="/signup">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 border-0">
+                  <Button className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 shadow-lg shadow-teal-500/20 border-0 transition-all duration-300">
                     Get Started
                   </Button>
                 </motion.div>
@@ -136,7 +136,7 @@ export function Navbar() {
                 </Button>
               </Link>
               <Link href="/signup" className="block">
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 border-0">
+                <Button className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 border-0">
                   Get Started
                 </Button>
               </Link>

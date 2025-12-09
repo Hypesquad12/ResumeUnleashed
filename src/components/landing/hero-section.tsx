@@ -8,16 +8,21 @@ import Link from 'next/link'
 export function HeroSection() {
   return (
     <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Animated gradient orbs */}
+      {/* Animated gradient orbs - Soothing colors */}
       <motion.div
-        className="absolute top-20 -left-40 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.35, 0.2] }}
-        transition={{ duration: 8, repeat: Infinity }}
+        className="absolute top-20 -left-40 w-[500px] h-[500px] bg-teal-400/15 rounded-full blur-3xl"
+        animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute top-40 -right-40 w-[400px] h-[400px] bg-indigo-500/15 rounded-full blur-3xl"
-        animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.25, 0.15] }}
-        transition={{ duration: 10, repeat: Infinity }}
+        className="absolute top-40 -right-40 w-[400px] h-[400px] bg-purple-400/10 rounded-full blur-3xl"
+        animate={{ scale: [1.1, 1, 1.1], opacity: [0.1, 0.2, 0.1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute -bottom-20 left-1/3 w-[350px] h-[350px] bg-cyan-400/10 rounded-full blur-3xl"
+        animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.18, 0.1] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
       />
 
       <div className="max-w-7xl mx-auto text-center relative z-10">
@@ -45,7 +50,7 @@ export function HeroSection() {
           Build Resumes That
           <br />
           <span className="relative">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 animate-gradient">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-purple-400 animate-gradient">
               Get You Hired
             </span>
             <motion.svg
@@ -92,7 +97,7 @@ export function HeroSection() {
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Link href="/signup">
-            <Button size="lg" className="text-lg px-8 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 border-0">
+            <Button size="lg" className="text-lg px-8 h-14 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 shadow-lg shadow-teal-500/20 border-0 transition-all duration-300">
               Start Building Free
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>

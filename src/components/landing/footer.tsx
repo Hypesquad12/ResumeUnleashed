@@ -49,7 +49,7 @@ export function Footer() {
                 className="flex items-center gap-2 mb-4"
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg">
+                <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg">
                   <FileText className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-bold text-lg text-white">ResumeAI</span>

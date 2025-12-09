@@ -17,19 +17,19 @@ export function CTASection() {
           className="relative"
         >
           {/* Background glow */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/25 via-indigo-500/25 to-cyan-500/25 rounded-3xl blur-3xl" />
+          <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/20 via-purple-500/15 to-cyan-500/20 rounded-3xl blur-3xl" />
           
           {/* Card */}
           <div className="relative p-8 sm:p-12 lg:p-16 rounded-3xl bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-white/10 backdrop-blur-xl overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0 overflow-hidden">
               <motion.div
-                className="absolute -top-20 -right-20 w-60 h-60 bg-blue-500/15 rounded-full blur-3xl"
+                className="absolute -top-20 -right-20 w-60 h-60 bg-teal-500/12 rounded-full blur-3xl"
                 animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.3, 0.2] }}
                 transition={{ duration: 5, repeat: Infinity }}
               />
               <motion.div
-                className="absolute -bottom-20 -left-20 w-60 h-60 bg-indigo-500/15 rounded-full blur-3xl"
+                className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl"
                 animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.3, 0.2] }}
                 transition={{ duration: 6, repeat: Infinity }}
               />
@@ -42,7 +42,7 @@ export function CTASection() {
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, type: "spring" }}
-                className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 mb-8 shadow-lg shadow-blue-500/25"
+                className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 mb-8 shadow-lg shadow-teal-500/20"
               >
                 <Sparkles className="h-8 w-8 text-white" />
               </motion.div>
@@ -57,7 +57,7 @@ export function CTASection() {
               >
                 Ready to Land Your
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-purple-400">
                   Dream Job?
                 </span>
               </motion.h2>

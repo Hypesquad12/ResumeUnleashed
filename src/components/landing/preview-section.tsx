@@ -24,10 +24,10 @@ export function PreviewSection() {
   }, [])
 
   const sections = [
-    { label: 'Contact Info', color: 'from-blue-500 to-blue-400' },
-    { label: 'Experience', color: 'from-indigo-500 to-indigo-400' },
-    { label: 'Skills', color: 'from-emerald-500 to-emerald-400' },
-    { label: 'Education', color: 'from-amber-500 to-amber-400' },
+    { label: 'Contact Info', color: 'from-teal-500 to-teal-400' },
+    { label: 'Experience', color: 'from-purple-500 to-purple-400' },
+    { label: 'Skills', color: 'from-cyan-500 to-cyan-400' },
+    { label: 'Education', color: 'from-rose-400 to-pink-400' },
   ]
 
   const benefits = [
@@ -51,7 +51,7 @@ export function PreviewSection() {
             <span className="text-primary font-semibold text-sm uppercase tracking-wider">How It Works</span>
             <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
               Create Your Perfect Resume in
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> Minutes</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-400"> Minutes</span>
             </h2>
             <p className="mt-6 text-lg text-slate-400 leading-relaxed">
               Our AI-powered platform analyzes job descriptions and optimizes your resume 
@@ -161,7 +161,7 @@ export function PreviewSection() {
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
-              <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg shadow-emerald-500/25 flex items-center gap-2">
+              <div className="bg-gradient-to-r from-teal-500 to-teal-400 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg shadow-teal-500/20 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
                 ATS Score: 95%
               </div>
@@ -172,7 +172,7 @@ export function PreviewSection() {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <div className="bg-gradient-to-r from-indigo-500 to-indigo-400 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg shadow-indigo-500/25 flex items-center gap-2">
+              <div className="bg-gradient-to-r from-purple-500 to-purple-400 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg shadow-purple-500/20 flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
                 AI Optimized
               </div>
@@ -183,14 +183,14 @@ export function PreviewSection() {
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <div className="bg-gradient-to-r from-blue-500 to-blue-400 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg shadow-blue-500/25 flex items-center gap-2">
+              <div className="bg-gradient-to-r from-cyan-500 to-cyan-400 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg shadow-cyan-500/20 flex items-center gap-2">
                 <Zap className="h-4 w-4" />
                 Ready to Export
               </div>
             </motion.div>
 
             {/* Background decoration */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-3xl blur-3xl -z-10" />
+            <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/15 to-purple-500/15 rounded-3xl blur-3xl -z-10" />
           </motion.div>
         </div>
       </div>

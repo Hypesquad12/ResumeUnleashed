@@ -9,28 +9,28 @@ const features = [
     icon: FileText,
     title: 'Smart Resume Builder',
     description: 'Create professional resumes with our intuitive drag-and-drop builder. Choose from dozens of ATS-friendly templates.',
-    gradient: 'from-blue-500 to-blue-400',
+    gradient: 'from-teal-500 to-teal-400',
     color: 'blue',
   },
   {
     icon: Sparkles,
     title: 'AI-Powered Optimization',
     description: 'Let AI analyze job descriptions and tailor your resume with the right keywords to pass ATS systems.',
-    gradient: 'from-indigo-500 to-indigo-400',
+    gradient: 'from-purple-500 to-purple-400',
     color: 'violet',
   },
   {
     icon: CreditCard,
     title: 'Digital Business Cards',
     description: 'Create stunning digital cards with your contact info, social links, and a QR code for instant sharing.',
-    gradient: 'from-emerald-500 to-emerald-400',
+    gradient: 'from-cyan-500 to-cyan-400',
     color: 'emerald',
   },
   {
     icon: QrCode,
     title: 'One-Click Sharing',
     description: 'Generate QR codes and shareable links. Track views and engagement with built-in analytics.',
-    gradient: 'from-amber-500 to-amber-400',
+    gradient: 'from-rose-400 to-pink-400',
     color: 'orange',
   },
 ]
@@ -62,7 +62,7 @@ export function FeaturesSection() {
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">Features</span>
           <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
             Everything You Need to
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> Stand Out</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-400"> Stand Out</span>
           </h2>
           <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
             Powerful tools designed to help you create, customize, and share your professional profile
