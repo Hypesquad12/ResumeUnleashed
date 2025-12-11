@@ -18,7 +18,7 @@ interface Resume {
   id: string
   title: string
   updated_at: string | null
-  created_at: string
+  created_at: string | null
 }
 
 interface CustomizeClientProps {
@@ -236,7 +236,7 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
                   <div>
                     <p className="font-medium">{resume.title}</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(resume.updated_at || resume.created_at).toLocaleDateString()}
+                      {new Date(resume.updated_at || resume.created_at || Date.now()).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
