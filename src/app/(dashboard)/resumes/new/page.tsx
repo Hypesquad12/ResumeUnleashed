@@ -253,6 +253,7 @@ export default function NewResumePage() {
     if (!uploadedFile) return
 
     setUploading(true)
+    setUploadProgress(10)
     const supabase = createClient()
     
     const { data: { user } } = await supabase.auth.getUser()
@@ -263,77 +264,82 @@ export default function NewResumePage() {
     }
 
     try {
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval)
-            return 90
-          }
-          return prev + 10
-        })
-      }, 200)
+      // Step 1: Parse the resume with AI
+      setUploadProgress(20)
+      setParsing(true)
+      
+      const formData = new FormData()
+      formData.append('file', uploadedFile)
 
-      // Upload file to Supabase Storage
+      const parseResponse = await fetch('/api/parse-resume', {
+        method: 'POST',
+        body: formData,
+      })
+
+      setUploadProgress(60)
+
+      if (!parseResponse.ok) {
+        const errorData = await parseResponse.json()
+        throw new Error(errorData.error || 'Failed to parse resume')
+      }
+
+      const { data: parsedData } = await parseResponse.json()
+      setUploadProgress(80)
+
+      // Step 2: Upload file to Supabase Storage (optional)
       const fileExt = uploadedFile.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}.${fileExt}`
       
+      let fileUrl = null
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('resumes')
         .upload(fileName, uploadedFile)
 
-      clearInterval(progressInterval)
-
-      if (uploadError) {
-        // If bucket doesn't exist, create resume without file URL
-        console.log('Storage upload failed, continuing without file:', uploadError)
-      }
-
-      setUploadProgress(100)
-      setUploading(false)
-      setParsing(true)
-
-      // Get public URL if upload succeeded
-      let fileUrl = null
-      if (uploadData) {
+      if (!uploadError && uploadData) {
         const { data: { publicUrl } } = supabase.storage
           .from('resumes')
           .getPublicUrl(fileName)
         fileUrl = publicUrl
       }
 
-      // For now, create a basic resume entry
-      // TODO: Implement AI parsing with OpenAI or similar
+      setUploadProgress(90)
+
+      // Step 3: Create resume entry with parsed data
       const { data: resumeData, error: resumeError } = await supabase
         .from('resumes')
         .insert({
           user_id: user.id,
-          title: uploadedFile.name.replace(/\.[^/.]+$/, ''),
+          title: parsedData.contact?.name 
+            ? `${parsedData.contact.name}'s Resume` 
+            : uploadedFile.name.replace(/\.[^/.]+$/, ''),
           raw_file_url: fileUrl,
-          contact: {} as unknown as Json,
-          summary: '',
-          experience: [] as unknown as Json,
-          education: [] as unknown as Json,
-          skills: [],
+          contact: (parsedData.contact || {}) as unknown as Json,
+          summary: parsedData.summary || '',
+          experience: (parsedData.experience || []) as unknown as Json,
+          education: (parsedData.education || []) as unknown as Json,
+          skills: parsedData.skills || [],
         })
         .select()
         .single()
 
+      setUploadProgress(100)
       setParsing(false)
+      setUploading(false)
 
       if (resumeError) {
         toast.error('Failed to create resume')
         return
       }
 
-      toast.success('Resume uploaded! You can now edit the details.')
+      toast.success('Resume parsed successfully! Review your details.')
       router.push(`/resumes/${resumeData.id}`)
 
     } catch (error) {
       console.error('Upload error:', error)
-      toast.error('Failed to upload resume')
+      toast.error(error instanceof Error ? error.message : 'Failed to process resume')
       setUploading(false)
       setParsing(false)
+      setUploadProgress(0)
     }
   }
 
