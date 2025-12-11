@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import type { Json } from '@/types/database'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -138,10 +139,10 @@ export default function ResumeEditorPage() {
       .from('resumes')
       .update({
         title: resume.title,
-        contact: resume.contact as unknown as Record<string, unknown>,
+        contact: resume.contact as unknown as Json,
         summary: resume.summary,
-        experience: resume.experience as unknown as Record<string, unknown>[],
-        education: resume.education as unknown as Record<string, unknown>[],
+        experience: resume.experience as unknown as Json,
+        education: resume.education as unknown as Json,
         skills: resume.skills,
         updated_at: new Date().toISOString(),
       })
