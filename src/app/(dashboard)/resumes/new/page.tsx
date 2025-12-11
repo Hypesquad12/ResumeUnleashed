@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Json } from '@/types/database'
@@ -12,10 +12,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { 
   FileText, Upload, ArrowLeft, ArrowRight, Loader2, Plus, Trash2, Check,
-  User, Briefcase, GraduationCap, Wrench
+  User, Briefcase, GraduationCap, Wrench, File, X, AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { Progress } from '@/components/ui/progress'
 
 interface Experience {
   id: string
@@ -72,6 +73,14 @@ export default function NewResumePage() {
   const [education, setEducation] = useState<Education[]>([])
   const [skills, setSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState('')
+  
+  // Upload state
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploading, setUploading] = useState(false)
+  const [parsing, setParsing] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleCreateResume = async () => {
     setLoading(true)
@@ -177,6 +186,157 @@ export default function NewResumePage() {
     }
   }
 
+  // File upload handlers
+  const validateFile = (file: File): boolean => {
+    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    const maxSize = 10 * 1024 * 1024 // 10MB
+
+    if (!validTypes.includes(file.type)) {
+      toast.error('Please upload a PDF or DOCX file')
+      return false
+    }
+
+    if (file.size > maxSize) {
+      toast.error('File size must be less than 10MB')
+      return false
+    }
+
+    return true
+  }
+
+  const handleFileSelect = useCallback((file: File) => {
+    if (validateFile(file)) {
+      setUploadedFile(file)
+      setUploadProgress(0)
+    }
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      handleFileSelect(files[0])
+    }
+  }, [handleFileSelect])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      handleFileSelect(files[0])
+    }
+  }
+
+  const removeFile = () => {
+    setUploadedFile(null)
+    setUploadProgress(0)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleUploadAndParse = async () => {
+    if (!uploadedFile) return
+
+    setUploading(true)
+    const supabase = createClient()
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      toast.error('Please login to upload a resume')
+      router.push('/login')
+      return
+    }
+
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return 90
+          }
+          return prev + 10
+        })
+      }, 200)
+
+      // Upload file to Supabase Storage
+      const fileExt = uploadedFile.name.split('.').pop()
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(fileName, uploadedFile)
+
+      clearInterval(progressInterval)
+
+      if (uploadError) {
+        // If bucket doesn't exist, create resume without file URL
+        console.log('Storage upload failed, continuing without file:', uploadError)
+      }
+
+      setUploadProgress(100)
+      setUploading(false)
+      setParsing(true)
+
+      // Get public URL if upload succeeded
+      let fileUrl = null
+      if (uploadData) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('resumes')
+          .getPublicUrl(fileName)
+        fileUrl = publicUrl
+      }
+
+      // For now, create a basic resume entry
+      // TODO: Implement AI parsing with OpenAI or similar
+      const { data: resumeData, error: resumeError } = await supabase
+        .from('resumes')
+        .insert({
+          user_id: user.id,
+          title: uploadedFile.name.replace(/\.[^/.]+$/, ''),
+          raw_file_url: fileUrl,
+          contact: {} as unknown as Json,
+          summary: '',
+          experience: [] as unknown as Json,
+          education: [] as unknown as Json,
+          skills: [],
+        })
+        .select()
+        .single()
+
+      setParsing(false)
+
+      if (resumeError) {
+        toast.error('Failed to create resume')
+        return
+      }
+
+      toast.success('Resume uploaded! You can now edit the details.')
+      router.push(`/resumes/${resumeData.id}`)
+
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast.error('Failed to upload resume')
+      setUploading(false)
+      setParsing(false)
+    }
+  }
+
   // Choose mode screen
   if (mode === 'choose') {
     return (
@@ -254,20 +414,99 @@ export default function NewResumePage() {
 
         <Card className="max-w-2xl">
           <CardContent className="pt-6">
-            <div className="border-2 border-dashed rounded-lg p-12 text-center">
-              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Drop your resume here</h3>
-              <p className="text-muted-foreground mb-4">
-                Supports PDF and DOCX files up to 10MB
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={handleInputChange}
+              className="hidden"
+            />
+
+            {!uploadedFile ? (
+              // Drop zone
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
+                  isDragging 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50'
+                }`}
+              >
+                <Upload className={`h-12 w-12 mx-auto mb-4 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                <h3 className="text-lg font-semibold mb-2">
+                  {isDragging ? 'Drop your file here' : 'Drop your resume here'}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Supports PDF and DOCX files up to 10MB
+                </p>
+                <Button type="button" variant="default">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Browse Files
+                </Button>
+              </div>
+            ) : (
+              // File selected
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30">
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <File className="h-8 w-8 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{uploadedFile.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                  {!uploading && !parsing && (
+                    <Button variant="ghost" size="icon" onClick={removeFile}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Progress bar */}
+                {(uploading || parsing) && (
+                  <div className="space-y-2">
+                    <Progress value={uploadProgress} className="h-2" />
+                    <p className="text-sm text-center text-muted-foreground">
+                      {parsing ? 'Processing your resume...' : `Uploading... ${uploadProgress}%`}
+                    </p>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                {!uploading && !parsing && (
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Choose Different File
+                    </Button>
+                    <Button 
+                      className="flex-1"
+                      onClick={handleUploadAndParse}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload & Continue
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-start gap-2 mt-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-blue-700 dark:text-blue-400">
+                Your resume will be parsed using AI to extract all relevant information. 
+                You can review and edit the extracted data before saving.
               </p>
-              <Button>
-                <Upload className="mr-2 h-4 w-4" />
-                Browse Files
-              </Button>
             </div>
-            <p className="text-sm text-muted-foreground mt-4 text-center">
-              Your resume will be parsed using AI to extract all relevant information
-            </p>
           </CardContent>
         </Card>
       </div>

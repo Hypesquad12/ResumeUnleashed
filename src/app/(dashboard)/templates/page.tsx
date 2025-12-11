@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Crown, FileText, CreditCard, Check, Eye, Briefcase, Palette, Sparkles, Building } from 'lucide-react'
 import Link from 'next/link'
 import { TEMPLATES } from '@/components/templates/types'
+import { TemplateThumbnail } from '@/components/templates/template-thumbnail'
 
 const CARD_TEMPLATES = [
   {
@@ -93,69 +94,31 @@ export default function TemplatesPage() {
             {TEMPLATES.map((template) => {
               const CategoryIcon = categoryIcons[template.category]
               return (
-                <Card key={template.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className={`aspect-[3/4] bg-gradient-to-br ${template.color} relative`}>
-                    {/* Template Preview */}
-                    <div className="absolute inset-3 bg-white rounded-lg shadow-lg p-3 transform group-hover:scale-[1.02] transition-transform overflow-hidden">
-                      {/* Header */}
-                      <div className="text-center border-b pb-2 mb-2">
-                        <div className="h-3 w-20 bg-slate-800 rounded mx-auto mb-1" />
-                        <div className="flex justify-center gap-1">
-                          <div className="h-1.5 w-12 bg-slate-300 rounded" />
-                          <div className="h-1.5 w-12 bg-slate-300 rounded" />
-                        </div>
-                      </div>
-                      {/* Summary */}
-                      <div className="mb-2">
-                        <div className="h-2 w-14 bg-slate-700 rounded mb-1" />
-                        <div className="space-y-0.5">
-                          <div className="h-1 w-full bg-slate-200 rounded" />
-                          <div className="h-1 w-5/6 bg-slate-200 rounded" />
-                        </div>
-                      </div>
-                      {/* Experience */}
-                      <div className="mb-2">
-                        <div className="h-2 w-16 bg-slate-700 rounded mb-1" />
-                        <div className="space-y-1">
-                          <div>
-                            <div className="h-1.5 w-20 bg-slate-400 rounded mb-0.5" />
-                            <div className="h-1 w-full bg-slate-200 rounded" />
-                          </div>
-                          <div>
-                            <div className="h-1.5 w-16 bg-slate-400 rounded mb-0.5" />
-                            <div className="h-1 w-4/5 bg-slate-200 rounded" />
-                          </div>
-                        </div>
-                      </div>
-                      {/* Skills */}
-                      <div>
-                        <div className="h-2 w-12 bg-slate-700 rounded mb-1" />
-                        <div className="flex flex-wrap gap-0.5">
-                          <div className="h-3 w-8 bg-slate-100 rounded-full" />
-                          <div className="h-3 w-10 bg-slate-100 rounded-full" />
-                          <div className="h-3 w-7 bg-slate-100 rounded-full" />
-                        </div>
-                      </div>
+                <Card key={template.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                  <div className={`aspect-[3/4] bg-gradient-to-br ${template.color} relative p-3`}>
+                    {/* Template Preview - Using actual template thumbnail */}
+                    <div className="absolute inset-3 rounded-lg shadow-xl overflow-hidden transform group-hover:scale-[1.02] transition-transform">
+                      <TemplateThumbnail templateId={template.id} />
                     </div>
                     {template.isPremium && (
-                      <div className="absolute top-2 right-2">
-                        <Badge className="bg-amber-500 hover:bg-amber-600">
+                      <div className="absolute top-1 right-1 z-10">
+                        <Badge className="bg-amber-500 hover:bg-amber-600 shadow-lg">
                           <Crown className="h-3 w-3 mr-1" />
                           Pro
                         </Badge>
                       </div>
                     )}
                     {/* Category badge */}
-                    <div className="absolute top-2 left-2">
-                      <Badge variant="secondary" className="text-xs capitalize">
+                    <div className="absolute top-1 left-1 z-10">
+                      <Badge variant="secondary" className="text-xs capitalize shadow-lg bg-white/90">
                         <CategoryIcon className="h-2.5 w-2.5 mr-1" />
                         {template.category}
                       </Badge>
                     </div>
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <Link href={`/templates/${template.id}/preview`}>
-                        <Button variant="secondary" size="sm">
+                        <Button variant="secondary" size="sm" className="shadow-lg">
                           <Eye className="h-4 w-4 mr-1" />
                           Preview
                         </Button>
