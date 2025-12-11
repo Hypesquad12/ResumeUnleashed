@@ -78,14 +78,19 @@ export default function ResumePreviewPage() {
       return
     }
 
+    const contact = (data.contact as Resume['contact']) || { name: '', email: '', phone: '', linkedin: '', location: '' }
+    const experience = (data.experience as Resume['experience']) || []
+    const education = (data.education as Resume['education']) || []
+    const skills = (data.skills as Resume['skills']) || []
+
     setResume({
       id: data.id,
       title: data.title || 'Untitled Resume',
-      contact: data.contact || { name: '', email: '', phone: '', linkedin: '', location: '' },
+      contact,
       summary: data.summary || '',
-      experience: data.experience || [],
-      education: data.education || [],
-      skills: data.skills || [],
+      experience,
+      education,
+      skills,
     })
     setLoading(false)
   }
