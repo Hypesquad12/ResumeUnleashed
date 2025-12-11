@@ -11,10 +11,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   ArrowLeft, Save, Loader2, Plus, Trash2, GripVertical,
-  User, Briefcase, GraduationCap, Wrench, FileText, Eye, Download, Sparkles
+  User, Briefcase, GraduationCap, Wrench, FileText, Eye, Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+
+interface ContactInfo {
+  name: string
+  email: string
+  phone: string
+  linkedin: string
+  location: string
+  website?: string
+}
 
 interface Experience {
   id: string
@@ -37,21 +46,23 @@ interface Education {
   gpa: string
 }
 
-interface Resume {
+interface ResumeData {
   id: string
   title: string
-  contact: {
-    name: string
-    email: string
-    phone: string
-    linkedin: string
-    location: string
-    website?: string
-  }
+  contact: ContactInfo
   summary: string
   experience: Experience[]
   education: Education[]
   skills: string[]
+}
+
+const defaultContact: ContactInfo = {
+  name: '',
+  email: '',
+  phone: '',
+  linkedin: '',
+  location: '',
+  website: '',
 }
 
 export default function ResumeEditorPage() {
@@ -61,7 +72,7 @@ export default function ResumeEditorPage() {
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [resume, setResume] = useState<Resume | null>(null)
+  const [resume, setResume] = useState<ResumeData | null>(null)
   const [activeTab, setActiveTab] = useState('contact')
   const [newSkill, setNewSkill] = useState('')
 
@@ -83,10 +94,28 @@ export default function ResumeEditorPage() {
       return
     }
 
-    const contact = (data.contact as Resume['contact']) || { name: '', email: '', phone: '', linkedin: '', location: '' }
-    const experience = (data.experience as Resume['experience']) || []
-    const education = (data.education as Resume['education']) || []
-    const skills = (data.skills as Resume['skills']) || []
+    // Parse JSON fields with proper defaults
+    const contactData = data.contact as Record<string, unknown> | null
+    const contact: ContactInfo = {
+      name: (contactData?.name as string) || '',
+      email: (contactData?.email as string) || '',
+      phone: (contactData?.phone as string) || '',
+      linkedin: (contactData?.linkedin as string) || '',
+      location: (contactData?.location as string) || '',
+      website: (contactData?.website as string) || '',
+    }
+
+    const experience = Array.isArray(data.experience) 
+      ? (data.experience as unknown as Experience[]) 
+      : []
+    
+    const education = Array.isArray(data.education) 
+      ? (data.education as unknown as Education[]) 
+      : []
+    
+    const skills = Array.isArray(data.skills) 
+      ? (data.skills as string[]) 
+      : []
 
     setResume({
       id: data.id,

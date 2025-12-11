@@ -11,37 +11,43 @@ import {
 import Link from 'next/link'
 import { toast } from 'sonner'
 
-interface Resume {
+interface ContactInfo {
+  name: string
+  email: string
+  phone: string
+  linkedin: string
+  location: string
+  website?: string
+}
+
+interface Experience {
+  id: string
+  company: string
+  position: string
+  location: string
+  startDate: string
+  endDate: string
+  current: boolean
+  description: string
+}
+
+interface Education {
+  id: string
+  institution: string
+  degree: string
+  field: string
+  startDate: string
+  endDate: string
+  gpa: string
+}
+
+interface ResumeData {
   id: string
   title: string
-  contact: {
-    name: string
-    email: string
-    phone: string
-    linkedin: string
-    location: string
-    website?: string
-  }
+  contact: ContactInfo
   summary: string
-  experience: Array<{
-    id: string
-    company: string
-    position: string
-    location: string
-    startDate: string
-    endDate: string
-    current: boolean
-    description: string
-  }>
-  education: Array<{
-    id: string
-    institution: string
-    degree: string
-    field: string
-    startDate: string
-    endDate: string
-    gpa: string
-  }>
+  experience: Experience[]
+  education: Education[]
   skills: string[]
 }
 
@@ -58,7 +64,7 @@ export default function ResumePreviewPage() {
   const resumeRef = useRef<HTMLDivElement>(null)
   
   const [loading, setLoading] = useState(true)
-  const [resume, setResume] = useState<Resume | null>(null)
+  const [resume, setResume] = useState<ResumeData | null>(null)
 
   useEffect(() => {
     loadResume()
@@ -78,10 +84,28 @@ export default function ResumePreviewPage() {
       return
     }
 
-    const contact = (data.contact as Resume['contact']) || { name: '', email: '', phone: '', linkedin: '', location: '' }
-    const experience = (data.experience as Resume['experience']) || []
-    const education = (data.education as Resume['education']) || []
-    const skills = (data.skills as Resume['skills']) || []
+    // Parse JSON fields with proper defaults
+    const contactData = data.contact as Record<string, unknown> | null
+    const contact: ContactInfo = {
+      name: (contactData?.name as string) || '',
+      email: (contactData?.email as string) || '',
+      phone: (contactData?.phone as string) || '',
+      linkedin: (contactData?.linkedin as string) || '',
+      location: (contactData?.location as string) || '',
+      website: (contactData?.website as string) || '',
+    }
+
+    const experience = Array.isArray(data.experience) 
+      ? (data.experience as unknown as Experience[]) 
+      : []
+    
+    const education = Array.isArray(data.education) 
+      ? (data.education as unknown as Education[]) 
+      : []
+    
+    const skills = Array.isArray(data.skills) 
+      ? (data.skills as string[]) 
+      : []
 
     setResume({
       id: data.id,
