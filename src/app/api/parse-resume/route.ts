@@ -57,13 +57,17 @@ Rules:
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    // Dynamic import for pdf-parse - using require for CommonJS compatibility
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse') as (buffer: Buffer) => Promise<{ text: string }>
-    const data = await pdfParse(buffer)
+    // Use pdf-parse with legacy pdfjs version that works in Node.js
+    const pdfParse = await import('pdf-parse')
+    const parse = pdfParse.default || pdfParse
+    const data = await parse(buffer)
     return data.text
   } catch (error) {
     console.error('PDF parsing error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    if (errorMessage.includes('DOMMatrix') || errorMessage.includes('canvas')) {
+      throw new Error('PDF parsing failed due to server environment. Please try uploading a DOCX file instead.')
+    }
     throw new Error('Failed to parse PDF file')
   }
 }
@@ -74,48 +78,71 @@ async function extractTextFromDOCX(buffer: Buffer): Promise<string> {
     return result.value
   } catch (error) {
     console.error('DOCX parsing error:', error)
-    throw new Error('Failed to parse DOCX file')
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    if (errorMessage.includes('zip') || errorMessage.includes('central directory')) {
+      throw new Error('Invalid DOCX file. Please ensure the file is a valid Word document.')
+    }
+    throw new Error('Failed to parse DOCX file: ' + errorMessage)
   }
 }
 
 export async function POST(request: NextRequest) {
+  console.log('=== Resume Parse API Called ===')
+  
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
 
+    console.log('File received:', file?.name, file?.type, file?.size)
+
     if (!file) {
+      console.log('Error: No file provided')
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
       )
     }
 
-    // Validate file type
+    // Validate file type - also check by extension as MIME types can be unreliable
     const validTypes = [
       'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/octet-stream' // Some browsers send this for docx
     ]
+    const fileName = file.name.toLowerCase()
+    const isPDF = fileName.endsWith('.pdf')
+    const isDOCX = fileName.endsWith('.docx')
     
-    if (!validTypes.includes(file.type)) {
+    if (!validTypes.includes(file.type) && !isPDF && !isDOCX) {
+      console.log('Invalid file type:', file.type, 'filename:', file.name)
       return NextResponse.json(
         { error: 'Invalid file type. Please upload a PDF or DOCX file.' },
         { status: 400 }
       )
     }
+    
+    // Determine actual file type from extension if MIME is generic
+    const isActuallyPDF = isPDF || file.type === 'application/pdf'
+    const isActuallyDOCX = isDOCX || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
     // Convert file to buffer
+    console.log('Converting file to buffer...')
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+    console.log('Buffer size:', buffer.length)
 
     // Extract text based on file type
     let text: string
-    if (file.type === 'application/pdf') {
+    console.log('Extracting text, isActuallyPDF:', isActuallyPDF, 'isActuallyDOCX:', isActuallyDOCX)
+    if (isActuallyPDF) {
       text = await extractTextFromPDF(buffer)
     } else {
       text = await extractTextFromDOCX(buffer)
     }
+    console.log('Extracted text length:', text?.length)
 
     if (!text || text.trim().length < 50) {
+      console.log('Error: Not enough text extracted')
       return NextResponse.json(
         { error: 'Could not extract enough text from the file. Please ensure the file contains readable text.' },
         { status: 400 }
@@ -123,6 +150,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse with OpenAI
+    console.log('Calling OpenAI API...')
     const openai = getOpenAIClient()
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

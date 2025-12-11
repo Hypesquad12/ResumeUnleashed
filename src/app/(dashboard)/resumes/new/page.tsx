@@ -254,32 +254,45 @@ export default function NewResumePage() {
 
     setUploading(true)
     setUploadProgress(10)
-    const supabase = createClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      toast.error('Please login to upload a resume')
-      router.push('/login')
-      return
-    }
-
     try {
+      const supabase = createClient()
+      
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) {
+        console.error('Auth error:', authError)
+        toast.error('Authentication error. Please login again.')
+        router.push('/login')
+        return
+      }
+      if (!user) {
+        toast.error('Please login to upload a resume')
+        router.push('/login')
+        return
+      }
+      
+      console.log('User authenticated:', user.id)
       // Step 1: Parse the resume with AI
       setUploadProgress(20)
       setParsing(true)
       
+      console.log('Uploading file:', uploadedFile.name, uploadedFile.type, uploadedFile.size)
+      
       const formData = new FormData()
       formData.append('file', uploadedFile)
 
+      console.log('Sending to /api/parse-resume...')
       const parseResponse = await fetch('/api/parse-resume', {
         method: 'POST',
         body: formData,
       })
 
+      console.log('Response status:', parseResponse.status)
       setUploadProgress(60)
 
       if (!parseResponse.ok) {
         const errorData = await parseResponse.json()
+        console.error('Parse error:', errorData)
         throw new Error(errorData.error || 'Failed to parse resume')
       }
 
@@ -336,7 +349,13 @@ export default function NewResumePage() {
 
     } catch (error) {
       console.error('Upload error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to process resume')
+      // Log the full error for debugging
+      if (error instanceof Error) {
+        console.error('Error name:', error.name)
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
+      }
+      toast.error(error instanceof Error ? error.message : 'Failed to process resume. Please try again.')
       setUploading(false)
       setParsing(false)
       setUploadProgress(0)
