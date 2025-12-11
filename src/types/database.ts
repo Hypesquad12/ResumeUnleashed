@@ -57,36 +57,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "customized_resumes_job_description_id_fkey"
-            columns: ["job_description_id"]
-            isOneToOne: false
-            referencedRelation: "job_descriptions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customized_resumes_source_resume_id_fkey"
-            columns: ["source_resume_id"]
-            isOneToOne: false
-            referencedRelation: "resumes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customized_resumes_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "resume_templates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customized_resumes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       job_descriptions: {
         Row: {
@@ -122,15 +93,7 @@ export type Database = {
           url?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "job_descriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       link_analytics: {
         Row: {
@@ -166,22 +129,7 @@ export type Database = {
           user_agent?: string | null
           viewed_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "link_analytics_card_id_fkey"
-            columns: ["card_id"]
-            isOneToOne: false
-            referencedRelation: "visiting_cards"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "link_analytics_link_id_fkey"
-            columns: ["link_id"]
-            isOneToOne: false
-            referencedRelation: "public_resume_links"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -253,22 +201,7 @@ export type Database = {
           user_id?: string
           view_count?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "public_resume_links_customized_resume_id_fkey"
-            columns: ["customized_resume_id"]
-            isOneToOne: false
-            referencedRelation: "customized_resumes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "public_resume_links_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       resume_templates: {
         Row: {
@@ -326,6 +259,7 @@ export type Database = {
           raw_file_url: string | null
           skills: string[] | null
           summary: string | null
+          template: string | null
           title: string
           updated_at: string | null
           user_id: string
@@ -343,6 +277,7 @@ export type Database = {
           raw_file_url?: string | null
           skills?: string[] | null
           summary?: string | null
+          template?: string | null
           title?: string
           updated_at?: string | null
           user_id: string
@@ -360,19 +295,12 @@ export type Database = {
           raw_file_url?: string | null
           skills?: string[] | null
           summary?: string | null
+          template?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "resumes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       visiting_cards: {
         Row: {
@@ -441,22 +369,7 @@ export type Database = {
           user_id?: string
           website?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "visiting_cards_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "resume_templates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "visiting_cards_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -472,187 +385,4 @@ export type Database = {
       [_ in never]: never
     }
   }
-}
-
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
-
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
-
-// Custom types for the application
-export type Profile = Tables<'profiles'>
-export type Resume = Tables<'resumes'>
-export type JobDescription = Tables<'job_descriptions'>
-export type CustomizedResume = Tables<'customized_resumes'>
-export type ResumeTemplate = Tables<'resume_templates'>
-export type VisitingCard = Tables<'visiting_cards'>
-export type PublicResumeLink = Tables<'public_resume_links'>
-export type LinkAnalytics = Tables<'link_analytics'>
-
-// Contact info type
-export interface ContactInfo {
-  name?: string
-  email?: string
-  phone?: string
-  linkedin?: string
-  github?: string
-  website?: string
-  location?: string
-}
-
-// Experience entry type
-export interface ExperienceEntry {
-  id?: string
-  company: string
-  title: string
-  location?: string
-  startDate: string
-  endDate?: string
-  current?: boolean
-  description: string[]
-}
-
-// Education entry type
-export interface EducationEntry {
-  id?: string
-  institution: string
-  degree: string
-  field?: string
-  location?: string
-  startDate?: string
-  endDate?: string
-  gpa?: string
-  achievements?: string[]
-}
-
-// Certification entry type
-export interface CertificationEntry {
-  id?: string
-  name: string
-  issuer: string
-  date?: string
-  url?: string
-}
-
-// Project entry type
-export interface ProjectEntry {
-  id?: string
-  name: string
-  description: string
-  technologies?: string[]
-  url?: string
-  startDate?: string
-  endDate?: string
 }

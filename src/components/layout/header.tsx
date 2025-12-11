@@ -14,7 +14,9 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Bell, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Profile } from '@/types/database'
+import type { Database } from '@/types/database'
+
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 interface HeaderProps {
   user: Profile | null

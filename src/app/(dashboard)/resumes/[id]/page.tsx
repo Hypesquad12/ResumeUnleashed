@@ -12,10 +12,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   ArrowLeft, Save, Loader2, Plus, Trash2, GripVertical,
-  User, Briefcase, GraduationCap, Wrench, FileText, Eye, Sparkles
+  User, Briefcase, GraduationCap, Wrench, FileText, Eye, Sparkles, Palette, Check, Crown
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { TEMPLATES, getTemplateById } from '@/components/templates/types'
+import { Badge } from '@/components/ui/badge'
 
 interface ContactInfo {
   name: string
@@ -55,6 +57,7 @@ interface ResumeData {
   experience: Experience[]
   education: Education[]
   skills: string[]
+  template: string
 }
 
 const defaultContact: ContactInfo = {
@@ -126,6 +129,7 @@ export default function ResumeEditorPage() {
       experience,
       education,
       skills,
+      template: (data.template as string) || 'classic',
     })
     setLoading(false)
   }
@@ -144,6 +148,7 @@ export default function ResumeEditorPage() {
         experience: resume.experience as unknown as Json,
         education: resume.education as unknown as Json,
         skills: resume.skills,
+        template: resume.template,
         updated_at: new Date().toISOString(),
       })
       .eq('id', resumeId)
@@ -295,7 +300,7 @@ export default function ResumeEditorPage() {
 
       {/* Editor Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
           <TabsTrigger value="contact" className="gap-2">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Contact</span>
@@ -311,6 +316,10 @@ export default function ResumeEditorPage() {
           <TabsTrigger value="skills" className="gap-2">
             <Wrench className="h-4 w-4" />
             <span className="hidden sm:inline">Skills</span>
+          </TabsTrigger>
+          <TabsTrigger value="template" className="gap-2">
+            <Palette className="h-4 w-4" />
+            <span className="hidden sm:inline">Template</span>
           </TabsTrigger>
         </TabsList>
 
@@ -705,6 +714,79 @@ export default function ResumeEditorPage() {
                     )
                   ))}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Template Tab */}
+        <TabsContent value="template" className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold">Choose a Template</h3>
+            <p className="text-sm text-muted-foreground">Select a template that best represents your style</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {TEMPLATES.map((template) => {
+              const isSelected = resume.template === template.id
+              return (
+                <button
+                  key={template.id}
+                  onClick={() => setResume({ ...resume, template: template.id })}
+                  className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                    isSelected 
+                      ? 'border-primary ring-2 ring-primary/20' 
+                      : 'border-transparent hover:border-muted-foreground/30'
+                  }`}
+                >
+                  <div className={`aspect-[3/4] bg-gradient-to-br ${template.color} p-2`}>
+                    <div className="bg-white rounded h-full w-full p-2 overflow-hidden">
+                      <div className="h-2 w-12 bg-slate-800 rounded mx-auto mb-1" />
+                      <div className="h-1 w-8 bg-slate-300 rounded mx-auto mb-2" />
+                      <div className="space-y-1">
+                        <div className="h-1 w-full bg-slate-200 rounded" />
+                        <div className="h-1 w-3/4 bg-slate-200 rounded" />
+                        <div className="h-1 w-5/6 bg-slate-200 rounded" />
+                      </div>
+                    </div>
+                  </div>
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                      <Check className="h-3 w-3" />
+                    </div>
+                  )}
+                  {template.isPremium && (
+                    <div className="absolute top-2 left-2">
+                      <Badge className="bg-amber-500 text-xs px-1.5 py-0.5">
+                        <Crown className="h-2.5 w-2.5 mr-0.5" />
+                        Pro
+                      </Badge>
+                    </div>
+                  )}
+                  <div className="p-2 bg-background">
+                    <p className="text-sm font-medium">{template.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{template.description}</p>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium">Current Template: {getTemplateById(resume.template)?.name || 'Classic'}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {getTemplateById(resume.template)?.description || 'Traditional and timeless design'}
+                  </p>
+                </div>
+                <Link href={`/resumes/${resumeId}/preview`}>
+                  <Button variant="outline">
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview with Template
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>

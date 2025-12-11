@@ -5,57 +5,19 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { 
-  ArrowLeft, Download, Share2, Loader2, Mail, Phone, MapPin, 
-  Linkedin, Globe, Calendar
+  ArrowLeft, Download, Share2, Loader2, Palette, ChevronLeft, ChevronRight
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
-
-interface ContactInfo {
-  name: string
-  email: string
-  phone: string
-  linkedin: string
-  location: string
-  website?: string
-}
-
-interface Experience {
-  id: string
-  company: string
-  position: string
-  location: string
-  startDate: string
-  endDate: string
-  current: boolean
-  description: string
-}
-
-interface Education {
-  id: string
-  institution: string
-  degree: string
-  field: string
-  startDate: string
-  endDate: string
-  gpa: string
-}
-
-interface ResumeData {
-  id: string
-  title: string
-  contact: ContactInfo
-  summary: string
-  experience: Experience[]
-  education: Education[]
-  skills: string[]
-}
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return ''
-  const date = new Date(dateStr + '-01')
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-}
+import { ResumeTemplate, TEMPLATES, getTemplateById } from '@/components/templates'
+import type { ResumeData, ContactInfo, Experience, Education } from '@/components/templates/types'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export default function ResumePreviewPage() {
   const router = useRouter()
@@ -65,6 +27,7 @@ export default function ResumePreviewPage() {
   
   const [loading, setLoading] = useState(true)
   const [resume, setResume] = useState<ResumeData | null>(null)
+  const [selectedTemplate, setSelectedTemplate] = useState('classic')
 
   useEffect(() => {
     loadResume()
@@ -107,6 +70,9 @@ export default function ResumePreviewPage() {
       ? (data.skills as string[]) 
       : []
 
+    const template = (data.template as string) || 'classic'
+    setSelectedTemplate(template)
+
     setResume({
       id: data.id,
       title: data.title || 'Untitled Resume',
@@ -115,8 +81,17 @@ export default function ResumePreviewPage() {
       experience,
       education,
       skills,
+      template,
     })
     setLoading(false)
+  }
+
+  const cycleTemplate = (direction: 'prev' | 'next') => {
+    const currentIndex = TEMPLATES.findIndex(t => t.id === selectedTemplate)
+    let newIndex = direction === 'next' 
+      ? (currentIndex + 1) % TEMPLATES.length
+      : (currentIndex - 1 + TEMPLATES.length) % TEMPLATES.length
+    setSelectedTemplate(TEMPLATES[newIndex].id)
   }
 
   const handleDownload = async () => {
@@ -139,10 +114,12 @@ export default function ResumePreviewPage() {
 
   if (!resume) return null
 
+  const currentTemplate = getTemplateById(selectedTemplate)
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <Link href={`/resumes/${resumeId}`}>
             <Button variant="ghost" size="icon">
@@ -166,151 +143,41 @@ export default function ResumePreviewPage() {
         </div>
       </div>
 
+      {/* Template Selector */}
+      <div className="flex items-center justify-center gap-4 bg-muted/50 rounded-lg p-4">
+        <Button variant="outline" size="icon" onClick={() => cycleTemplate('prev')}>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        
+        <div className="flex items-center gap-3">
+          <Palette className="h-4 w-4 text-muted-foreground" />
+          <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TEMPLATES.map((template) => (
+                <SelectItem key={template.id} value={template.id}>
+                  {template.name} {template.isPremium && '⭐'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button variant="outline" size="icon" onClick={() => cycleTemplate('next')}>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+
+        <span className="text-sm text-muted-foreground ml-2">
+          {currentTemplate?.description}
+        </span>
+      </div>
+
       {/* Resume Preview */}
-      <div className="flex justify-center">
-        <div 
-          ref={resumeRef}
-          className="w-full max-w-[850px] bg-white shadow-2xl rounded-lg overflow-hidden"
-          style={{ minHeight: '1100px' }}
-        >
-          {/* Resume Content */}
-          <div className="p-12 space-y-8">
-            {/* Header / Contact */}
-            <header className="text-center border-b pb-6">
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                {resume.contact.name || 'Your Name'}
-              </h1>
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-600">
-                {resume.contact.email && (
-                  <span className="flex items-center gap-1">
-                    <Mail className="h-3.5 w-3.5" />
-                    {resume.contact.email}
-                  </span>
-                )}
-                {resume.contact.phone && (
-                  <span className="flex items-center gap-1">
-                    <Phone className="h-3.5 w-3.5" />
-                    {resume.contact.phone}
-                  </span>
-                )}
-                {resume.contact.location && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {resume.contact.location}
-                  </span>
-                )}
-                {resume.contact.linkedin && (
-                  <a 
-                    href={resume.contact.linkedin} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-blue-600 hover:underline"
-                  >
-                    <Linkedin className="h-3.5 w-3.5" />
-                    LinkedIn
-                  </a>
-                )}
-                {resume.contact.website && (
-                  <a 
-                    href={resume.contact.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-blue-600 hover:underline"
-                  >
-                    <Globe className="h-3.5 w-3.5" />
-                    Portfolio
-                  </a>
-                )}
-              </div>
-            </header>
-
-            {/* Summary */}
-            {resume.summary && (
-              <section>
-                <h2 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-1 mb-3">
-                  Professional Summary
-                </h2>
-                <p className="text-slate-700 leading-relaxed">{resume.summary}</p>
-              </section>
-            )}
-
-            {/* Experience */}
-            {resume.experience.length > 0 && (
-              <section>
-                <h2 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-1 mb-4">
-                  Work Experience
-                </h2>
-                <div className="space-y-5">
-                  {resume.experience.map((exp) => (
-                    <div key={exp.id}>
-                      <div className="flex justify-between items-start mb-1">
-                        <div>
-                          <h3 className="font-semibold text-slate-900">{exp.position}</h3>
-                          <p className="text-slate-600">{exp.company}{exp.location && ` • ${exp.location}`}</p>
-                        </div>
-                        <div className="text-sm text-slate-500 flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5" />
-                          {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
-                        </div>
-                      </div>
-                      {exp.description && (
-                        <div className="text-slate-700 text-sm mt-2 whitespace-pre-line">
-                          {exp.description}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Education */}
-            {resume.education.length > 0 && (
-              <section>
-                <h2 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-1 mb-4">
-                  Education
-                </h2>
-                <div className="space-y-4">
-                  {resume.education.map((edu) => (
-                    <div key={edu.id} className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-slate-900">
-                          {edu.degree}{edu.field && ` in ${edu.field}`}
-                        </h3>
-                        <p className="text-slate-600">{edu.institution}</p>
-                        {edu.gpa && (
-                          <p className="text-sm text-slate-500">GPA: {edu.gpa}</p>
-                        )}
-                      </div>
-                      <div className="text-sm text-slate-500 flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {formatDate(edu.startDate)} - {formatDate(edu.endDate)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Skills */}
-            {resume.skills.length > 0 && (
-              <section>
-                <h2 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-1 mb-3">
-                  Skills
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {resume.skills.map((skill) => (
-                    <span 
-                      key={skill}
-                      className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
+      <div className="flex justify-center bg-muted/30 rounded-lg p-8 overflow-auto">
+        <div ref={resumeRef} className="shadow-2xl">
+          <ResumeTemplate templateId={selectedTemplate} data={resume} />
         </div>
       </div>
     </div>

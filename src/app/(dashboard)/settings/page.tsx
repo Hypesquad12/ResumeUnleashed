@@ -10,7 +10,9 @@ import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loader2, User } from 'lucide-react'
 import { toast } from 'sonner'
-import { Profile } from '@/types/database'
+import type { Database } from '@/types/database'
+
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
