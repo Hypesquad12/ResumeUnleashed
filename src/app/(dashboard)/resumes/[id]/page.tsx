@@ -138,10 +138,10 @@ export default function ResumeEditorPage() {
       .from('resumes')
       .update({
         title: resume.title,
-        contact: resume.contact,
+        contact: resume.contact as unknown as Record<string, unknown>,
         summary: resume.summary,
-        experience: resume.experience,
-        education: resume.education,
+        experience: resume.experience as unknown as Record<string, unknown>[],
+        education: resume.education as unknown as Record<string, unknown>[],
         skills: resume.skills,
         updated_at: new Date().toISOString(),
       })
