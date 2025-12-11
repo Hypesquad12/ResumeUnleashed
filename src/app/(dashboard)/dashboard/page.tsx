@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { FileText, Sparkles, CreditCard, Eye, Plus, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { DashboardClient } from '@/components/dashboard/dashboard-client'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -22,11 +23,15 @@ export default async function DashboardPage() {
     supabase.from('resumes').select('*').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(3),
   ])
 
-  // Fetch total views
-  const { count: totalViews } = await supabase
-    .from('link_analytics')
-    .select('*', { count: 'exact', head: true })
-    .or(`link_id.in.(select id from public_resume_links where user_id.eq.${user!.id}),card_id.in.(select id from visiting_cards where user_id.eq.${user!.id})`)
+  // Fetch profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user!.id)
+    .single()
+
+  // For now, set totalViews to 0 (complex query needs optimization)
+  const totalViews = 0
 
   const stats = [
     { name: 'Total Resumes', value: resumeCount || 0, icon: FileText, href: '/resumes' },
@@ -35,7 +40,11 @@ export default async function DashboardPage() {
     { name: 'Total Views', value: totalViews || 0, icon: Eye, href: '/analytics' },
   ]
 
+  const isNewUser = (resumeCount || 0) === 0
+  const userName = profile?.full_name || user?.user_metadata?.full_name
+
   return (
+    <DashboardClient isNewUser={isNewUser} userName={userName}>
     <div className="space-y-8">
       {/* Welcome Section */}
       <div>
@@ -179,5 +188,6 @@ export default async function DashboardPage() {
         </CardContent>
       </Card>
     </div>
+    </DashboardClient>
   )
 }
