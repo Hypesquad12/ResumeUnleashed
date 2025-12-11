@@ -57,18 +57,15 @@ Rules:
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    // Use pdf-parse with legacy pdfjs version that works in Node.js
-    const pdfParse = await import('pdf-parse')
-    const parse = pdfParse.default || pdfParse
-    const data = await parse(buffer)
-    return data.text
+    // Use unpdf which works in serverless/edge environments
+    const { extractText } = await import('unpdf')
+    const result = await extractText(new Uint8Array(buffer))
+    // result.text can be string or string[], join if array
+    const text = Array.isArray(result.text) ? result.text.join('\n') : result.text
+    return text
   } catch (error) {
     console.error('PDF parsing error:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    if (errorMessage.includes('DOMMatrix') || errorMessage.includes('canvas')) {
-      throw new Error('PDF parsing failed due to server environment. Please try uploading a DOCX file instead.')
-    }
-    throw new Error('Failed to parse PDF file')
+    throw new Error('Failed to parse PDF file. Please ensure the file is a valid PDF.')
   }
 }
 
