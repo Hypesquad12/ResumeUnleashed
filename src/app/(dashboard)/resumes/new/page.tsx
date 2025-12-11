@@ -3,19 +3,59 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import type { Json } from '@/types/database'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { FileText, Upload, ArrowLeft, Loader2 } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { 
+  FileText, Upload, ArrowLeft, ArrowRight, Loader2, Plus, Trash2, Check,
+  User, Briefcase, GraduationCap, Wrench
+} from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+
+interface Experience {
+  id: string
+  company: string
+  position: string
+  location: string
+  startDate: string
+  endDate: string
+  current: boolean
+  description: string
+}
+
+interface Education {
+  id: string
+  institution: string
+  degree: string
+  field: string
+  startDate: string
+  endDate: string
+  gpa: string
+}
+
+const STEPS = [
+  { id: 'contact', label: 'Contact', icon: User },
+  { id: 'experience', label: 'Experience', icon: Briefcase },
+  { id: 'education', label: 'Education', icon: GraduationCap },
+  { id: 'skills', label: 'Skills', icon: Wrench },
+]
+
+const SKILL_SUGGESTIONS = [
+  'JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'Java', 'SQL',
+  'AWS', 'Docker', 'Git', 'Agile', 'Project Management', 'Communication',
+  'Leadership', 'Problem Solving', 'Data Analysis', 'Machine Learning'
+]
 
 export default function NewResumePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [step, setStep] = useState<'choose' | 'manual' | 'upload'>('choose')
+  const [mode, setMode] = useState<'choose' | 'manual' | 'upload'>('choose')
+  const [currentStep, setCurrentStep] = useState(0)
   
   // Form state
   const [title, setTitle] = useState('My Resume')
@@ -25,8 +65,13 @@ export default function NewResumePage() {
     phone: '',
     linkedin: '',
     location: '',
+    website: '',
   })
   const [summary, setSummary] = useState('')
+  const [experience, setExperience] = useState<Experience[]>([])
+  const [education, setEducation] = useState<Education[]>([])
+  const [skills, setSkills] = useState<string[]>([])
+  const [newSkill, setNewSkill] = useState('')
 
   const handleCreateResume = async () => {
     setLoading(true)
@@ -44,11 +89,11 @@ export default function NewResumePage() {
       .insert({
         user_id: user.id,
         title,
-        contact,
+        contact: contact as unknown as Json,
         summary,
-        experience: [],
-        education: [],
-        skills: [],
+        experience: experience as unknown as Json,
+        education: education as unknown as Json,
+        skills,
       })
       .select()
       .single()
@@ -63,7 +108,77 @@ export default function NewResumePage() {
     router.push(`/resumes/${data.id}`)
   }
 
-  if (step === 'choose') {
+  const addExperience = () => {
+    setExperience([...experience, {
+      id: crypto.randomUUID(),
+      company: '',
+      position: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      current: false,
+      description: '',
+    }])
+  }
+
+  const updateExperience = (id: string, field: keyof Experience, value: string | boolean) => {
+    setExperience(experience.map(exp => 
+      exp.id === id ? { ...exp, [field]: value } : exp
+    ))
+  }
+
+  const removeExperience = (id: string) => {
+    setExperience(experience.filter(exp => exp.id !== id))
+  }
+
+  const addEducation = () => {
+    setEducation([...education, {
+      id: crypto.randomUUID(),
+      institution: '',
+      degree: '',
+      field: '',
+      startDate: '',
+      endDate: '',
+      gpa: '',
+    }])
+  }
+
+  const updateEducation = (id: string, field: keyof Education, value: string) => {
+    setEducation(education.map(edu => 
+      edu.id === id ? { ...edu, [field]: value } : edu
+    ))
+  }
+
+  const removeEducation = (id: string) => {
+    setEducation(education.filter(edu => edu.id !== id))
+  }
+
+  const addSkill = (skill: string) => {
+    const trimmed = skill.trim()
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills([...skills, trimmed])
+    }
+    setNewSkill('')
+  }
+
+  const removeSkill = (skill: string) => {
+    setSkills(skills.filter(s => s !== skill))
+  }
+
+  const nextStep = () => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  // Choose mode screen
+  if (mode === 'choose') {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
@@ -83,7 +198,7 @@ export default function NewResumePage() {
         <div className="grid gap-6 md:grid-cols-2 max-w-3xl">
           <Card 
             className="cursor-pointer hover:border-primary transition-colors"
-            onClick={() => setStep('manual')}
+            onClick={() => setMode('manual')}
           >
             <CardHeader>
               <div className="p-3 bg-primary/10 rounded-lg w-fit mb-2">
@@ -101,7 +216,7 @@ export default function NewResumePage() {
 
           <Card 
             className="cursor-pointer hover:border-primary transition-colors"
-            onClick={() => setStep('upload')}
+            onClick={() => setMode('upload')}
           >
             <CardHeader>
               <div className="p-3 bg-violet-500/10 rounded-lg w-fit mb-2">
@@ -121,11 +236,12 @@ export default function NewResumePage() {
     )
   }
 
-  if (step === 'upload') {
+  // Upload mode screen
+  if (mode === 'upload') {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setStep('choose')}>
+          <Button variant="ghost" size="icon" onClick={() => setMode('choose')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -158,119 +274,466 @@ export default function NewResumePage() {
     )
   }
 
+  // Manual form with steps
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => setStep('choose')}>
+        <Button variant="ghost" size="icon" onClick={() => setMode('choose')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Create Resume</h1>
           <p className="text-muted-foreground mt-1">
-            Fill in your basic information to get started
+            Fill in your information step by step
           </p>
         </div>
       </div>
 
-      <div className="max-w-2xl space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-            <CardDescription>
-              Start with your contact details and a brief summary
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Resume Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Software Engineer Resume"
-              />
+      {/* Progress Steps */}
+      <div className="flex items-center justify-between max-w-2xl">
+        {STEPS.map((step, index) => {
+          const Icon = step.icon
+          const isActive = index === currentStep
+          const isCompleted = index < currentStep
+          
+          return (
+            <div key={step.id} className="flex items-center">
+              <button
+                onClick={() => setCurrentStep(index)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  isActive 
+                    ? 'bg-primary text-primary-foreground' 
+                    : isCompleted 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                {isCompleted ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Icon className="h-4 w-4" />
+                )}
+                <span className="hidden sm:inline font-medium">{step.label}</span>
+              </button>
+              {index < STEPS.length - 1 && (
+                <div className={`w-8 h-0.5 mx-2 ${isCompleted ? 'bg-primary' : 'bg-muted'}`} />
+              )}
             </div>
+          )
+        })}
+      </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+      <div className="max-w-2xl">
+        {/* Step 1: Contact */}
+        {currentStep === 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>
+                Start with your contact details and a brief summary
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="title">Resume Title</Label>
                 <Input
-                  id="name"
-                  value={contact.name}
-                  onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                  placeholder="John Doe"
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g., Software Engineer Resume"
                 />
               </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input
+                    id="name"
+                    value={contact.name}
+                    onChange={(e) => setContact({ ...contact, name: e.target.value })}
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={contact.email}
+                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                    placeholder="john@example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={contact.phone}
+                    onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={contact.location}
+                    onChange={(e) => setContact({ ...contact, location: e.target.value })}
+                    placeholder="San Francisco, CA"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="linkedin">LinkedIn URL</Label>
+                  <Input
+                    id="linkedin"
+                    value={contact.linkedin}
+                    onChange={(e) => setContact({ ...contact, linkedin: e.target.value })}
+                    placeholder="https://linkedin.com/in/johndoe"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website / Portfolio</Label>
+                  <Input
+                    id="website"
+                    value={contact.website}
+                    onChange={(e) => setContact({ ...contact, website: e.target.value })}
+                    placeholder="https://johndoe.com"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={contact.email}
-                  onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                  placeholder="john@example.com"
+                <Label htmlFor="summary">Professional Summary</Label>
+                <Textarea
+                  id="summary"
+                  value={summary}
+                  onChange={(e) => setSummary(e.target.value)}
+                  placeholder="A brief summary of your professional background and career objectives..."
+                  rows={4}
                 />
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        )}
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={contact.phone}
-                  onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-                  placeholder="+1 (555) 000-0000"
-                />
+        {/* Step 2: Experience */}
+        {currentStep === 1 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Work Experience</CardTitle>
+                  <CardDescription>
+                    Add your work history, starting with the most recent
+                  </CardDescription>
+                </div>
+                <Button onClick={addExperience} size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={contact.location}
-                  onChange={(e) => setContact({ ...contact, location: e.target.value })}
-                  placeholder="San Francisco, CA"
-                />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {experience.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No experience added yet</p>
+                  <Button onClick={addExperience} variant="outline" className="mt-4">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Experience
+                  </Button>
+                </div>
+              ) : (
+                experience.map((exp, index) => (
+                  <div key={exp.id} className="border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Experience {index + 1}</h4>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => removeExperience(exp.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Company *</Label>
+                        <Input
+                          value={exp.company}
+                          onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
+                          placeholder="Company Name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Position *</Label>
+                        <Input
+                          value={exp.position}
+                          onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
+                          placeholder="Job Title"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Location</Label>
+                      <Input
+                        value={exp.location}
+                        onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
+                        placeholder="City, State"
+                      />
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Start Date</Label>
+                        <Input
+                          type="month"
+                          value={exp.startDate}
+                          onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>End Date</Label>
+                        <Input
+                          type="month"
+                          value={exp.endDate}
+                          onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
+                          disabled={exp.current}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`current-${exp.id}`}
+                        checked={exp.current}
+                        onCheckedChange={(checked) => updateExperience(exp.id, 'current', !!checked)}
+                      />
+                      <Label htmlFor={`current-${exp.id}`} className="font-normal">
+                        I currently work here
+                      </Label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Description</Label>
+                      <Textarea
+                        value={exp.description}
+                        onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
+                        placeholder="Describe your responsibilities and achievements..."
+                        rows={4}
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 3: Education */}
+        {currentStep === 2 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Education</CardTitle>
+                  <CardDescription>
+                    Add your educational background
+                  </CardDescription>
+                </div>
+                <Button onClick={addEducation} size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
               </div>
-            </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {education.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No education added yet</p>
+                  <Button onClick={addEducation} variant="outline" className="mt-4">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Education
+                  </Button>
+                </div>
+              ) : (
+                education.map((edu, index) => (
+                  <div key={edu.id} className="border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Education {index + 1}</h4>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => removeEducation(edu.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Institution *</Label>
+                      <Input
+                        value={edu.institution}
+                        onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
+                        placeholder="University Name"
+                      />
+                    </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="linkedin">LinkedIn URL</Label>
-              <Input
-                id="linkedin"
-                value={contact.linkedin}
-                onChange={(e) => setContact({ ...contact, linkedin: e.target.value })}
-                placeholder="https://linkedin.com/in/johndoe"
-              />
-            </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Degree *</Label>
+                        <Input
+                          value={edu.degree}
+                          onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
+                          placeholder="e.g., Bachelor's, Master's"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Field of Study</Label>
+                        <Input
+                          value={edu.field}
+                          onChange={(e) => updateEducation(edu.id, 'field', e.target.value)}
+                          placeholder="e.g., Computer Science"
+                        />
+                      </div>
+                    </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="summary">Professional Summary</Label>
-              <Textarea
-                id="summary"
-                value={summary}
-                onChange={(e) => setSummary(e.target.value)}
-                placeholder="A brief summary of your professional background and career objectives..."
-                rows={4}
-              />
-            </div>
-          </CardContent>
-        </Card>
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="space-y-2">
+                        <Label>Start Date</Label>
+                        <Input
+                          type="month"
+                          value={edu.startDate}
+                          onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>End Date</Label>
+                        <Input
+                          type="month"
+                          value={edu.endDate}
+                          onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>GPA (Optional)</Label>
+                        <Input
+                          value={edu.gpa}
+                          onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
+                          placeholder="e.g., 3.8/4.0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-        <div className="flex justify-end gap-4">
-          <Button variant="outline" onClick={() => setStep('choose')}>
-            Cancel
+        {/* Step 4: Skills */}
+        {currentStep === 3 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Skills</CardTitle>
+              <CardDescription>
+                Add your technical and soft skills
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  placeholder="Type a skill and press Enter"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addSkill(newSkill)
+                    }
+                  }}
+                />
+                <Button onClick={() => addSkill(newSkill)} disabled={!newSkill.trim()}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {skills.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
+                    >
+                      {skill}
+                      <button
+                        onClick={() => removeSkill(skill)}
+                        className="hover:bg-primary/20 rounded-full p-0.5"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-4">
+                <Label className="text-muted-foreground">Suggested Skills</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {SKILL_SUGGESTIONS.filter(s => !skills.includes(s)).slice(0, 12).map((skill) => (
+                    <button
+                      key={skill}
+                      onClick={() => addSkill(skill)}
+                      className="px-3 py-1 border rounded-full text-sm hover:bg-accent transition-colors"
+                    >
+                      + {skill}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Navigation */}
+        <div className="flex justify-between mt-6">
+          <Button 
+            variant="outline" 
+            onClick={currentStep === 0 ? () => setMode('choose') : prevStep}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {currentStep === 0 ? 'Back' : 'Previous'}
           </Button>
-          <Button onClick={handleCreateResume} disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              'Create Resume'
-            )}
-          </Button>
+          
+          {currentStep < STEPS.length - 1 ? (
+            <Button onClick={nextStep}>
+              Next
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          ) : (
+            <Button onClick={handleCreateResume} disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  Create Resume
+                  <Check className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </div>

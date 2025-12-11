@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   FileText,
@@ -14,11 +14,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Palette,
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -37,6 +37,15 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [collapsed, setCollapsed] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
+
+  const handleNavigation = (href: string) => {
+    setNavigatingTo(href)
+    startTransition(() => {
+      router.push(href)
+    })
+  }
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -80,12 +89,13 @@ export function Sidebar() {
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          const isNavigating = isPending && navigatingTo === item.href
           return (
-            <Link
+            <button
               key={item.name}
-              href={item.href}
+              onClick={() => handleNavigation(item.href)}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full',
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
@@ -93,9 +103,13 @@ export function Sidebar() {
               )}
               title={collapsed ? item.name : undefined}
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
+              {isNavigating ? (
+                <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin" />
+              ) : (
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+              )}
               {!collapsed && <span>{item.name}</span>}
-            </Link>
+            </button>
           )
         })}
       </nav>
@@ -104,12 +118,13 @@ export function Sidebar() {
       <div className="p-3 border-t space-y-1">
         {bottomNavigation.map((item) => {
           const isActive = pathname === item.href
+          const isNavigating = isPending && navigatingTo === item.href
           return (
-            <Link
+            <button
               key={item.name}
-              href={item.href}
+              onClick={() => handleNavigation(item.href)}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full',
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
@@ -117,9 +132,13 @@ export function Sidebar() {
               )}
               title={collapsed ? item.name : undefined}
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
+              {isNavigating ? (
+                <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin" />
+              ) : (
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+              )}
               {!collapsed && <span>{item.name}</span>}
-            </Link>
+            </button>
           )
         })}
         <button
