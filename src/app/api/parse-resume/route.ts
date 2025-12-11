@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import mammoth from 'mammoth'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Initialize OpenAI client lazily to ensure env vars are loaded
+function getOpenAIClient() {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is not set')
+  }
+  return new OpenAI({ apiKey })
+}
 
 const SYSTEM_PROMPT = `You are a resume parser. Extract information from the resume text and return a JSON object with the following structure:
 
@@ -118,6 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse with OpenAI
+    const openai = getOpenAIClient()
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       response_format: { type: 'json_object' },
