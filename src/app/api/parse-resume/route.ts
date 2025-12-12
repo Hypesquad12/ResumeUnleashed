@@ -37,18 +37,23 @@ const SYSTEM_PROMPT = `You are a resume parser. Extract information from the res
   "education": [
     {
       "institution": "School/University name",
-      "degree": "Degree type (e.g., Bachelor's, Master's)",
-      "field": "Field of study",
+      "degree": "Degree type (e.g., Bachelor's, Master's, BBA, MBA, B.Tech, etc.)",
+      "field": "Field of study or major",
       "startDate": "YYYY-MM format",
       "endDate": "YYYY-MM format",
-      "gpa": "GPA if mentioned"
+      "gpa": "GPA or percentage if mentioned"
     }
   ],
   "skills": ["skill1", "skill2", "skill3"]
 }
 
-Rules:
-- Extract all information accurately from the resume
+CRITICAL RULES:
+- PRESERVE EXACT JOB TITLES: Do NOT modify, rephrase, or "improve" job titles/positions. Use the EXACT title as written in the resume (e.g., "Risk Analyst" stays "Risk Analyst", not "Senior Risk Analyst" or "Risk Management Specialist")
+- EXTRACT ALL EDUCATION: Include EVERY educational entry mentioned, including:
+  - University degrees (Bachelor's, Master's, PhD, MBA, BBA, B.Tech, M.Tech, etc.)
+  - Professional certifications
+  - Diplomas and courses
+  - High school/secondary education if mentioned
 - For dates, convert to YYYY-MM format (e.g., "January 2020" becomes "2020-01")
 - If a date is "Present" or "Current", set current to true and leave endDate empty
 - Skills should be individual items, not comma-separated strings

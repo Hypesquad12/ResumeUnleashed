@@ -41,7 +41,9 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   const searchParams = useSearchParams()
   const preselectedResumeId = searchParams.get('resume')
   
-  const [selectedResume, setSelectedResume] = useState<string | null>(preselectedResumeId)
+  // Auto-select if only one resume exists
+  const defaultResumeId = preselectedResumeId || (resumes.length === 1 ? resumes[0].id : null)
+  const [selectedResume, setSelectedResume] = useState<string | null>(defaultResumeId)
   const [jobDescriptionMethod, setJobDescriptionMethod] = useState<'text' | 'url' | null>(null)
   const [jobDescription, setJobDescription] = useState('')
   const [jobUrl, setJobUrl] = useState('')
