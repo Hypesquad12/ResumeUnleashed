@@ -150,6 +150,45 @@ export default async function BlogPostPage({ params }: Props) {
           {/* Article Content */}
           <div className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-li:text-slate-600 prose-strong:text-slate-900">
             {post.content.split('\n').map((paragraph, index) => {
+              // Helper function to parse inline markdown (bold, links)
+              const parseInlineMarkdown = (text: string) => {
+                const parts: React.ReactNode[] = []
+                let remaining = text
+                let keyIndex = 0
+                
+                while (remaining.length > 0) {
+                  // Check for links: **[text](/url)** or [text](/url)
+                  const linkMatch = remaining.match(/\*?\*?\[([^\]]+)\]\(([^)]+)\)\*?\*?/)
+                  const boldMatch = remaining.match(/\*\*([^*]+)\*\*/)
+                  
+                  if (linkMatch && (!boldMatch || remaining.indexOf(linkMatch[0]) <= remaining.indexOf(boldMatch[0]))) {
+                    const beforeLink = remaining.slice(0, remaining.indexOf(linkMatch[0]))
+                    if (beforeLink) parts.push(beforeLink)
+                    
+                    const isBoldLink = linkMatch[0].startsWith('**') && linkMatch[0].endsWith('**')
+                    parts.push(
+                      <Link 
+                        key={`link-${index}-${keyIndex++}`} 
+                        href={linkMatch[2]} 
+                        className={`text-teal-600 hover:text-teal-700 underline underline-offset-2 ${isBoldLink ? 'font-semibold' : ''}`}
+                      >
+                        {linkMatch[1]}
+                      </Link>
+                    )
+                    remaining = remaining.slice(remaining.indexOf(linkMatch[0]) + linkMatch[0].length)
+                  } else if (boldMatch) {
+                    const beforeBold = remaining.slice(0, remaining.indexOf(boldMatch[0]))
+                    if (beforeBold) parts.push(beforeBold)
+                    parts.push(<strong key={`bold-${index}-${keyIndex++}`} className="text-slate-900 font-semibold">{boldMatch[1]}</strong>)
+                    remaining = remaining.slice(remaining.indexOf(boldMatch[0]) + boldMatch[0].length)
+                  } else {
+                    parts.push(remaining)
+                    break
+                  }
+                }
+                return parts
+              }
+
               if (paragraph.startsWith('# ')) {
                 return <h1 key={index} className="text-3xl font-bold mt-12 mb-6 text-slate-900">{paragraph.slice(2)}</h1>
               }
@@ -160,13 +199,10 @@ export default async function BlogPostPage({ params }: Props) {
                 return <h3 key={index} className="text-xl font-semibold mt-8 mb-4 text-slate-800">{paragraph.slice(4)}</h3>
               }
               if (paragraph.startsWith('- ')) {
-                return <li key={index} className="ml-6 text-slate-600 my-2">{paragraph.slice(2)}</li>
+                return <li key={index} className="ml-6 text-slate-600 my-2">{parseInlineMarkdown(paragraph.slice(2))}</li>
               }
               if (paragraph.startsWith('✅') || paragraph.startsWith('❌')) {
                 return <p key={index} className="my-3 text-slate-600 bg-slate-50 px-4 py-2 rounded-lg">{paragraph}</p>
-              }
-              if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
-                return <p key={index} className="font-bold my-4 text-slate-900">{paragraph.slice(2, -2)}</p>
               }
               if (paragraph.startsWith('|')) {
                 return <p key={index} className="my-2 text-slate-600 font-mono text-sm bg-slate-50 px-4 py-2 rounded">{paragraph}</p>
@@ -174,7 +210,7 @@ export default async function BlogPostPage({ params }: Props) {
               if (paragraph.trim() === '') {
                 return null
               }
-              return <p key={index} className="my-5 text-slate-600 leading-relaxed text-lg">{paragraph}</p>
+              return <p key={index} className="my-5 text-slate-600 leading-relaxed text-lg">{parseInlineMarkdown(paragraph)}</p>
             })}
           </div>
 
