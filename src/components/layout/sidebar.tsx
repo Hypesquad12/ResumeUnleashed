@@ -91,9 +91,14 @@ export function Sidebar() {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           const isNavigating = isPending && navigatingTo === item.href
           return (
-            <button
+            <Link
               key={item.name}
-              onClick={() => handleNavigation(item.href)}
+              href={item.href}
+              prefetch={true}
+              onClick={(e) => {
+                e.preventDefault()
+                handleNavigation(item.href)
+              }}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full',
                 isActive
@@ -109,7 +114,7 @@ export function Sidebar() {
                 <item.icon className="h-5 w-5 flex-shrink-0" />
               )}
               {!collapsed && <span>{item.name}</span>}
-            </button>
+            </Link>
           )
         })}
       </nav>
@@ -120,9 +125,14 @@ export function Sidebar() {
           const isActive = pathname === item.href
           const isNavigating = isPending && navigatingTo === item.href
           return (
-            <button
+            <Link
               key={item.name}
-              onClick={() => handleNavigation(item.href)}
+              href={item.href}
+              prefetch={true}
+              onClick={(e) => {
+                e.preventDefault()
+                handleNavigation(item.href)
+              }}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full',
                 isActive
@@ -138,7 +148,7 @@ export function Sidebar() {
                 <item.icon className="h-5 w-5 flex-shrink-0" />
               )}
               {!collapsed && <span>{item.name}</span>}
-            </button>
+            </Link>
           )
         })}
         <button

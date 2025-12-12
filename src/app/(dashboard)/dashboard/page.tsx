@@ -107,7 +107,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <Link href="/customize">
-              <Button variant="secondary" className="w-full">
+              <Button variant="outline" className="w-full border-violet-500/50 hover:bg-violet-500/10 hover:text-violet-700 dark:hover:text-violet-300">
                 Customize Now
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <Link href="/cards/new">
-              <Button variant="secondary" className="w-full">
+              <Button variant="outline" className="w-full border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300">
                 Create Card
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
