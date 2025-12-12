@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { 
@@ -22,8 +22,10 @@ import {
 export default function ResumePreviewPage() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const resumeId = params.id as string
   const resumeRef = useRef<HTMLDivElement>(null)
+  const shouldDownload = searchParams.get('download') === 'true'
   
   const [loading, setLoading] = useState(true)
   const [resume, setResume] = useState<ResumeData | null>(null)
@@ -94,15 +96,85 @@ export default function ResumePreviewPage() {
     setSelectedTemplate(TEMPLATES[newIndex].id)
   }
 
-  const handleDownload = async () => {
-    toast.info('PDF download coming soon!')
-    // TODO: Implement PDF generation
+  const handleDownload = () => {
+    // Use browser print to PDF functionality
+    const printContent = resumeRef.current
+    if (!printContent) return
+
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      toast.error('Please allow popups to download PDF')
+      return
+    }
+
+    const styles = Array.from(document.styleSheets)
+      .map(styleSheet => {
+        try {
+          return Array.from(styleSheet.cssRules)
+            .map(rule => rule.cssText)
+            .join('')
+        } catch {
+          return ''
+        }
+      })
+      .join('')
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${resume?.title || 'Resume'}</title>
+          <style>
+            ${styles}
+            @media print {
+              body { margin: 0; padding: 0; }
+              @page { size: A4; margin: 0; }
+            }
+            body {
+              font-family: system-ui, -apple-system, sans-serif;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
+    
+    // Wait for styles to load then print
+    setTimeout(() => {
+      printWindow.print()
+      printWindow.close()
+    }, 500)
   }
 
   const handleShare = async () => {
-    toast.info('Share feature coming soon!')
-    // TODO: Implement share functionality
+    const shareUrl = window.location.href.replace('?download=true', '')
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: resume?.title || 'My Resume',
+          url: shareUrl,
+        })
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl)
+      toast.success('Link copied to clipboard!')
+    }
   }
+
+  // Auto-trigger download if URL has download=true
+  useEffect(() => {
+    if (shouldDownload && !loading && resume) {
+      setTimeout(() => handleDownload(), 1000)
+    }
+  }, [shouldDownload, loading, resume])
 
   if (loading) {
     return (

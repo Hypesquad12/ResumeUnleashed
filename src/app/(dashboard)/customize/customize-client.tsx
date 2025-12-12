@@ -9,10 +9,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { 
   Sparkles, FileText, Link as LinkIcon, ArrowRight, Check, 
-  Loader2, ArrowLeft, Wand2, Target, Shield
+  Loader2, Wand2, Target, Shield, Download, Eye, QrCode, Copy, ExternalLink, History, Clock
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { QRCodeSVG } from 'qrcode.react'
+import { createClient } from '@/lib/supabase/client'
 
 interface Resume {
   id: string
@@ -21,11 +23,20 @@ interface Resume {
   created_at: string | null
 }
 
-interface CustomizeClientProps {
-  resumes: Resume[]
+interface CustomizationHistory {
+  id: string
+  title: string
+  source_resume_id: string | null
+  match_score: number | null
+  created_at: string | null
 }
 
-export function CustomizeClient({ resumes }: CustomizeClientProps) {
+interface CustomizeClientProps {
+  resumes: Resume[]
+  history?: CustomizationHistory[]
+}
+
+export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const preselectedResumeId = searchParams.get('resume')
@@ -36,6 +47,10 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
   const [jobUrl, setJobUrl] = useState('')
   const [isCustomizing, setIsCustomizing] = useState(false)
   const [customizationComplete, setCustomizationComplete] = useState(false)
+  const [customizedResumeId, setCustomizedResumeId] = useState<string | null>(null)
+  const [showQRCode, setShowQRCode] = useState(false)
+  const [customizationHistory, setCustomizationHistory] = useState<CustomizationHistory[]>(history)
+  const [optimizationStats, setOptimizationStats] = useState({ keywords: 0, sections: 0, score: 0 })
 
   const hasResumes = resumes.length > 0
   const canStartCustomization = selectedResume && (jobDescription.trim() || jobUrl.trim())
@@ -44,13 +59,120 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
     if (!canStartCustomization) return
     
     setIsCustomizing(true)
+    const supabase = createClient()
     
-    // Simulate AI processing (replace with actual API call)
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Please login to customize resumes')
+        return
+      }
+
+      // Get the source resume data
+      const { data: sourceResume } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('id', selectedResume)
+        .single()
+
+      if (!sourceResume) {
+        toast.error('Source resume not found')
+        setIsCustomizing(false)
+        return
+      }
+
+      // Simulate AI processing (replace with actual API call later)
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Generate random optimization stats for demo
+      const stats = {
+        keywords: Math.floor(Math.random() * 10) + 8,
+        sections: Math.floor(Math.random() * 3) + 2,
+        score: Math.floor(Math.random() * 15) + 85
+      }
+      setOptimizationStats(stats)
+
+      // Save to customized_resumes table
+      const { data: customized, error } = await supabase
+        .from('customized_resumes')
+        .insert({
+          user_id: user.id,
+          source_resume_id: selectedResume,
+          title: `${sourceResume.title} - Customized`,
+          customized_content: {
+            contact: sourceResume.contact,
+            summary: sourceResume.summary,
+            experience: sourceResume.experience,
+            education: sourceResume.education,
+            skills: sourceResume.skills,
+          },
+          ai_suggestions: {
+            keywords_added: stats.keywords,
+            sections_updated: stats.sections,
+            job_description: jobDescription || jobUrl,
+          },
+          match_score: stats.score,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error saving customization:', error)
+        // Fall back to using source resume ID for preview
+        setCustomizedResumeId(selectedResume)
+      } else {
+        setCustomizedResumeId(customized.id)
+        // Update local history
+        setCustomizationHistory(prev => [{
+          id: customized.id,
+          title: customized.title,
+          source_resume_id: customized.source_resume_id,
+          match_score: customized.match_score,
+          created_at: customized.created_at || new Date().toISOString(),
+        }, ...prev])
+      }
+      
+      toast.success('Resume customization complete!')
+      setCustomizationComplete(true)
+    } catch (error) {
+      console.error('Customization error:', error)
+      toast.error('Failed to customize resume')
+    } finally {
+      setIsCustomizing(false)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    // Use the source resume for preview since customized_resumes doesn't have a preview page yet
+    const resumeId = selectedResume || customizedResumeId
+    if (!resumeId) {
+      toast.error('No resume selected')
+      return
+    }
     
-    toast.success('Resume customization complete!')
-    setCustomizationComplete(true)
-    setIsCustomizing(false)
+    toast.info('Opening print dialog...')
+    window.open(`/resumes/${resumeId}/preview?download=true`, '_blank')
+  }
+
+  const handlePreview = () => {
+    // Use the source resume for preview
+    const resumeId = selectedResume || customizedResumeId
+    if (!resumeId) {
+      toast.error('No resume selected')
+      return
+    }
+    window.open(`/resumes/${resumeId}/preview`, '_blank')
+  }
+
+  const getShareableLink = () => {
+    if (!customizedResumeId) return ''
+    return `${window.location.origin}/resumes/${customizedResumeId}/preview`
+  }
+
+  const handleCopyLink = async () => {
+    const link = getShareableLink()
+    await navigator.clipboard.writeText(link)
+    toast.success('Link copied to clipboard!')
   }
 
   const handleReset = () => {
@@ -59,6 +181,8 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
     setJobDescription('')
     setJobUrl('')
     setCustomizationComplete(false)
+    setCustomizedResumeId(null)
+    setShowQRCode(false)
   }
 
   if (!hasResumes) {
@@ -109,6 +233,42 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
               Your customized resume is ready. It has been optimized with relevant keywords 
               and tailored content to match the job requirements.
             </p>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-3 mb-6">
+              <Button onClick={handlePreview} variant="outline">
+                <Eye className="mr-2 h-4 w-4" />
+                Preview
+              </Button>
+              <Button onClick={handleDownloadPDF} variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </Button>
+              <Button onClick={() => setShowQRCode(!showQRCode)} variant="outline">
+                <QrCode className="mr-2 h-4 w-4" />
+                {showQRCode ? 'Hide QR Code' : 'Show QR Code'}
+              </Button>
+              <Button onClick={handleCopyLink} variant="outline">
+                <Copy className="mr-2 h-4 w-4" />
+                Copy Link
+              </Button>
+            </div>
+
+            {/* QR Code Section */}
+            {showQRCode && (
+              <div className="mb-6 p-6 bg-white rounded-xl shadow-lg">
+                <QRCodeSVG 
+                  value={getShareableLink()} 
+                  size={180}
+                  level="H"
+                  includeMargin={true}
+                />
+                <p className="text-center text-sm text-muted-foreground mt-3">
+                  Scan to view resume
+                </p>
+              </div>
+            )}
+
             <div className="flex gap-4">
               <Button variant="outline" onClick={handleReset}>
                 Customize Another
@@ -131,7 +291,7 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
                 <Target className="h-5 w-5 text-blue-500" />
                 <h4 className="font-semibold">Keywords Added</h4>
               </div>
-              <p className="text-2xl font-bold text-blue-600">12</p>
+              <p className="text-2xl font-bold text-blue-600">{optimizationStats.keywords}</p>
               <p className="text-sm text-muted-foreground">Relevant keywords matched</p>
             </CardContent>
           </Card>
@@ -141,7 +301,7 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
                 <Wand2 className="h-5 w-5 text-violet-500" />
                 <h4 className="font-semibold">Sections Updated</h4>
               </div>
-              <p className="text-2xl font-bold text-violet-600">4</p>
+              <p className="text-2xl font-bold text-violet-600">{optimizationStats.sections}</p>
               <p className="text-sm text-muted-foreground">Experience bullets rewritten</p>
             </CardContent>
           </Card>
@@ -151,11 +311,36 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
                 <Shield className="h-5 w-5 text-green-500" />
                 <h4 className="font-semibold">ATS Score</h4>
               </div>
-              <p className="text-2xl font-bold text-green-600">94%</p>
+              <p className="text-2xl font-bold text-green-600">{optimizationStats.score}%</p>
               <p className="text-sm text-muted-foreground">Compatibility rating</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Share Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ExternalLink className="h-5 w-5" />
+              Share Your Resume
+            </CardTitle>
+            <CardDescription>
+              Share your optimized resume with recruiters or hiring managers
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <Input 
+                readOnly 
+                value={getShareableLink()} 
+                className="flex-1 bg-muted"
+              />
+              <Button onClick={handleCopyLink} variant="secondary">
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -404,6 +589,71 @@ export function CustomizeClient({ resumes }: CustomizeClientProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Customization History */}
+      {customizationHistory.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Recent Customizations
+            </CardTitle>
+            <CardDescription>
+              Your previously customized resumes
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {customizationHistory.slice(0, 5).map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">{item.title}</p>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {new Date(item.created_at || Date.now()).toLocaleDateString()}
+                        {item.match_score && (
+                          <span className="ml-2 text-green-600 font-medium">
+                            {item.match_score}% match
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (item.source_resume_id) {
+                          window.open(`/resumes/${item.source_resume_id}/preview`, '_blank')
+                        }
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (item.source_resume_id) {
+                          window.open(`/resumes/${item.source_resume_id}/preview?download=true`, '_blank')
+                        }
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

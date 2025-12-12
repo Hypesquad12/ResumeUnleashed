@@ -11,5 +11,13 @@ export default async function CustomizePage() {
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
-  return <CustomizeClient resumes={resumes || []} />
+  // Fetch customization history
+  const { data: history } = await supabase
+    .from('customized_resumes')
+    .select('id, title, source_resume_id, match_score, created_at')
+    .eq('user_id', user!.id)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  return <CustomizeClient resumes={resumes || []} history={history || []} />
 }
