@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { 
   ArrowLeft, Loader2, Download, Share2, Copy, ExternalLink, 
-  Mail, Phone, Globe, Linkedin, Github, Edit, Trash2
+  Mail, Phone, Globe, Linkedin, Github, Edit, Trash2, Save, X
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -43,6 +43,18 @@ export default function CardDetailPage() {
   const [card, setCard] = useState<VisitingCard | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    title: '',
+    company: '',
+    email: '',
+    phone: '',
+    website: '',
+    linkedin: '',
+    github: '',
+  })
 
   useEffect(() => {
     setMounted(true)
@@ -67,7 +79,72 @@ export default function CardDetailPage() {
     }
 
     setCard(data)
+    setEditForm({
+      name: data.name || '',
+      title: data.title || '',
+      company: data.company || '',
+      email: data.email || '',
+      phone: data.phone || '',
+      website: data.website || '',
+      linkedin: data.linkedin || '',
+      github: data.github || '',
+    })
     setLoading(false)
+  }
+
+  const startEditing = () => {
+    if (card) {
+      setEditForm({
+        name: card.name || '',
+        title: card.title || '',
+        company: card.company || '',
+        email: card.email || '',
+        phone: card.phone || '',
+        website: card.website || '',
+        linkedin: card.linkedin || '',
+        github: card.github || '',
+      })
+      setIsEditing(true)
+    }
+  }
+
+  const cancelEditing = () => {
+    setIsEditing(false)
+  }
+
+  const saveChanges = async () => {
+    if (!editForm.name.trim()) {
+      toast.error('Name is required')
+      return
+    }
+
+    setSaving(true)
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('visiting_cards')
+      .update({
+        name: editForm.name,
+        title: editForm.title || null,
+        company: editForm.company || null,
+        email: editForm.email || null,
+        phone: editForm.phone || null,
+        website: editForm.website || null,
+        linkedin: editForm.linkedin || null,
+        github: editForm.github || null,
+      })
+      .eq('id', cardId)
+
+    if (error) {
+      toast.error('Failed to save changes')
+      setSaving(false)
+      return
+    }
+
+    // Update local state
+    setCard(prev => prev ? { ...prev, ...editForm } : prev)
+    setIsEditing(false)
+    setSaving(false)
+    toast.success('Card updated successfully')
   }
 
   const getShareableLink = () => {
@@ -159,18 +236,41 @@ export default function CardDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleShare}>
-            <Share2 className="mr-2 h-4 w-4" />
-            Share
-          </Button>
-          <Button variant="outline" onClick={handleDelete} disabled={deleting}>
-            {deleting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Trash2 className="mr-2 h-4 w-4" />
-            )}
-            Delete
-          </Button>
+          {isEditing ? (
+            <>
+              <Button variant="outline" onClick={cancelEditing} disabled={saving}>
+                <X className="mr-2 h-4 w-4" />
+                Cancel
+              </Button>
+              <Button onClick={saveChanges} disabled={saving}>
+                {saving ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Save
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={startEditing}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+              <Button variant="outline" onClick={handleShare}>
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
+              </Button>
+              <Button variant="outline" onClick={handleDelete} disabled={deleting}>
+                {deleting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="mr-2 h-4 w-4" />
+                )}
+                Delete
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -234,40 +334,126 @@ export default function CardDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Contact Details */}
+          {/* Contact Details / Edit Form */}
           <Card>
             <CardHeader>
-              <CardTitle>Contact Details</CardTitle>
+              <CardTitle>{isEditing ? 'Edit Card Details' : 'Contact Details'}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {card.email && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{card.email}</span>
-                </div>
-              )}
-              {card.phone && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span>{card.phone}</span>
-                </div>
-              )}
-              {card.website && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span>{card.website}</span>
-                </div>
-              )}
-              {card.linkedin && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Linkedin className="h-4 w-4 text-muted-foreground" />
-                  <span>{card.linkedin}</span>
-                </div>
-              )}
-              {card.github && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Github className="h-4 w-4 text-muted-foreground" />
-                  <span>{card.github}</span>
+            <CardContent className="space-y-4">
+              {isEditing ? (
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name *</Label>
+                      <Input
+                        id="name"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        placeholder="Your name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Job Title</Label>
+                      <Input
+                        id="title"
+                        value={editForm.title}
+                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                        placeholder="e.g. Software Engineer"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Company</Label>
+                    <Input
+                      id="company"
+                      value={editForm.company}
+                      onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
+                      placeholder="Your company"
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={editForm.email}
+                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        placeholder="+1 (555) 000-0000"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Website</Label>
+                    <Input
+                      id="website"
+                      value={editForm.website}
+                      onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                      placeholder="https://yourwebsite.com"
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="linkedin">LinkedIn</Label>
+                      <Input
+                        id="linkedin"
+                        value={editForm.linkedin}
+                        onChange={(e) => setEditForm({ ...editForm, linkedin: e.target.value })}
+                        placeholder="linkedin.com/in/username"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="github">GitHub</Label>
+                      <Input
+                        id="github"
+                        value={editForm.github}
+                        onChange={(e) => setEditForm({ ...editForm, github: e.target.value })}
+                        placeholder="github.com/username"
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  {card.email && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span>{card.email}</span>
+                    </div>
+                  )}
+                  {card.phone && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{card.phone}</span>
+                    </div>
+                  )}
+                  {card.website && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      <span>{card.website}</span>
+                    </div>
+                  )}
+                  {card.linkedin && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <Linkedin className="h-4 w-4 text-muted-foreground" />
+                      <span>{card.linkedin}</span>
+                    </div>
+                  )}
+                  {card.github && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <Github className="h-4 w-4 text-muted-foreground" />
+                      <span>{card.github}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

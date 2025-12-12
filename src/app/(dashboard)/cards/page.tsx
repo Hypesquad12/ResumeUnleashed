@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CreditCard, Plus, QrCode, Download, Share2, MoreVertical } from 'lucide-react'
+import { CreditCard, Plus, QrCode, Download, Share2, MoreVertical, Edit, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { CardsClientActions } from './cards-client-actions'
 
 export default async function CardsPage() {
   const supabase = await createClient()
@@ -81,21 +82,7 @@ export default async function CardsPage() {
                     {card.public_slug ? `/${card.public_slug}` : 'No public link'}
                   </CardDescription>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/cards/${card.id}`}>Edit</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>Generate QR Code</DropdownMenuItem>
-                    <DropdownMenuItem>Download PNG</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <CardsClientActions cardId={card.id} cardName={card.name} />
               </CardHeader>
             </Card>
           ))}

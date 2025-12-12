@@ -12,9 +12,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Bell, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import type { Database } from '@/types/database'
+import { Notifications } from './notifications'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
@@ -53,10 +54,7 @@ export function Header({ user }: HeaderProps) {
 
       {/* Right side */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 bg-primary rounded-full" />
-        </Button>
+        <Notifications />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
