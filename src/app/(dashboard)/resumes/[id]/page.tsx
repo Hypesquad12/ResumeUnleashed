@@ -12,8 +12,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   ArrowLeft, Save, Loader2, Plus, Trash2, GripVertical,
-  User, Briefcase, GraduationCap, Wrench, FileText, Eye, Sparkles, Palette, Check, Crown
+  User, Briefcase, GraduationCap, Wrench, FileText, Eye, Sparkles, Palette, Check, Crown,
+  Share2, Copy, QrCode, ExternalLink
 } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { TEMPLATES, getTemplateById } from '@/components/templates/types'
@@ -78,6 +80,9 @@ export default function ResumeEditorPage() {
   const [saving, setSaving] = useState(false)
   const [resume, setResume] = useState<ResumeData | null>(null)
   const [activeTab, setActiveTab] = useState('contact')
+  const [publicSlug, setPublicSlug] = useState<string | null>(null)
+  const [creatingLink, setCreatingLink] = useState(false)
+  const [showQR, setShowQR] = useState(false)
   const [newSkill, setNewSkill] = useState('')
 
   useEffect(() => {
@@ -132,6 +137,85 @@ export default function ResumeEditorPage() {
       template: (data.template as string) || 'classic',
     })
     setLoading(false)
+
+    // Load existing public link if any
+    loadPublicLink()
+  }
+
+  const loadPublicLink = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data: link } = await supabase
+      .from('public_resume_links')
+      .select('public_slug')
+      .eq('user_id', user.id)
+      .eq('resume_id', resumeId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (link?.public_slug) {
+      setPublicSlug(link.public_slug)
+    }
+  }
+
+  const createPublicLink = async () => {
+    if (publicSlug) return // Already exists
+
+    setCreatingLink(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      toast.error('Please login to create a share link')
+      setCreatingLink(false)
+      return
+    }
+
+    const slugBase = (resume?.title || 'resume')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      .slice(0, 40)
+    const slug = `${slugBase}-${Math.random().toString(36).substring(2, 7)}`
+
+    const { data, error } = await supabase
+      .from('public_resume_links')
+      .insert({
+        user_id: user.id,
+        public_slug: slug,
+        resume_id: resumeId,
+        is_active: true,
+      })
+      .select('public_slug')
+      .single()
+
+    if (error) {
+      toast.error('Failed to create share link')
+      console.error(error)
+    } else if (data?.public_slug) {
+      setPublicSlug(data.public_slug)
+      toast.success('Share link created!')
+    }
+    setCreatingLink(false)
+  }
+
+  const getShareableLink = () => {
+    if (!publicSlug) return ''
+    return `${window.location.origin}/r/${publicSlug}`
+  }
+
+  const handleCopyLink = async () => {
+    const link = getShareableLink()
+    if (!link) {
+      toast.error('Create a share link first')
+      return
+    }
+    await navigator.clipboard.writeText(link)
+    toast.success('Link copied to clipboard!')
   }
 
   const saveResume = async () => {
@@ -300,7 +384,7 @@ export default function ResumeEditorPage() {
 
       {/* Editor Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
           <TabsTrigger value="contact" className="gap-2">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Contact</span>
@@ -320,6 +404,10 @@ export default function ResumeEditorPage() {
           <TabsTrigger value="template" className="gap-2">
             <Palette className="h-4 w-4" />
             <span className="hidden sm:inline">Template</span>
+          </TabsTrigger>
+          <TabsTrigger value="share" className="gap-2">
+            <Share2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Share</span>
           </TabsTrigger>
         </TabsList>
 
@@ -788,6 +876,101 @@ export default function ResumeEditorPage() {
                   </Button>
                 </Link>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Share Tab */}
+        <TabsContent value="share" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Share2 className="h-5 w-5" />
+                Share Your Resume
+              </CardTitle>
+              <CardDescription>
+                Generate a public link and QR code to share your resume with anyone
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {!publicSlug ? (
+                <div className="text-center py-8">
+                  <div className="p-4 bg-muted rounded-full w-fit mx-auto mb-4">
+                    <ExternalLink className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Create a Public Link</h3>
+                  <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                    Generate a shareable link that anyone can use to view your resume without logging in.
+                  </p>
+                  <Button onClick={createPublicLink} disabled={creatingLink}>
+                    {creatingLink ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Create Share Link
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* QR Code */}
+                    <div className="flex flex-col items-center">
+                      <div className="p-4 bg-white rounded-xl shadow-lg border">
+                        <QRCodeSVG
+                          value={getShareableLink()}
+                          size={180}
+                          level="H"
+                          includeMargin={true}
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-3 text-center">
+                        Scan to view resume
+                      </p>
+                    </div>
+
+                    {/* Link & Actions */}
+                    <div className="flex-1 space-y-4">
+                      <div>
+                        <Label>Public Link</Label>
+                        <div className="flex gap-2 mt-1">
+                          <Input
+                            readOnly
+                            value={getShareableLink()}
+                            className="flex-1 bg-muted"
+                          />
+                          <Button onClick={handleCopyLink} variant="secondary">
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" onClick={() => window.open(getShareableLink(), '_blank')}>
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Open Link
+                        </Button>
+                        <Button variant="outline" onClick={handleCopyLink}>
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy Link
+                        </Button>
+                      </div>
+
+                      <div className="pt-4 border-t">
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Tip:</strong> Anyone with this link can view your resume. 
+                          The link will remain active until you delete it.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
