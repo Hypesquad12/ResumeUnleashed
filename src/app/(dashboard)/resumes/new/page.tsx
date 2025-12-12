@@ -80,6 +80,8 @@ export default function NewResumePage() {
   const [uploading, setUploading] = useState(false)
   const [parsing, setParsing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadStage, setUploadStage] = useState<'idle' | 'validating' | 'parsing' | 'saving' | 'complete' | 'error'>('idle')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleCreateResume = async () => {
@@ -187,27 +189,61 @@ export default function NewResumePage() {
   }
 
   // File upload handlers
-  const validateFile = (file: File): boolean => {
-    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  const validateFile = (file: File): { valid: boolean; error?: string } => {
+    const validMimeTypes = [
+      'application/pdf', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/octet-stream' // Some browsers send this
+    ]
     const maxSize = 10 * 1024 * 1024 // 10MB
+    const fileName = file.name.toLowerCase()
+    const isPDF = fileName.endsWith('.pdf')
+    const isDOCX = fileName.endsWith('.docx')
 
-    if (!validTypes.includes(file.type)) {
-      toast.error('Please upload a PDF or DOCX file')
-      return false
+    // Check extension first (more reliable than MIME type)
+    if (!isPDF && !isDOCX) {
+      return { 
+        valid: false, 
+        error: `Unsupported file type: "${file.name.split('.').pop()}". Please upload a PDF or DOCX file.` 
+      }
+    }
+
+    // Also check MIME type for additional validation
+    if (!validMimeTypes.includes(file.type) && !isPDF && !isDOCX) {
+      return { 
+        valid: false, 
+        error: 'Invalid file format. Please upload a valid PDF or Word document.' 
+      }
     }
 
     if (file.size > maxSize) {
-      toast.error('File size must be less than 10MB')
-      return false
+      const sizeMB = (file.size / 1024 / 1024).toFixed(1)
+      return { 
+        valid: false, 
+        error: `File too large (${sizeMB}MB). Maximum size is 10MB.` 
+      }
     }
 
-    return true
+    if (file.size < 1000) {
+      return { 
+        valid: false, 
+        error: 'File appears to be empty or corrupted. Please upload a valid resume.' 
+      }
+    }
+
+    return { valid: true }
   }
 
   const handleFileSelect = useCallback((file: File) => {
-    if (validateFile(file)) {
+    setUploadError(null)
+    setUploadStage('idle')
+    const validation = validateFile(file)
+    if (validation.valid) {
       setUploadedFile(file)
       setUploadProgress(0)
+    } else {
+      setUploadError(validation.error || 'Invalid file')
+      toast.error(validation.error || 'Invalid file')
     }
   }, [])
 
@@ -253,51 +289,58 @@ export default function NewResumePage() {
     if (!uploadedFile) return
 
     setUploading(true)
-    setUploadProgress(10)
+    setUploadError(null)
+    setUploadStage('validating')
+    setUploadProgress(5)
     
     try {
       const supabase = createClient()
       
       const { data: { user }, error: authError } = await supabase.auth.getUser()
       if (authError) {
-        console.error('Auth error:', authError)
-        toast.error('Authentication error. Please login again.')
-        router.push('/login')
-        return
+        throw new Error('Authentication error. Please login again.')
       }
       if (!user) {
-        toast.error('Please login to upload a resume')
-        router.push('/login')
-        return
+        throw new Error('Please login to upload a resume')
       }
       
-      console.log('User authenticated:', user.id)
       // Step 1: Parse the resume with AI
-      setUploadProgress(20)
+      setUploadStage('parsing')
+      setUploadProgress(15)
       setParsing(true)
-      
-      console.log('Uploading file:', uploadedFile.name, uploadedFile.type, uploadedFile.size)
       
       const formData = new FormData()
       formData.append('file', uploadedFile)
 
-      console.log('Sending to /api/parse-resume...')
       const parseResponse = await fetch('/api/parse-resume', {
         method: 'POST',
         body: formData,
       })
 
-      console.log('Response status:', parseResponse.status)
-      setUploadProgress(60)
+      setUploadProgress(50)
 
       if (!parseResponse.ok) {
-        const errorData = await parseResponse.json()
-        console.error('Parse error:', errorData)
-        throw new Error(errorData.error || 'Failed to parse resume')
+        const errorData = await parseResponse.json().catch(() => ({}))
+        const errorMsg = errorData.error || 'Failed to parse resume'
+        
+        // Provide more helpful error messages
+        if (errorMsg.includes('extract') || errorMsg.includes('text')) {
+          throw new Error('Could not read text from your file. Please ensure the PDF is not scanned/image-based, or try a DOCX file.')
+        }
+        if (errorMsg.includes('API') || errorMsg.includes('OpenAI')) {
+          throw new Error('AI service temporarily unavailable. Please try again in a moment.')
+        }
+        throw new Error(errorMsg)
       }
 
       const { data: parsedData } = await parseResponse.json()
-      setUploadProgress(80)
+      
+      if (!parsedData || (!parsedData.contact && !parsedData.experience?.length)) {
+        throw new Error('Could not extract resume information. Please ensure your file contains readable text.')
+      }
+      
+      setUploadProgress(70)
+      setUploadStage('saving')
 
       // Step 2: Upload file to Supabase Storage (optional)
       const fileExt = uploadedFile.name.split('.').pop()
@@ -315,7 +358,7 @@ export default function NewResumePage() {
         fileUrl = publicUrl
       }
 
-      setUploadProgress(90)
+      setUploadProgress(85)
 
       // Step 3: Create resume entry with parsed data
       const { data: resumeData, error: resumeError } = await supabase
@@ -335,30 +378,43 @@ export default function NewResumePage() {
         .select()
         .single()
 
+      if (resumeError) {
+        throw new Error('Failed to save resume. Please try again.')
+      }
+
       setUploadProgress(100)
+      setUploadStage('complete')
       setParsing(false)
       setUploading(false)
-
-      if (resumeError) {
-        toast.error('Failed to create resume')
-        return
-      }
 
       toast.success('Resume parsed successfully! Review your details.')
       router.push(`/resumes/${resumeData.id}`)
 
     } catch (error) {
       console.error('Upload error:', error)
-      // Log the full error for debugging
-      if (error instanceof Error) {
-        console.error('Error name:', error.name)
-        console.error('Error message:', error.message)
-        console.error('Error stack:', error.stack)
-      }
-      toast.error(error instanceof Error ? error.message : 'Failed to process resume. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process resume. Please try again.'
+      setUploadError(errorMessage)
+      setUploadStage('error')
+      toast.error(errorMessage)
       setUploading(false)
       setParsing(false)
-      setUploadProgress(0)
+    }
+  }
+
+  const retryUpload = () => {
+    setUploadError(null)
+    setUploadStage('idle')
+    setUploadProgress(0)
+  }
+
+  const getProgressMessage = () => {
+    switch (uploadStage) {
+      case 'validating': return 'Validating file...'
+      case 'parsing': return 'AI is reading your resume...'
+      case 'saving': return 'Saving your resume...'
+      case 'complete': return 'Complete!'
+      case 'error': return 'Upload failed'
+      default: return 'Ready to upload'
     }
   }
 
@@ -494,17 +550,50 @@ export default function NewResumePage() {
                 </div>
 
                 {/* Progress bar */}
-                {(uploading || parsing) && (
+                {(uploading || parsing) && uploadStage !== 'error' && (
                   <div className="space-y-2">
                     <Progress value={uploadProgress} className="h-2" />
-                    <p className="text-sm text-center text-muted-foreground">
-                      {parsing ? 'Processing your resume...' : `Uploading... ${uploadProgress}%`}
-                    </p>
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>{getProgressMessage()}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Error state */}
+                {uploadStage === 'error' && uploadError && (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                      <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-destructive">Upload Failed</p>
+                        <p className="text-sm text-destructive/80 mt-1">{uploadError}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={removeFile}
+                      >
+                        Try Different File
+                      </Button>
+                      <Button 
+                        className="flex-1"
+                        onClick={() => {
+                          retryUpload()
+                          handleUploadAndParse()
+                        }}
+                      >
+                        <ArrowRight className="mr-2 h-4 w-4" />
+                        Retry
+                      </Button>
+                    </div>
                   </div>
                 )}
 
                 {/* Action buttons */}
-                {!uploading && !parsing && (
+                {!uploading && !parsing && uploadStage !== 'error' && (
                   <div className="flex gap-3">
                     <Button 
                       variant="outline" 
