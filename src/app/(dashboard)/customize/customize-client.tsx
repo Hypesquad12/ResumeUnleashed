@@ -165,8 +165,10 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   }
 
   const getShareableLink = () => {
-    if (!customizedResumeId) return ''
-    return `${window.location.origin}/resumes/${customizedResumeId}/preview`
+    // Use source resume ID for shareable link since that's what has the preview page
+    const resumeId = selectedResume || customizedResumeId
+    if (!resumeId) return ''
+    return `${window.location.origin}/resumes/${resumeId}/preview`
   }
 
   const handleCopyLink = async () => {

@@ -97,58 +97,9 @@ export default function ResumePreviewPage() {
   }
 
   const handleDownload = () => {
-    // Use browser print to PDF functionality
-    const printContent = resumeRef.current
-    if (!printContent) return
-
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      toast.error('Please allow popups to download PDF')
-      return
-    }
-
-    const styles = Array.from(document.styleSheets)
-      .map(styleSheet => {
-        try {
-          return Array.from(styleSheet.cssRules)
-            .map(rule => rule.cssText)
-            .join('')
-        } catch {
-          return ''
-        }
-      })
-      .join('')
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${resume?.title || 'Resume'}</title>
-          <style>
-            ${styles}
-            @media print {
-              body { margin: 0; padding: 0; }
-              @page { size: A4; margin: 0; }
-            }
-            body {
-              font-family: system-ui, -apple-system, sans-serif;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-          </style>
-        </head>
-        <body>
-          ${printContent.innerHTML}
-        </body>
-      </html>
-    `)
-    printWindow.document.close()
-    
-    // Wait for styles to load then print
-    setTimeout(() => {
-      printWindow.print()
-      printWindow.close()
-    }, 500)
+    // Use browser's native print functionality directly
+    // This preserves all styles correctly
+    window.print()
   }
 
   const handleShare = async () => {
@@ -190,8 +141,30 @@ export default function ResumePreviewPage() {
 
   return (
     <div className="space-y-6">
+      {/* Print Styles */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #resume-print-area, #resume-print-area * {
+            visibility: visible;
+          }
+          #resume-print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          @page {
+            size: A4;
+            margin: 0;
+          }
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap gap-4 print:hidden">
         <div className="flex items-center gap-4">
           <Link href={`/resumes/${resumeId}`}>
             <Button variant="ghost" size="icon">
@@ -216,7 +189,7 @@ export default function ResumePreviewPage() {
       </div>
 
       {/* Template Selector */}
-      <div className="flex items-center justify-center gap-4 bg-muted/50 rounded-lg p-4">
+      <div className="flex items-center justify-center gap-4 bg-muted/50 rounded-lg p-4 print:hidden">
         <Button variant="outline" size="icon" onClick={() => cycleTemplate('prev')}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -247,8 +220,8 @@ export default function ResumePreviewPage() {
       </div>
 
       {/* Resume Preview */}
-      <div className="flex justify-center bg-muted/30 rounded-lg p-8 overflow-auto">
-        <div ref={resumeRef} className="shadow-2xl">
+      <div className="flex justify-center bg-muted/30 rounded-lg p-8 overflow-auto print:bg-white print:p-0">
+        <div id="resume-print-area" ref={resumeRef} className="shadow-2xl print:shadow-none">
           <ResumeTemplate templateId={selectedTemplate} data={resume} />
         </div>
       </div>
