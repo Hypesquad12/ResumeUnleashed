@@ -1,11 +1,90 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Play } from 'lucide-react'
+import { ArrowRight, Play, X } from 'lucide-react'
 import Link from 'next/link'
 
+function DemoModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-slate-800 mb-4">How It Works</h2>
+            
+            <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden">
+              <div className="w-full h-full flex flex-col items-center justify-center p-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
+                  <div className="text-center p-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold">
+                      1
+                    </div>
+                    <h3 className="font-semibold text-slate-800 mb-2">Upload Resume</h3>
+                    <p className="text-sm text-slate-600">Upload your existing resume or start from scratch</p>
+                  </div>
+                  <div className="text-center p-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-white text-2xl font-bold">
+                      2
+                    </div>
+                    <h3 className="font-semibold text-slate-800 mb-2">AI Customization</h3>
+                    <p className="text-sm text-slate-600">Paste a job description and let AI optimize your resume</p>
+                  </div>
+                  <div className="text-center p-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-white text-2xl font-bold">
+                      3
+                    </div>
+                    <h3 className="font-semibold text-slate-800 mb-2">Share & Apply</h3>
+                    <p className="text-sm text-slate-600">Download, share via QR code, or apply directly</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/signup">
+                <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Button size="lg" variant="outline" onClick={onClose}>
+                Maybe Later
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 export function HeroSection() {
+  const [showDemo, setShowDemo] = useState(false)
+
   return (
     <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Animated gradient orbs - Light theme */}
@@ -106,6 +185,7 @@ export function HeroSection() {
             size="lg" 
             variant="outline" 
             className="text-lg px-8 h-14 border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400 group"
+            onClick={() => setShowDemo(true)}
           >
             <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
             Watch Demo
@@ -138,6 +218,9 @@ export function HeroSection() {
           ))}
         </motion.div>
       </div>
+
+      {/* Demo Modal */}
+      <DemoModal isOpen={showDemo} onClose={() => setShowDemo(false)} />
     </section>
   )
 }
