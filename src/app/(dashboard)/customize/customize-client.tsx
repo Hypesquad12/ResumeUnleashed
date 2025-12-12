@@ -51,6 +51,8 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   const [customizationComplete, setCustomizationComplete] = useState(false)
   const [customizedResumeId, setCustomizedResumeId] = useState<string | null>(null)
   const [showQRCode, setShowQRCode] = useState(false)
+  const [publicResumeSlug, setPublicResumeSlug] = useState<string | null>(null)
+  const [creatingPublicLink, setCreatingPublicLink] = useState(false)
   const [customizationHistory, setCustomizationHistory] = useState<CustomizationHistory[]>(history)
   const [optimizationStats, setOptimizationStats] = useState({ keywords: 0, sections: 0, score: 0 })
   const [aiSuggestions, setAiSuggestions] = useState<{
@@ -168,6 +170,50 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           match_score: customized.match_score,
           created_at: customized.created_at || new Date().toISOString(),
         }, ...prev])
+
+        // Create or reuse a public link (for QR + public access)
+        try {
+          setCreatingPublicLink(true)
+          const existing = await supabase
+            .from('public_resume_links')
+            .select('public_slug')
+            .eq('user_id', user.id)
+            .eq('customized_resume_id', customized.id)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          if (existing.data?.public_slug) {
+            setPublicResumeSlug(existing.data.public_slug)
+          } else {
+            const slugBase = (jobTitle || 'resume')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '')
+              .slice(0, 40)
+            const slug = `${slugBase}-${Math.random().toString(36).substring(2, 7)}`
+
+            const created = await supabase
+              .from('public_resume_links')
+              .insert({
+                user_id: user.id,
+                public_slug: slug,
+                customized_resume_id: customized.id,
+                is_active: true,
+              })
+              .select('public_slug')
+              .single()
+
+            if (created.data?.public_slug) {
+              setPublicResumeSlug(created.data.public_slug)
+            }
+          }
+        } catch (e) {
+          console.error('Failed to create public resume link:', e)
+        } finally {
+          setCreatingPublicLink(false)
+        }
       }
       
       toast.success('Resume customization complete!')
@@ -203,14 +249,16 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   }
 
   const getShareableLink = () => {
-    // Use source resume ID for shareable link since that's what has the preview page
-    const resumeId = selectedResume || customizedResumeId
-    if (!resumeId) return ''
-    return `${window.location.origin}/resumes/${resumeId}/preview`
+    if (!publicResumeSlug) return ''
+    return `${window.location.origin}/r/${publicResumeSlug}`
   }
 
   const handleCopyLink = async () => {
     const link = getShareableLink()
+    if (!link) {
+      toast.error('Public link is not ready yet')
+      return
+    }
     await navigator.clipboard.writeText(link)
     toast.success('Link copied to clipboard!')
   }
@@ -223,6 +271,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
     setCustomizationComplete(false)
     setCustomizedResumeId(null)
     setShowQRCode(false)
+    setPublicResumeSlug(null)
   }
 
   if (!hasResumes) {
@@ -270,46 +319,55 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             </div>
             <h3 className="text-xl font-semibold mb-2">Resume Optimized Successfully</h3>
             <p className="text-muted-foreground text-center mb-6 max-w-md">
-              Your customized resume is ready. It has been optimized with relevant keywords 
+              Your customized resume is ready. It has been optimized with relevant keywords
               and tailored content to match the job requirements.
             </p>
-            
-            {/* Action Buttons */}
-            <div className="flex flex-wrap justify-center gap-3 mb-6">
-              <Button onClick={handlePreview} variant="outline">
+
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button variant="outline" onClick={handlePreview}>
                 <Eye className="mr-2 h-4 w-4" />
                 Preview
               </Button>
-              <Button onClick={handleDownloadPDF} variant="outline">
+              <Button variant="outline" onClick={handleDownloadPDF}>
                 <Download className="mr-2 h-4 w-4" />
                 Download PDF
               </Button>
-              <Button onClick={() => setShowQRCode(!showQRCode)} variant="outline">
+              <Button
+                onClick={() => setShowQRCode(!showQRCode)}
+                variant="outline"
+                disabled={creatingPublicLink || !publicResumeSlug}
+              >
                 <QrCode className="mr-2 h-4 w-4" />
                 {showQRCode ? 'Hide QR Code' : 'Show QR Code'}
               </Button>
-              <Button onClick={handleCopyLink} variant="outline">
+              <Button
+                onClick={handleCopyLink}
+                variant="outline"
+                disabled={creatingPublicLink || !publicResumeSlug}
+              >
                 <Copy className="mr-2 h-4 w-4" />
                 Copy Link
               </Button>
             </div>
 
-            {/* QR Code Section */}
             {showQRCode && (
-              <div className="mb-6 p-6 bg-white rounded-xl shadow-lg">
-                <QRCodeSVG 
-                  value={getShareableLink()} 
+              <div className="mt-6 p-6 bg-white rounded-xl shadow-lg">
+                {creatingPublicLink && (
+                  <div className="flex items-center justify-center pb-4 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Generating public link...
+                  </div>
+                )}
+                <QRCodeSVG
+                  value={getShareableLink()}
                   size={180}
                   level="H"
                   includeMargin={true}
                 />
-                <p className="text-center text-sm text-muted-foreground mt-3">
-                  Scan to view resume
-                </p>
               </div>
             )}
 
-            <div className="flex gap-4">
+            <div className="mt-6 flex gap-4">
               <Button variant="outline" onClick={handleReset}>
                 Customize Another
               </Button>
