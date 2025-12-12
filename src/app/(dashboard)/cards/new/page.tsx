@@ -23,8 +23,8 @@ const themeColors = [
 export default function NewCardPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [loadingResume, setLoadingResume] = useState(true)
-  const [hasResume, setHasResume] = useState(false)
+  const [_loadingResume, setLoadingResume] = useState(true)
+  const [_hasResume, setHasResume] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',

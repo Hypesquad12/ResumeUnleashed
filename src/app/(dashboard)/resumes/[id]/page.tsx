@@ -12,11 +12,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   ArrowLeft, Save, Loader2, Plus, Trash2, GripVertical,
-  User, Briefcase, GraduationCap, Wrench, FileText, Eye, Sparkles, Palette, Check, Crown,
-  Share2, Copy, QrCode, ExternalLink, Camera, Upload, X
+  User, Briefcase, GraduationCap, Wrench, Eye, Sparkles, Palette, Check, Crown,
+  Share2, Copy, ExternalLink, Camera, Upload, X
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { TEMPLATES, getTemplateById } from '@/components/templates/types'
@@ -64,15 +63,6 @@ interface ResumeData {
   photo_url?: string
 }
 
-const defaultContact: ContactInfo = {
-  name: '',
-  email: '',
-  phone: '',
-  linkedin: '',
-  location: '',
-  website: '',
-}
-
 export default function ResumeEditorPage() {
   const router = useRouter()
   const params = useParams()
@@ -84,11 +74,11 @@ export default function ResumeEditorPage() {
   const [activeTab, setActiveTab] = useState('contact')
   const [publicSlug, setPublicSlug] = useState<string | null>(null)
   const [creatingLink, setCreatingLink] = useState(false)
-  const [showQR, setShowQR] = useState(false)
   const [newSkill, setNewSkill] = useState('')
 
   useEffect(() => {
     loadResume()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resumeId])
 
   const loadResume = async () => {
