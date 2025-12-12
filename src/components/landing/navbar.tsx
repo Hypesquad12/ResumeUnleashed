@@ -21,6 +21,7 @@ export function Navbar() {
   const navItems = [
     { label: 'Features', href: '#features' },
     { label: 'Templates', href: '/templates' },
+    { label: 'Blog', href: '/blog' },
     { label: 'Pricing', href: '#pricing' },
   ]
 
