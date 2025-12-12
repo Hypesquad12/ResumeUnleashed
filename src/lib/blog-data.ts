@@ -8,6 +8,35 @@ export interface BlogPost {
   readTime: string
   category: string
   tags: string[]
+  image: string
+  authorImage: string
+}
+
+// Free Unsplash images for blog posts
+const blogImages = {
+  resumeWriting: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&q=80',
+  templates: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200&q=80',
+  ats: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&q=80',
+  summary: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&q=80',
+  jobSearch: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&q=80',
+  careerChange: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
+  interview: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&q=80',
+  linkedin: 'https://images.unsplash.com/photo-1611944212129-29977ae1398c?w=1200&q=80',
+  skills: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
+  entryLevel: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=80',
+}
+
+const authorImages = {
+  sarah: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80',
+  michael: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&q=80',
+  david: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80',
+  jennifer: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80',
+  robert: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80',
+  amanda: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
+  thomas: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&q=80',
+  lisa: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&q=80',
+  kevin: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&q=80',
+  emily: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80',
 }
 
 export const blogPosts: BlogPost[] = [
@@ -59,7 +88,9 @@ Use an **AI resume builder** like ResumeAI to optimize your resume automatically
     publishedAt: '2024-11-15',
     readTime: '8 min',
     category: 'Resume Writing',
-    tags: ['resume builder', 'how to write a resume', 'ATS resume', 'professional resume']
+    tags: ['resume builder', 'how to write a resume', 'ATS resume', 'professional resume'],
+    image: blogImages.resumeWriting,
+    authorImage: authorImages.sarah
   },
   {
     slug: 'best-resume-templates-2024',
@@ -103,7 +134,9 @@ Our **resume builder** offers professionally designed, ATS-compatible templates.
     publishedAt: '2024-11-10',
     readTime: '7 min',
     category: 'Resume Templates',
-    tags: ['resume templates', 'resume format', 'professional resume', 'ATS resume']
+    tags: ['resume templates', 'resume format', 'professional resume', 'ATS resume'],
+    image: blogImages.templates,
+    authorImage: authorImages.michael
   },
   {
     slug: 'ats-resume-optimization-guide',
@@ -156,7 +189,9 @@ An **AI resume builder** can analyze job descriptions and optimize your content 
     publishedAt: '2024-11-05',
     readTime: '10 min',
     category: 'Job Search',
-    tags: ['ATS resume', 'resume keywords', 'resume format', 'job application tips']
+    tags: ['ATS resume', 'resume keywords', 'resume format', 'job application tips'],
+    image: blogImages.ats,
+    authorImage: authorImages.david
   },
   {
     slug: 'resume-summary-examples',
@@ -202,7 +237,9 @@ Our **AI resume builder** generates customized summaries based on your experienc
     publishedAt: '2024-10-28',
     readTime: '12 min',
     category: 'Resume Writing',
-    tags: ['resume summary examples', 'how to write a resume', 'professional resume', 'entry level resume']
+    tags: ['resume summary examples', 'how to write a resume', 'professional resume', 'entry level resume'],
+    image: blogImages.summary,
+    authorImage: authorImages.jennifer
   },
   {
     slug: 'job-search-strategies',
@@ -276,7 +313,9 @@ Track applications and follow up appropriately.`,
     publishedAt: '2024-10-20',
     readTime: '11 min',
     category: 'Job Search',
-    tags: ['job search tips', 'job hunting strategies', 'LinkedIn profile tips', 'interview tips']
+    tags: ['job search tips', 'job hunting strategies', 'LinkedIn profile tips', 'interview tips'],
+    image: blogImages.jobSearch,
+    authorImage: authorImages.robert
   },
   {
     slug: 'career-change-resume-guide',
@@ -334,7 +373,9 @@ An **AI resume builder** can identify transferable skills and suggest relevant k
     publishedAt: '2024-10-12',
     readTime: '13 min',
     category: 'Career Advice',
-    tags: ['career change resume', 'career advice', 'resume skills', 'job application tips']
+    tags: ['career change resume', 'career advice', 'resume skills', 'job application tips'],
+    image: blogImages.careerChange,
+    authorImage: authorImages.amanda
   },
   {
     slug: 'interview-tips-guide',
@@ -401,7 +442,9 @@ Wait the specified timeframe, then send polite follow-up.
     publishedAt: '2024-10-05',
     readTime: '14 min',
     category: 'Interview Prep',
-    tags: ['interview tips', 'job application tips', 'career advice', 'job search tips']
+    tags: ['interview tips', 'job application tips', 'career advice', 'job search tips'],
+    image: blogImages.interview,
+    authorImage: authorImages.thomas
   },
   {
     slug: 'linkedin-profile-optimization',
@@ -464,7 +507,9 @@ Transform duties into achievements with metrics.
     publishedAt: '2024-09-28',
     readTime: '12 min',
     category: 'Personal Branding',
-    tags: ['LinkedIn profile tips', 'job search tips', 'career advice', 'professional resume']
+    tags: ['LinkedIn profile tips', 'job search tips', 'career advice', 'professional resume'],
+    image: blogImages.linkedin,
+    authorImage: authorImages.lisa
   },
   {
     slug: 'resume-skills-section-guide',
@@ -537,7 +582,9 @@ An **AI resume builder** extracts **resume keywords** from job descriptions auto
     publishedAt: '2024-09-20',
     readTime: '11 min',
     category: 'Resume Writing',
-    tags: ['resume skills', 'resume keywords', 'ATS resume', 'how to write a resume']
+    tags: ['resume skills', 'resume keywords', 'ATS resume', 'how to write a resume'],
+    image: blogImages.skills,
+    authorImage: authorImages.kevin
   },
   {
     slug: 'entry-level-resume-tips',
@@ -615,7 +662,9 @@ Use an **AI resume builder** to optimize your entry-level resume for each applic
     publishedAt: '2024-09-12',
     readTime: '10 min',
     category: 'Career Advice',
-    tags: ['entry level resume', 'how to write a resume', 'job application tips', 'career advice']
+    tags: ['entry level resume', 'how to write a resume', 'job application tips', 'career advice'],
+    image: blogImages.entryLevel,
+    authorImage: authorImages.emily
   }
 ]
 
