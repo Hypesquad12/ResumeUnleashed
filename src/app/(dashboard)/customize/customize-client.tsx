@@ -94,13 +94,29 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       }
       setOptimizationStats(stats)
 
+      // Extract job title from job description (first line or common patterns)
+      const jdText = jobDescription || jobUrl
+      let jobTitle = 'Customized'
+      if (jdText) {
+        // Try to extract job title from first line or common patterns
+        const lines = jdText.split('\n').filter(l => l.trim())
+        const firstLine = lines[0]?.trim() || ''
+        // Common patterns: "Job Title: X", "Position: X", or just the first line if short
+        const titleMatch = jdText.match(/(?:job\s*title|position|role)\s*[:\-]\s*(.+)/i)
+        if (titleMatch) {
+          jobTitle = titleMatch[1].trim().substring(0, 50)
+        } else if (firstLine.length < 60 && firstLine.length > 3) {
+          jobTitle = firstLine.substring(0, 50)
+        }
+      }
+
       // Save to customized_resumes table
       const { data: customized, error } = await supabase
         .from('customized_resumes')
         .insert({
           user_id: user.id,
           source_resume_id: selectedResume,
-          title: `${sourceResume.title} - Customized`,
+          title: `${sourceResume.title} - ${jobTitle}`,
           customized_content: {
             contact: sourceResume.contact,
             summary: sourceResume.summary,

@@ -157,10 +157,12 @@ export default function TemplatesPage() {
                   )}
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button variant="secondary" size="sm" className="shadow-lg">
-                      <Eye className="h-4 w-4 mr-1" />
-                      Preview
-                    </Button>
+                    <Link href={`/cards/new?template=${template.id}`}>
+                      <Button variant="secondary" size="sm" className="shadow-lg">
+                        <Eye className="h-4 w-4 mr-1" />
+                        Preview
+                      </Button>
+                    </Link>
                   </div>
                 </div>
                 <CardHeader className="pb-2 pt-3">
