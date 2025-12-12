@@ -53,6 +53,11 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   const [showQRCode, setShowQRCode] = useState(false)
   const [customizationHistory, setCustomizationHistory] = useState<CustomizationHistory[]>(history)
   const [optimizationStats, setOptimizationStats] = useState({ keywords: 0, sections: 0, score: 0 })
+  const [aiSuggestions, setAiSuggestions] = useState<{
+    keywords_added: string[]
+    changes: string[]
+    ats_tips: string[]
+  }>({ keywords_added: [], changes: [], ats_tips: [] })
 
   const hasResumes = resumes.length > 0
   const canStartCustomization = selectedResume && (jobDescription.trim() || jobUrl.trim())
@@ -83,41 +88,55 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         return
       }
 
-      // Simulate AI processing (replace with actual API call later)
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Call AI customization API
+      const jdText = jobDescription || jobUrl
       
-      // Generate random optimization stats for demo
+      const customizeResponse = await fetch('/api/customize-resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resume: {
+            contact: sourceResume.contact,
+            summary: sourceResume.summary,
+            experience: sourceResume.experience,
+            education: sourceResume.education,
+            skills: sourceResume.skills,
+          },
+          jobDescription: jdText,
+        }),
+      })
+
+      if (!customizeResponse.ok) {
+        const errorData = await customizeResponse.json()
+        throw new Error(errorData.error || 'Failed to customize resume')
+      }
+
+      const { data: aiResult } = await customizeResponse.json()
+      
+      // Extract job title from AI response or job description
+      const jobTitle = aiResult.job_title || 'Customized'
+      
+      // Set optimization stats from AI response
       const stats = {
-        keywords: Math.floor(Math.random() * 10) + 8,
-        sections: Math.floor(Math.random() * 3) + 2,
-        score: Math.floor(Math.random() * 15) + 85
+        keywords: aiResult.keywords_added?.length || 0,
+        sections: aiResult.changes?.length || 0,
+        score: aiResult.match_score || 85
       }
       setOptimizationStats(stats)
+      setAiSuggestions({
+        keywords_added: aiResult.keywords_added || [],
+        changes: aiResult.changes || [],
+        ats_tips: aiResult.ats_tips || [],
+      })
 
-      // Extract job title from job description (first line or common patterns)
-      const jdText = jobDescription || jobUrl
-      let jobTitle = 'Customized'
-      if (jdText) {
-        // Try to extract job title from first line or common patterns
-        const lines = jdText.split('\n').filter(l => l.trim())
-        const firstLine = lines[0]?.trim() || ''
-        // Common patterns: "Job Title: X", "Position: X", or just the first line if short
-        const titleMatch = jdText.match(/(?:job\s*title|position|role)\s*[:\-]\s*(.+)/i)
-        if (titleMatch) {
-          jobTitle = titleMatch[1].trim().substring(0, 50)
-        } else if (firstLine.length < 60 && firstLine.length > 3) {
-          jobTitle = firstLine.substring(0, 50)
-        }
-      }
-
-      // Save to customized_resumes table
+      // Save to customized_resumes table with AI-customized content
       const { data: customized, error } = await supabase
         .from('customized_resumes')
         .insert({
           user_id: user.id,
           source_resume_id: selectedResume,
           title: `${sourceResume.title} - ${jobTitle}`,
-          customized_content: {
+          customized_content: aiResult.customized_resume || {
             contact: sourceResume.contact,
             summary: sourceResume.summary,
             experience: sourceResume.experience,
@@ -125,9 +144,10 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             skills: sourceResume.skills,
           },
           ai_suggestions: {
-            keywords_added: stats.keywords,
-            sections_updated: stats.sections,
-            job_description: jobDescription || jobUrl,
+            keywords_added: aiResult.keywords_added || [],
+            changes: aiResult.changes || [],
+            ats_tips: aiResult.ats_tips || [],
+            job_description: jdText,
           },
           match_score: stats.score,
         })
@@ -336,6 +356,83 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             </CardContent>
           </Card>
         </div>
+
+        {/* AI Changes Made */}
+        {aiSuggestions.changes.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wand2 className="h-5 w-5 text-violet-500" />
+                Changes Made
+              </CardTitle>
+              <CardDescription>
+                Here&apos;s what was optimized in your resume
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {aiSuggestions.changes.map((change, index) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>{change}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Keywords Added */}
+        {aiSuggestions.keywords_added.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-blue-500" />
+                Keywords Added
+              </CardTitle>
+              <CardDescription>
+                These keywords from the job description were incorporated
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {aiSuggestions.keywords_added.map((keyword, index) => (
+                  <span 
+                    key={index} 
+                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ATS Tips */}
+        {aiSuggestions.ats_tips.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-green-500" />
+                ATS Optimization Tips
+              </CardTitle>
+              <CardDescription>
+                Additional suggestions to improve your resume
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {aiSuggestions.ats_tips.map((tip, index) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <Sparkles className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Share Section */}
         <Card>
