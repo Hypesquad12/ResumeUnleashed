@@ -42,6 +42,11 @@ export default function CardDetailPage() {
   const [loading, setLoading] = useState(true)
   const [card, setCard] = useState<VisitingCard | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     loadCard()
@@ -66,8 +71,9 @@ export default function CardDetailPage() {
   }
 
   const getShareableLink = () => {
-    if (!card?.public_slug) return ''
-    return `${window.location.origin}/c/${card.public_slug}`
+    const origin = mounted ? window.location.origin : 'https://example.com'
+    if (!card?.public_slug) return `${origin}/c/preview`
+    return `${origin}/c/${card.public_slug}`
   }
 
   const handleCopyLink = async () => {
