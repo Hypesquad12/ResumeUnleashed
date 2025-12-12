@@ -90,13 +90,11 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         return
       }
 
-      // Call AI customization API
+      // Call Supabase Edge Function for AI customization
       const jdText = jobDescription || jobUrl
       
-      const customizeResponse = await fetch('/api/customize-resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { data: edgeFnResult, error: edgeFnError } = await supabase.functions.invoke('customize-resume', {
+        body: {
           resume: {
             contact: sourceResume.contact,
             summary: sourceResume.summary,
@@ -105,15 +103,14 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             skills: sourceResume.skills,
           },
           jobDescription: jdText,
-        }),
+        },
       })
 
-      if (!customizeResponse.ok) {
-        const errorData = await customizeResponse.json()
-        throw new Error(errorData.error || 'Failed to customize resume')
+      if (edgeFnError || !edgeFnResult?.success) {
+        throw new Error(edgeFnResult?.error || edgeFnError?.message || 'Failed to customize resume')
       }
 
-      const { data: aiResult } = await customizeResponse.json()
+      const aiResult = edgeFnResult.data
       
       // Extract job title from AI response or job description
       const jobTitle = aiResult.job_title || 'Customized'

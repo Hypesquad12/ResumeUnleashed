@@ -1,64 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
 import mammoth from 'mammoth'
-
-// Initialize OpenAI client lazily to ensure env vars are loaded
-function getOpenAIClient() {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY environment variable is not set')
-  }
-  return new OpenAI({ apiKey })
-}
-
-const SYSTEM_PROMPT = `You are a resume parser. Extract information from the resume text and return a JSON object with the following structure:
-
-{
-  "contact": {
-    "name": "Full name of the person",
-    "email": "Email address",
-    "phone": "Phone number",
-    "linkedin": "LinkedIn URL if present",
-    "location": "City, State/Country",
-    "website": "Personal website or portfolio URL if present"
-  },
-  "summary": "Professional summary or objective statement",
-  "experience": [
-    {
-      "company": "Company name",
-      "position": "Job title",
-      "location": "City, State",
-      "startDate": "YYYY-MM format",
-      "endDate": "YYYY-MM format or empty if current",
-      "current": true/false,
-      "description": "Job responsibilities and achievements as bullet points"
-    }
-  ],
-  "education": [
-    {
-      "institution": "School/University name",
-      "degree": "Degree type (e.g., Bachelor's, Master's, BBA, MBA, B.Tech, etc.)",
-      "field": "Field of study or major",
-      "startDate": "YYYY-MM format",
-      "endDate": "YYYY-MM format",
-      "gpa": "GPA or percentage if mentioned"
-    }
-  ],
-  "skills": ["skill1", "skill2", "skill3"]
-}
-
-CRITICAL RULES:
-- PRESERVE EXACT JOB TITLES: Do NOT modify, rephrase, or "improve" job titles/positions. Use the EXACT title as written in the resume (e.g., "Risk Analyst" stays "Risk Analyst", not "Senior Risk Analyst" or "Risk Management Specialist")
-- EXTRACT ALL EDUCATION: Include EVERY educational entry mentioned, including:
-  - University degrees (Bachelor's, Master's, PhD, MBA, BBA, B.Tech, M.Tech, etc.)
-  - Professional certifications
-  - Diplomas and courses
-  - High school/secondary education if mentioned
-- For dates, convert to YYYY-MM format (e.g., "January 2020" becomes "2020-01")
-- If a date is "Present" or "Current", set current to true and leave endDate empty
-- Skills should be individual items, not comma-separated strings
-- If information is not present, use empty string or empty array
-- Return ONLY valid JSON, no additional text`
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
@@ -151,49 +92,47 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Parse with OpenAI
-    console.log('Calling OpenAI API...')
-    const openai = getOpenAIClient()
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: `Parse this resume:\n\n${text}` }
-      ],
-      temperature: 0.1,
-      max_tokens: 4000,
-    })
-
-    const content = completion.choices[0]?.message?.content
-    if (!content) {
+    // Call Supabase Edge Function for AI parsing
+    console.log('Calling Supabase Edge Function...')
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
       return NextResponse.json(
-        { error: 'Failed to parse resume content' },
+        { error: 'Supabase configuration missing' },
         { status: 500 }
       )
     }
 
-    // Parse the JSON response
-    const parsedData = JSON.parse(content)
+    const edgeFnResponse = await fetch(`${supabaseUrl}/functions/v1/parse-resume-text`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+      },
+      body: JSON.stringify({ text }),
+    })
 
-    // Add IDs to experience and education entries
-    if (parsedData.experience) {
-      parsedData.experience = parsedData.experience.map((exp: Record<string, unknown>) => ({
-        ...exp,
-        id: crypto.randomUUID(),
-      }))
+    if (!edgeFnResponse.ok) {
+      const errorData = await edgeFnResponse.json().catch(() => ({}))
+      return NextResponse.json(
+        { error: errorData.error || 'Failed to parse resume content' },
+        { status: 500 }
+      )
     }
 
-    if (parsedData.education) {
-      parsedData.education = parsedData.education.map((edu: Record<string, unknown>) => ({
-        ...edu,
-        id: crypto.randomUUID(),
-      }))
+    const result = await edgeFnResponse.json()
+    
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || 'Failed to parse resume' },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({
       success: true,
-      data: parsedData,
+      data: result.data,
     })
 
   } catch (error) {
