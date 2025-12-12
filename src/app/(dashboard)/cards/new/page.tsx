@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Loader2, QrCode } from 'lucide-react'
+import { ArrowLeft, Loader2, QrCode, FileText } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -23,6 +23,8 @@ const themeColors = [
 export default function NewCardPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [loadingResume, setLoadingResume] = useState(true)
+  const [hasResume, setHasResume] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -35,6 +37,57 @@ export default function NewCardPage() {
     github: '',
     theme_color: '#1a1a2e',
   })
+
+  // Auto-populate from resume if available
+  useEffect(() => {
+    const loadResumeData = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        setLoadingResume(false)
+        return
+      }
+
+      // Get the most recent resume
+      const { data: resume } = await supabase
+        .from('resumes')
+        .select('contact, experience')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (resume) {
+        setHasResume(true)
+        const contact = resume.contact as Record<string, string> | null
+        const experience = resume.experience as Array<{ company?: string; position?: string }> | null
+        
+        // Get most recent job for title and company
+        const latestJob = experience?.[0]
+        
+        setFormData(prev => ({
+          ...prev,
+          name: contact?.name || prev.name,
+          email: contact?.email || prev.email,
+          phone: contact?.phone || prev.phone,
+          website: contact?.website || prev.website,
+          linkedin: contact?.linkedin || prev.linkedin,
+          title: latestJob?.position || prev.title,
+          company: latestJob?.company || prev.company,
+        }))
+        
+        toast.success('Auto-filled from your resume!', {
+          description: 'We found your resume and pre-filled your details.',
+          icon: <FileText className="h-4 w-4" />,
+        })
+      }
+      
+      setLoadingResume(false)
+    }
+
+    loadResumeData()
+  }, [])
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))

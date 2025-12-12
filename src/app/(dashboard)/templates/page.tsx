@@ -6,41 +6,27 @@ import { Crown, FileText, CreditCard, Check, Eye, Briefcase, Palette, Sparkles, 
 import Link from 'next/link'
 import { TEMPLATES } from '@/components/templates/types'
 import { TemplateThumbnail } from '@/components/templates/template-thumbnail'
+import { CARD_TEMPLATES as CARD_TEMPLATE_LIST } from '@/components/card-templates'
+import { CardThumbnail } from '@/components/card-templates/card-thumbnail'
 
-const CARD_TEMPLATES = [
-  {
-    id: 'classic',
-    name: 'Classic',
-    slug: 'classic',
-    description: 'Timeless business card design',
-    is_premium: false,
-    color: 'from-slate-600 to-slate-800',
-  },
-  {
-    id: 'gradient',
-    name: 'Gradient',
-    slug: 'gradient',
-    description: 'Modern gradient background',
-    is_premium: false,
-    color: 'from-violet-500 to-purple-600',
-  },
-  {
-    id: 'minimal-card',
-    name: 'Minimal',
-    slug: 'minimal-card',
-    description: 'Clean and simple',
-    is_premium: false,
-    color: 'from-gray-100 to-gray-200',
-  },
-  {
-    id: 'bold-card',
-    name: 'Bold',
-    slug: 'bold-card',
-    description: 'Make a statement',
-    is_premium: true,
-    color: 'from-red-500 to-rose-600',
-  },
-]
+// Theme colors for card template backgrounds
+const cardThemeColors: Record<string, string> = {
+  'classic-card': '#1a1a2e',
+  'modern-card': '#6366f1',
+  'minimal-card': '#ffffff',
+  'gradient-card': '#6366f1',
+  'split-card': '#1a1a2e',
+  'elegant-card': '#374151',
+  'bold-card': '#000000',
+  'tech-card': '#111827',
+  'corporate-card': '#1e40af',
+  'creative-card': '#ec4899',
+  'glass-card': '#6366f1',
+  'vertical-card': '#1a1a2e',
+  'premium-card': '#2d2d44',
+  'neon-card': '#00ff88',
+  'wave-card': '#3b82f6',
+}
 
 const categoryIcons = {
   professional: Briefcase,
@@ -151,38 +137,46 @@ export default function TemplatesPage() {
         </TabsContent>
 
         <TabsContent value="cards" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {CARD_TEMPLATES.map((template) => (
-              <Card key={template.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
-                <div className={`aspect-[1.75/1] bg-gradient-to-br ${template.color} relative`}>
-                  {/* Card Preview */}
-                  <div className="absolute inset-3 bg-white rounded shadow-lg p-3 flex flex-col justify-between transform group-hover:scale-[1.02] transition-transform">
-                    <div>
-                      <div className="h-3 w-20 bg-slate-800 rounded mb-1" />
-                      <div className="h-2 w-16 bg-slate-400 rounded" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="h-1.5 w-24 bg-slate-300 rounded" />
-                      <div className="h-1.5 w-20 bg-slate-300 rounded" />
-                    </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {CARD_TEMPLATE_LIST.map((template) => (
+              <Card key={template.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="aspect-[1.5/1] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                  {/* Card Preview - Using actual template thumbnail */}
+                  <div className="absolute inset-2 overflow-hidden rounded-lg">
+                    <CardThumbnail templateId={template.id} themeColor={cardThemeColors[template.id]} />
                   </div>
-                  {template.is_premium && (
-                    <div className="absolute top-2 right-2">
-                      <Badge className="bg-amber-500 hover:bg-amber-600 text-xs">
+                  {template.isPremium && (
+                    <div className="absolute top-1 right-1 z-10">
+                      <Badge className="bg-amber-500 hover:bg-amber-600 text-xs shadow-lg">
                         <Crown className="h-2.5 w-2.5 mr-0.5" />
                         Pro
                       </Badge>
                     </div>
                   )}
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button variant="secondary" size="sm" className="shadow-lg">
+                      <Eye className="h-4 w-4 mr-1" />
+                      Preview
+                    </Button>
+                  </div>
                 </div>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{template.name}</CardTitle>
+                <CardHeader className="pb-2 pt-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm">{template.name}</CardTitle>
+                    {!template.isPremium && (
+                      <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
+                        <Check className="h-2.5 w-2.5 mr-0.5" />
+                        Free
+                      </Badge>
+                    )}
+                  </div>
                   <CardDescription className="text-xs">{template.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Link href={`/cards/new?template=${template.slug}`}>
-                    <Button size="sm" className="w-full" variant={template.is_premium ? 'secondary' : 'default'}>
-                      {template.is_premium ? 'Unlock' : 'Use'}
+                <CardContent className="pt-0">
+                  <Link href={`/cards/new?template=${template.id}`}>
+                    <Button size="sm" className="w-full" variant={template.isPremium ? 'secondary' : 'default'}>
+                      {template.isPremium ? 'Unlock Premium' : 'Use Template'}
                     </Button>
                   </Link>
                 </CardContent>
