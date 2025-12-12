@@ -39,6 +39,7 @@ export interface ResumeData {
   education: Education[]
   skills: string[]
   template?: string
+  photo_url?: string
 }
 
 export interface TemplateProps {

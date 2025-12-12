@@ -13,9 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   ArrowLeft, Save, Loader2, Plus, Trash2, GripVertical,
   User, Briefcase, GraduationCap, Wrench, FileText, Eye, Sparkles, Palette, Check, Crown,
-  Share2, Copy, QrCode, ExternalLink
+  Share2, Copy, QrCode, ExternalLink, Camera, Upload, X
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { TEMPLATES, getTemplateById } from '@/components/templates/types'
@@ -60,6 +61,7 @@ interface ResumeData {
   education: Education[]
   skills: string[]
   template: string
+  photo_url?: string
 }
 
 const defaultContact: ContactInfo = {
@@ -135,6 +137,7 @@ export default function ResumeEditorPage() {
       education,
       skills,
       template: (data.template as string) || 'classic',
+      photo_url: ((data as any).photo_url as string) || undefined,
     })
     setLoading(false)
 
@@ -233,8 +236,9 @@ export default function ResumeEditorPage() {
         education: resume.education as unknown as Json,
         skills: resume.skills,
         template: resume.template,
+        photo_url: resume.photo_url || null,
         updated_at: new Date().toISOString(),
-      })
+      } as any)
       .eq('id', resumeId)
 
     if (error) {
@@ -243,6 +247,60 @@ export default function ResumeEditorPage() {
       toast.success('Resume saved successfully')
     }
     setSaving(false)
+  }
+
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB')
+      return
+    }
+
+    setUploadingPhoto(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      toast.error('Please login to upload a photo')
+      setUploadingPhoto(false)
+      return
+    }
+
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${user.id}/${resumeId}-photo.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('resume-assets')
+      .upload(fileName, file, { upsert: true })
+
+    if (uploadError) {
+      toast.error('Failed to upload photo')
+      console.error(uploadError)
+      setUploadingPhoto(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('resume-assets')
+      .getPublicUrl(fileName)
+
+    setResume(prev => prev ? { ...prev, photo_url: publicUrl } : prev)
+    toast.success('Photo uploaded! Remember to save your resume.')
+    setUploadingPhoto(false)
+  }
+
+  const removePhoto = () => {
+    setResume(prev => prev ? { ...prev, photo_url: undefined } : prev)
+    toast.info('Photo removed. Remember to save your resume.')
   }
 
   const addExperience = () => {
@@ -413,6 +471,78 @@ export default function ResumeEditorPage() {
 
         {/* Contact Tab */}
         <TabsContent value="contact" className="space-y-6">
+          {/* Profile Photo */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="h-5 w-5" />
+                Profile Photo
+              </CardTitle>
+              <CardDescription>
+                Add a professional photo to your resume (optional, shown on some templates)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  {resume.photo_url ? (
+                    <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20">
+                      <img
+                        src={resume.photo_url}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={removePhoto}
+                        className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-muted-foreground/25">
+                      <User className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Label htmlFor="photo-upload" className="cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadingPhoto}
+                        onClick={() => document.getElementById('photo-upload')?.click()}
+                      >
+                        {uploadingPhoto ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            {resume.photo_url ? 'Change Photo' : 'Upload Photo'}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </Label>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    JPG, PNG or WebP. Max 5MB. Square photos work best.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Contact Information</CardTitle>

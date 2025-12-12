@@ -10,11 +10,21 @@ export function DistinguishedTemplate({ data, className }: TemplateProps) {
     <div className={cn('bg-white text-gray-800 min-h-[1056px] w-[816px] flex', className)}>
       {/* Sidebar */}
       <aside className="w-1/3 bg-gradient-to-b from-emerald-700 to-teal-800 text-white p-6">
-        {/* Photo placeholder */}
-        <div className="w-28 h-28 bg-white/10 rounded-full mx-auto mb-6 flex items-center justify-center border-2 border-white/30">
-          <span className="text-3xl font-serif">
-            {data.contact.name?.split(' ').map(n => n[0]).join('') || 'YN'}
-          </span>
+        {/* Profile Photo */}
+        <div className="w-28 h-28 rounded-full mx-auto mb-6 overflow-hidden border-2 border-white/30">
+          {data.photo_url ? (
+            <img
+              src={data.photo_url}
+              alt={data.contact.name || 'Profile'}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-white/10 flex items-center justify-center">
+              <span className="text-3xl font-serif">
+                {data.contact.name?.split(' ').map(n => n[0]).join('') || 'YN'}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Contact */}
