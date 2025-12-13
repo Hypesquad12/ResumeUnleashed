@@ -1,8 +1,8 @@
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
-import { CheckCircle, Sparkles, FileText, Zap, Mail, Phone, MapPin, Briefcase, GraduationCap, Award, TrendingUp } from 'lucide-react'
+import { CheckCircle, Sparkles, FileText, Zap, Mail, Phone, MapPin, Briefcase, GraduationCap, Award, TrendingUp, ArrowRight, X, Check } from 'lucide-react'
 
 export function PreviewSection() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -16,6 +16,29 @@ export function PreviewSection() {
   
   const [activeSection, setActiveSection] = useState(0)
   const [atsScore, setAtsScore] = useState(78)
+  const [showAfter, setShowAfter] = useState(false)
+  const [activeComparison, setActiveComparison] = useState(0)
+
+  const beforeAfterExamples = [
+    {
+      label: 'Summary',
+      before: 'Hardworking professional looking for new opportunities in the tech industry.',
+      after: 'Results-driven Software Engineer with 5+ years of experience building scalable web applications. Increased system performance by 40% and led a team of 4 developers.',
+      improvements: ['Added metrics', 'Specific role', 'Quantified achievements']
+    },
+    {
+      label: 'Experience',
+      before: 'Responsible for managing projects and working with clients on various tasks.',
+      after: 'Led cross-functional team of 8 to deliver $2M enterprise project 2 weeks ahead of schedule. Reduced client onboarding time by 60% through process automation.',
+      improvements: ['Action verbs', 'Specific numbers', 'Clear impact']
+    },
+    {
+      label: 'Skills',
+      before: 'Good at computers, Microsoft Office, team player, hard worker',
+      after: 'React, TypeScript, Node.js, AWS, PostgreSQL, Docker, Agile/Scrum, CI/CD pipelines',
+      improvements: ['Industry keywords', 'ATS-friendly', 'Specific technologies']
+    }
+  ]
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -430,6 +453,189 @@ export function PreviewSection() {
             />
           </motion.div>
         </div>
+
+        {/* Before/After Comparison Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mt-32"
+        >
+          {/* Section header */}
+          <div className="text-center mb-12">
+            <motion.span 
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-500/10 to-orange-500/10 border border-rose-200"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <Sparkles className="h-4 w-4 text-rose-500" />
+              <span className="text-sm font-medium text-slate-700">AI Transformation</span>
+            </motion.span>
+            <h3 className="mt-4 text-3xl sm:text-4xl font-bold text-slate-800">
+              See the <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">Difference</span>
+            </h3>
+            <p className="mt-3 text-slate-600 max-w-2xl mx-auto">
+              Watch how our AI transforms generic resume content into powerful, ATS-optimized statements
+            </p>
+          </div>
+
+          {/* Comparison tabs */}
+          <div className="flex justify-center gap-2 mb-8">
+            {beforeAfterExamples.map((example, index) => (
+              <motion.button
+                key={example.label}
+                onClick={() => {
+                  setActiveComparison(index)
+                  setShowAfter(false)
+                }}
+                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  activeComparison === index
+                    ? 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-500/25'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {example.label}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Before/After cards */}
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6 relative">
+              {/* Before card */}
+              <motion.div
+                className={`relative p-6 rounded-2xl border-2 transition-all duration-500 ${
+                  showAfter ? 'border-slate-200 bg-slate-50/50' : 'border-rose-300 bg-white shadow-xl shadow-rose-100'
+                }`}
+                animate={{ scale: showAfter ? 0.98 : 1 }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={`p-1.5 rounded-lg ${showAfter ? 'bg-slate-200' : 'bg-rose-100'}`}>
+                    <X className={`h-4 w-4 ${showAfter ? 'text-slate-500' : 'text-rose-500'}`} />
+                  </div>
+                  <span className={`text-sm font-semibold ${showAfter ? 'text-slate-400' : 'text-rose-600'}`}>Before</span>
+                  {!showAfter && (
+                    <span className="ml-auto text-xs px-2 py-1 rounded-full bg-rose-100 text-rose-600 font-medium">
+                      Generic
+                    </span>
+                  )}
+                </div>
+                <p className={`text-base leading-relaxed transition-colors ${showAfter ? 'text-slate-400' : 'text-slate-700'}`}>
+                  &ldquo;{beforeAfterExamples[activeComparison].before}&rdquo;
+                </p>
+                {!showAfter && (
+                  <motion.div 
+                    className="mt-4 flex flex-wrap gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">No metrics</span>
+                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">Vague</span>
+                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">Generic</span>
+                  </motion.div>
+                )}
+              </motion.div>
+
+              {/* Arrow / Transform button */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden md:block">
+                <motion.button
+                  onClick={() => setShowAfter(!showAfter)}
+                  className={`p-4 rounded-full shadow-xl transition-all ${
+                    showAfter 
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-200' 
+                      : 'bg-gradient-to-r from-rose-500 to-orange-500 shadow-rose-200'
+                  }`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  animate={{ rotate: showAfter ? 180 : 0 }}
+                >
+                  <ArrowRight className="h-6 w-6 text-white" />
+                </motion.button>
+              </div>
+
+              {/* After card */}
+              <motion.div
+                className={`relative p-6 rounded-2xl border-2 transition-all duration-500 ${
+                  showAfter ? 'border-emerald-300 bg-white shadow-xl shadow-emerald-100' : 'border-slate-200 bg-slate-50/50'
+                }`}
+                animate={{ scale: showAfter ? 1 : 0.98 }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={`p-1.5 rounded-lg ${showAfter ? 'bg-emerald-100' : 'bg-slate-200'}`}>
+                    <Check className={`h-4 w-4 ${showAfter ? 'text-emerald-500' : 'text-slate-500'}`} />
+                  </div>
+                  <span className={`text-sm font-semibold ${showAfter ? 'text-emerald-600' : 'text-slate-400'}`}>After</span>
+                  {showAfter && (
+                    <span className="ml-auto text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-600 font-medium">
+                      AI Optimized
+                    </span>
+                  )}
+                </div>
+                <p className={`text-base leading-relaxed transition-colors ${showAfter ? 'text-slate-700' : 'text-slate-400'}`}>
+                  &ldquo;{beforeAfterExamples[activeComparison].after}&rdquo;
+                </p>
+                {showAfter && (
+                  <motion.div 
+                    className="mt-4 flex flex-wrap gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    {beforeAfterExamples[activeComparison].improvements.map((improvement) => (
+                      <span key={improvement} className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-600 font-medium flex items-center gap-1">
+                        <Check className="h-3 w-3" />
+                        {improvement}
+                      </span>
+                    ))}
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Mobile transform button */}
+            <div className="flex justify-center mt-6 md:hidden">
+              <motion.button
+                onClick={() => setShowAfter(!showAfter)}
+                className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 ${
+                  showAfter 
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-200' 
+                    : 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-200'
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {showAfter ? 'Show Before' : 'Transform with AI'}
+                <ArrowRight className={`h-4 w-4 transition-transform ${showAfter ? 'rotate-180' : ''}`} />
+              </motion.button>
+            </div>
+
+            {/* Stats bar */}
+            <motion.div 
+              className="mt-10 p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="grid grid-cols-3 gap-6 text-center">
+                <div>
+                  <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">3x</div>
+                  <div className="text-sm text-slate-400 mt-1">More Interviews</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-400">95%</div>
+                  <div className="text-sm text-slate-400 mt-1">ATS Pass Rate</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-orange-400">2 min</div>
+                  <div className="text-sm text-slate-400 mt-1">Avg. Optimization</div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
