@@ -1,10 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Play, X } from 'lucide-react'
+import { ArrowRight, Play, X, Trophy, Star, Zap, Target, Award, Flame, Crown, Sparkles, TrendingUp, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
+
+// Animated counter component
+function AnimatedCounter({ end, duration = 2, suffix = '' }: { end: number; duration?: number; suffix?: string }) {
+  const [count, setCount] = useState(0)
+  
+  useEffect(() => {
+    let startTime: number
+    let animationFrame: number
+    
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1)
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.floor(easeOut * end))
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate)
+      }
+    }
+    
+    animationFrame = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(animationFrame)
+  }, [end, duration])
+  
+  return <span>{count.toLocaleString()}{suffix}</span>
+}
+
+// Floating achievement badge
+function AchievementBadge({ icon: Icon, label, color, delay }: { icon: React.ElementType; label: string; color: string; delay: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ delay, type: 'spring', stiffness: 200 }}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${color} shadow-lg`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </motion.div>
+  )
+}
 
 function DemoModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
@@ -84,6 +125,14 @@ function DemoModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 
 export function HeroSection() {
   const [showDemo, setShowDemo] = useState(false)
+  const [xpGained, setXpGained] = useState(false)
+  const [streakCount, setStreakCount] = useState(7)
+
+  // Simulate XP gain on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setXpGained(true), 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -104,19 +153,105 @@ export function HeroSection() {
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
       />
 
+      {/* Floating particles */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-teal-400 to-cyan-400"
+          style={{
+            left: `${15 + i * 15}%`,
+            top: `${20 + (i % 3) * 20}%`,
+          }}
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.3, 0.8, 0.3],
+            scale: [1, 1.5, 1],
+          }}
+          transition={{
+            duration: 3 + i * 0.5,
+            repeat: Infinity,
+            delay: i * 0.3,
+          }}
+        />
+      ))}
+
       <div className="max-w-7xl mx-auto text-center relative z-10">
-        {/* Badge */}
+        {/* Achievement badges floating */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          <AchievementBadge icon={Trophy} label="Top Rated" color="bg-gradient-to-r from-amber-400 to-orange-400 text-white" delay={0.2} />
+          <AchievementBadge icon={Flame} label="7 Day Streak" color="bg-gradient-to-r from-rose-500 to-pink-500 text-white" delay={0.4} />
+          <AchievementBadge icon={Crown} label="Premium Quality" color="bg-gradient-to-r from-violet-500 to-purple-500 text-white" delay={0.6} />
+        </div>
+
+        {/* XP Notification */}
+        <AnimatePresence>
+          {xpGained && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-24 right-8 z-50"
+            >
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
+                <Sparkles className="h-5 w-5 animate-pulse" />
+                <span className="font-bold">+100 XP</span>
+                <span className="text-emerald-100 text-sm">Welcome Bonus!</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Level indicator badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-slate-200 shadow-sm mb-8"
+          className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/90 border border-slate-200 shadow-lg mb-8"
         >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          <span className="text-sm text-slate-600">Trusted by 10,000+ professionals</span>
+          {/* Level badge */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                <Star className="h-4 w-4 text-white" />
+              </div>
+              <motion.div
+                className="absolute -inset-1 rounded-full border-2 border-amber-400"
+                animate={{ scale: [1, 1.2, 1], opacity: [1, 0, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            </div>
+            <div className="text-left">
+              <div className="text-xs text-slate-500">Level</div>
+              <div className="text-sm font-bold text-slate-800">Pro Builder</div>
+            </div>
+          </div>
+          
+          <div className="w-px h-8 bg-slate-200" />
+          
+          {/* XP Progress */}
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-amber-500" />
+            <div>
+              <div className="text-xs text-slate-500">XP Progress</div>
+              <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: '75%' }}
+                  transition={{ duration: 1.5, delay: 0.5 }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="w-px h-8 bg-slate-200" />
+
+          {/* Streak */}
+          <div className="flex items-center gap-1.5">
+            <Flame className="h-4 w-4 text-orange-500" />
+            <span className="text-sm font-bold text-slate-800">{streakCount}</span>
+            <span className="text-xs text-slate-500">day streak</span>
+          </div>
         </motion.div>
 
         {/* Main heading */}
@@ -192,30 +327,87 @@ export function HeroSection() {
           </Button>
         </motion.div>
 
-        {/* Stats */}
+        {/* Gamified Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto"
+          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto"
         >
           {[
-            { value: '50K+', label: 'Resumes Created' },
-            { value: '95%', label: 'ATS Pass Rate' },
-            { value: '10K+', label: 'Happy Users' },
-            { value: '4.9', label: 'User Rating' },
+            { value: 50000, label: 'Resumes Created', icon: Target, color: 'from-teal-500 to-cyan-500', suffix: '+' },
+            { value: 95, label: 'ATS Pass Rate', icon: CheckCircle2, color: 'from-emerald-500 to-green-500', suffix: '%' },
+            { value: 10000, label: 'Happy Users', icon: Trophy, color: 'from-amber-500 to-orange-500', suffix: '+' },
+            { value: 4.9, label: 'User Rating', icon: Star, color: 'from-violet-500 to-purple-500', suffix: '★' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
-              className="text-center"
+              initial={{ opacity: 0, scale: 0.5, rotateY: -30 }}
+              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 + i * 0.1, type: 'spring' }}
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="relative group cursor-pointer"
             >
-              <div className="text-3xl sm:text-4xl font-bold text-slate-800">{stat.value}</div>
-              <div className="text-sm text-slate-500 mt-1">{stat.label}</div>
+              {/* Card glow effect */}
+              <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300`} />
+              
+              {/* Card content */}
+              <div className="relative bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl p-4 shadow-lg group-hover:shadow-xl transition-all duration-300">
+                {/* Icon */}
+                <div className={`w-10 h-10 mx-auto mb-3 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center`}>
+                  <stat.icon className="h-5 w-5 text-white" />
+                </div>
+                
+                {/* Value with animated counter */}
+                <div className="text-2xl sm:text-3xl font-bold text-slate-800">
+                  {stat.value >= 1000 ? (
+                    <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                  ) : (
+                    <>{stat.value}{stat.suffix}</>
+                  )}
+                </div>
+                
+                {/* Label */}
+                <div className="text-xs text-slate-500 mt-1">{stat.label}</div>
+                
+                {/* Achievement unlock indicator */}
+                <motion.div
+                  className="absolute -top-2 -right-2"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 1 + i * 0.2, type: 'spring' }}
+                >
+                  <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg`}>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Quest/Mission teaser */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="mt-12 inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-200"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-violet-500 to-purple-500 flex items-center justify-center">
+              <Target className="h-4 w-4 text-white" />
+            </div>
+            <div className="text-left">
+              <div className="text-xs text-violet-600 font-medium">Daily Quest</div>
+              <div className="text-sm text-slate-700">Create your first resume and earn <span className="font-bold text-violet-600">500 XP</span></div>
+            </div>
+          </div>
+          <motion.div
+            animate={{ x: [0, 5, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <ArrowRight className="h-5 w-5 text-violet-500" />
+          </motion.div>
         </motion.div>
       </div>
 
