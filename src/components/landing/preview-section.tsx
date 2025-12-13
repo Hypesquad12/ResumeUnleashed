@@ -18,6 +18,7 @@ export function PreviewSection() {
   const [atsScore, setAtsScore] = useState(78)
   const [showAfter, setShowAfter] = useState(false)
   const [activeComparison, setActiveComparison] = useState(0)
+  const [showAfterResume, setShowAfterResume] = useState(false)
 
   const beforeAfterExamples = [
     {
@@ -197,8 +198,39 @@ export function PreviewSection() {
           >
             {/* Decorative grid */}
             <div className="absolute inset-0 -m-8">
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#14b8a622_1px,transparent_1px),linear-gradient(to_bottom,#8b5cf622_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
             </div>
+
+            {/* Before/After Toggle */}
+            <motion.div 
+              className="absolute -top-16 left-1/2 -translate-x-1/2 z-30"
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex items-center gap-1 p-1 rounded-full bg-white shadow-lg border border-slate-200">
+                <button
+                  onClick={() => setShowAfterResume(false)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    !showAfterResume 
+                      ? 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-md' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Before
+                </button>
+                <button
+                  onClick={() => setShowAfterResume(true)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    showAfterResume 
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  After AI ✨
+                </button>
+              </div>
+            </motion.div>
 
             {/* Main resume card */}
             <motion.div
@@ -209,40 +241,72 @@ export function PreviewSection() {
               style={{ rotateZ: rotate }}
               className="relative z-10"
             >
-              {/* Outer glow */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 via-violet-500 to-purple-500 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity" />
+              {/* Outer glow - changes color based on state */}
+              <div className={`absolute -inset-1 rounded-3xl blur-xl opacity-30 transition-all duration-500 ${
+                showAfterResume 
+                  ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500' 
+                  : 'bg-gradient-to-r from-slate-400 via-slate-500 to-slate-400'
+              }`} />
               
               {/* Resume container */}
-              <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-slate-50 via-white to-slate-50 border border-slate-200/80 shadow-2xl shadow-slate-200/50 overflow-hidden">
+              <div className={`relative aspect-[3/4] rounded-2xl border shadow-2xl overflow-hidden transition-all duration-500 ${
+                showAfterResume 
+                  ? 'bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/50 border-emerald-200/80 shadow-emerald-200/50' 
+                  : 'bg-gradient-to-br from-slate-100 via-slate-50 to-white border-slate-300/80 shadow-slate-300/50'
+              }`}>
                 {/* Top accent bar */}
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-teal-500 via-violet-500 to-purple-500" />
+                <div className={`absolute top-0 left-0 right-0 h-1.5 transition-all duration-500 ${
+                  showAfterResume 
+                    ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500' 
+                    : 'bg-gradient-to-r from-slate-400 via-slate-500 to-slate-400'
+                }`} />
                 
                 {/* Resume content */}
                 <div className="p-6 h-full flex flex-col">
                   {/* Header section */}
                   <motion.div 
                     className={`mb-4 p-4 rounded-xl transition-all duration-500 ${
-                      activeSection === 0 
-                        ? 'bg-gradient-to-r from-teal-500 to-emerald-400 shadow-lg shadow-teal-500/20' 
-                        : 'bg-slate-50'
+                      showAfterResume
+                        ? (activeSection === 0 
+                          ? 'bg-gradient-to-r from-teal-500 to-emerald-400 shadow-lg shadow-teal-500/20' 
+                          : 'bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100')
+                        : 'bg-slate-100 border border-slate-200'
                     }`}
-                    animate={{ scale: activeSection === 0 ? 1.02 : 1 }}
+                    animate={{ scale: activeSection === 0 && showAfterResume ? 1.02 : 1 }}
                   >
                     <div className="flex items-start gap-4">
                       {/* Avatar */}
-                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold ${
-                        activeSection === 0 ? 'bg-white/20 text-white' : 'bg-gradient-to-br from-teal-100 to-emerald-100 text-teal-600'
+                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 0 ? 'bg-white/20 text-white' : 'bg-gradient-to-br from-teal-400 to-emerald-400 text-white')
+                          : 'bg-slate-200 text-slate-500'
                       }`}>
                         JD
                       </div>
                       <div className="flex-1">
-                        <div className={`h-4 w-32 rounded-md mb-2 ${activeSection === 0 ? 'bg-white/60' : 'bg-slate-200'}`} />
-                        <div className={`h-3 w-24 rounded-md ${activeSection === 0 ? 'bg-white/40' : 'bg-slate-100'}`} />
+                        <div className={`h-4 w-32 rounded-md mb-2 transition-all duration-500 ${
+                          showAfterResume
+                            ? (activeSection === 0 ? 'bg-white/60' : 'bg-teal-200')
+                            : 'bg-slate-300'
+                        }`} />
+                        <div className={`h-3 w-24 rounded-md transition-all duration-500 ${
+                          showAfterResume
+                            ? (activeSection === 0 ? 'bg-white/40' : 'bg-teal-100')
+                            : 'bg-slate-200'
+                        }`} />
                         <div className="flex gap-3 mt-3">
                           {[Mail, Phone, MapPin].map((Icon, i) => (
-                            <div key={i} className={`flex items-center gap-1 ${activeSection === 0 ? 'text-white/70' : 'text-slate-400'}`}>
+                            <div key={i} className={`flex items-center gap-1 transition-all duration-500 ${
+                              showAfterResume
+                                ? (activeSection === 0 ? 'text-white/70' : 'text-teal-500')
+                                : 'text-slate-400'
+                            }`}>
                               <Icon className="h-3 w-3" />
-                              <div className={`h-2 w-12 rounded ${activeSection === 0 ? 'bg-white/30' : 'bg-slate-100'}`} />
+                              <div className={`h-2 w-12 rounded transition-all duration-500 ${
+                                showAfterResume
+                                  ? (activeSection === 0 ? 'bg-white/30' : 'bg-teal-100')
+                                  : 'bg-slate-200'
+                              }`} />
                             </div>
                           ))}
                         </div>
@@ -253,24 +317,38 @@ export function PreviewSection() {
                   {/* Experience section */}
                   <motion.div 
                     className={`mb-4 p-4 rounded-xl transition-all duration-500 ${
-                      activeSection === 1 
-                        ? 'bg-gradient-to-r from-violet-500 to-purple-400 shadow-lg shadow-violet-500/20' 
-                        : 'bg-slate-50'
+                      showAfterResume
+                        ? (activeSection === 1 
+                          ? 'bg-gradient-to-r from-violet-500 to-purple-400 shadow-lg shadow-violet-500/20' 
+                          : 'bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-100')
+                        : 'bg-slate-100 border border-slate-200'
                     }`}
-                    animate={{ scale: activeSection === 1 ? 1.02 : 1 }}
+                    animate={{ scale: activeSection === 1 && showAfterResume ? 1.02 : 1 }}
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <Briefcase className={`h-4 w-4 ${activeSection === 1 ? 'text-white' : 'text-slate-400'}`} />
-                      <div className={`h-3 w-20 rounded ${activeSection === 1 ? 'bg-white/60' : 'bg-slate-200'}`} />
+                      <Briefcase className={`h-4 w-4 transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 1 ? 'text-white' : 'text-violet-500')
+                          : 'text-slate-400'
+                      }`} />
+                      <div className={`h-3 w-20 rounded transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 1 ? 'bg-white/60' : 'bg-violet-200')
+                          : 'bg-slate-300'
+                      }`} />
                     </div>
                     <div className="space-y-2">
                       {[1, 0.85, 0.7].map((width, i) => (
                         <motion.div 
                           key={i}
-                          className={`h-2 rounded ${activeSection === 1 ? 'bg-white/30' : 'bg-slate-100'}`}
-                          style={{ width: `${width * 100}%` }}
+                          className={`h-2 rounded transition-all duration-500 ${
+                            showAfterResume
+                              ? (activeSection === 1 ? 'bg-white/30' : 'bg-violet-100')
+                              : 'bg-slate-200'
+                          }`}
+                          style={{ width: showAfterResume ? `${width * 100}%` : `${width * 70}%` }}
                           initial={{ scaleX: 0 }}
-                          animate={{ scaleX: activeSection === 1 ? 1 : 0.8 }}
+                          animate={{ scaleX: 1 }}
                           transition={{ delay: i * 0.1 }}
                         />
                       ))}
@@ -280,27 +358,49 @@ export function PreviewSection() {
                   {/* Skills section */}
                   <motion.div 
                     className={`mb-4 p-4 rounded-xl transition-all duration-500 flex-1 ${
-                      activeSection === 2 
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-400 shadow-lg shadow-cyan-500/20' 
-                        : 'bg-slate-50'
+                      showAfterResume
+                        ? (activeSection === 2 
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-400 shadow-lg shadow-cyan-500/20' 
+                          : 'bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-100')
+                        : 'bg-slate-100 border border-slate-200'
                     }`}
-                    animate={{ scale: activeSection === 2 ? 1.02 : 1 }}
+                    animate={{ scale: activeSection === 2 && showAfterResume ? 1.02 : 1 }}
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <Award className={`h-4 w-4 ${activeSection === 2 ? 'text-white' : 'text-slate-400'}`} />
-                      <div className={`h-3 w-16 rounded ${activeSection === 2 ? 'bg-white/60' : 'bg-slate-200'}`} />
+                      <Award className={`h-4 w-4 transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 2 ? 'text-white' : 'text-cyan-500')
+                          : 'text-slate-400'
+                      }`} />
+                      <div className={`h-3 w-16 rounded transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 2 ? 'bg-white/60' : 'bg-cyan-200')
+                          : 'bg-slate-300'
+                      }`} />
                     </div>
                     <div className="space-y-2">
                       {skills.map((skill, i) => (
                         <div key={skill.name} className="flex items-center gap-2">
-                          <span className={`text-xs font-medium w-16 ${activeSection === 2 ? 'text-white/80' : 'text-slate-500'}`}>
-                            {skill.name}
+                          <span className={`text-xs font-medium w-16 transition-all duration-500 ${
+                            showAfterResume
+                              ? (activeSection === 2 ? 'text-white/80' : 'text-cyan-600')
+                              : 'text-slate-400'
+                          }`}>
+                            {showAfterResume ? skill.name : '•••••'}
                           </span>
-                          <div className={`flex-1 h-2 rounded-full overflow-hidden ${activeSection === 2 ? 'bg-white/20' : 'bg-slate-100'}`}>
+                          <div className={`flex-1 h-2 rounded-full overflow-hidden transition-all duration-500 ${
+                            showAfterResume
+                              ? (activeSection === 2 ? 'bg-white/20' : 'bg-cyan-100')
+                              : 'bg-slate-200'
+                          }`}>
                             <motion.div
-                              className={`h-full rounded-full ${activeSection === 2 ? 'bg-white/60' : 'bg-slate-200'}`}
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                showAfterResume
+                                  ? (activeSection === 2 ? 'bg-white/60' : 'bg-gradient-to-r from-cyan-400 to-blue-400')
+                                  : 'bg-slate-300'
+                              }`}
                               initial={{ width: 0 }}
-                              animate={{ width: activeSection === 2 ? `${skill.level}%` : '60%' }}
+                              animate={{ width: showAfterResume ? `${skill.level}%` : '40%' }}
                               transition={{ duration: 0.8, delay: i * 0.1 }}
                             />
                           </div>
@@ -312,25 +412,49 @@ export function PreviewSection() {
                   {/* Education section */}
                   <motion.div 
                     className={`p-4 rounded-xl transition-all duration-500 ${
-                      activeSection === 3 
-                        ? 'bg-gradient-to-r from-rose-500 to-pink-400 shadow-lg shadow-rose-500/20' 
-                        : 'bg-slate-50'
+                      showAfterResume
+                        ? (activeSection === 3 
+                          ? 'bg-gradient-to-r from-rose-500 to-pink-400 shadow-lg shadow-rose-500/20' 
+                          : 'bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-100')
+                        : 'bg-slate-100 border border-slate-200'
                     }`}
-                    animate={{ scale: activeSection === 3 ? 1.02 : 1 }}
+                    animate={{ scale: activeSection === 3 && showAfterResume ? 1.02 : 1 }}
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <GraduationCap className={`h-4 w-4 ${activeSection === 3 ? 'text-white' : 'text-slate-400'}`} />
-                      <div className={`h-3 w-20 rounded ${activeSection === 3 ? 'bg-white/60' : 'bg-slate-200'}`} />
+                      <GraduationCap className={`h-4 w-4 transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 3 ? 'text-white' : 'text-rose-500')
+                          : 'text-slate-400'
+                      }`} />
+                      <div className={`h-3 w-20 rounded transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 3 ? 'bg-white/60' : 'bg-rose-200')
+                          : 'bg-slate-300'
+                      }`} />
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        activeSection === 3 ? 'bg-white/20' : 'bg-slate-100'
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${
+                        showAfterResume
+                          ? (activeSection === 3 ? 'bg-white/20' : 'bg-rose-100')
+                          : 'bg-slate-200'
                       }`}>
-                        <GraduationCap className={`h-5 w-5 ${activeSection === 3 ? 'text-white' : 'text-slate-400'}`} />
+                        <GraduationCap className={`h-5 w-5 transition-all duration-500 ${
+                          showAfterResume
+                            ? (activeSection === 3 ? 'text-white' : 'text-rose-400')
+                            : 'text-slate-400'
+                        }`} />
                       </div>
                       <div className="flex-1 space-y-1.5">
-                        <div className={`h-2.5 w-28 rounded ${activeSection === 3 ? 'bg-white/50' : 'bg-slate-200'}`} />
-                        <div className={`h-2 w-20 rounded ${activeSection === 3 ? 'bg-white/30' : 'bg-slate-100'}`} />
+                        <div className={`h-2.5 rounded transition-all duration-500 ${
+                          showAfterResume
+                            ? (activeSection === 3 ? 'bg-white/50 w-28' : 'bg-rose-200 w-32')
+                            : 'bg-slate-200 w-20'
+                        }`} />
+                        <div className={`h-2 rounded transition-all duration-500 ${
+                          showAfterResume
+                            ? (activeSection === 3 ? 'bg-white/30 w-20' : 'bg-rose-100 w-24')
+                            : 'bg-slate-200 w-16'
+                        }`} />
                       </div>
                     </div>
                   </motion.div>
@@ -338,116 +462,234 @@ export function PreviewSection() {
               </div>
             </motion.div>
 
-            {/* Floating ATS Score badge */}
-            <motion.div
-              className="absolute -right-2 sm:right-0 top-8 z-20"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              animate={{ y: [0, -8, 0] }}
-              transition={{ 
-                y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-                opacity: { duration: 0.5 },
-                x: { duration: 0.5 }
-              }}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-400 rounded-2xl blur-lg opacity-40" />
-                <div className="relative bg-gradient-to-r from-teal-500 to-emerald-400 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3">
-                  <div className="relative w-12 h-12">
-                    <svg className="w-12 h-12 -rotate-90">
-                      <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
-                      <motion.circle
-                        cx="24" cy="24" r="20"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeDasharray={125.6}
-                        initial={{ strokeDashoffset: 125.6 }}
-                        animate={{ strokeDashoffset: 125.6 - (125.6 * atsScore / 100) }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <TrendingUp className="h-4 w-4 text-white" />
+            {/* Floating ATS Score badge - only show when After is selected */}
+            <AnimatePresence>
+              {showAfterResume && (
+                <motion.div
+                  className="absolute -right-2 sm:right-0 top-8 z-20"
+                  initial={{ opacity: 0, x: 50, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 0, scale: 1, y: [0, -8, 0] }}
+                  exit={{ opacity: 0, x: 50, scale: 0.8 }}
+                  transition={{ 
+                    y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                    opacity: { duration: 0.3 },
+                    x: { duration: 0.3 },
+                    scale: { duration: 0.3 }
+                  }}
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-400 rounded-2xl blur-lg opacity-40" />
+                    <div className="relative bg-gradient-to-r from-teal-500 to-emerald-400 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+                      <div className="relative w-12 h-12">
+                        <svg className="w-12 h-12 -rotate-90">
+                          <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
+                          <motion.circle
+                            cx="24" cy="24" r="20"
+                            fill="none"
+                            stroke="white"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeDasharray={125.6}
+                            initial={{ strokeDashoffset: 125.6 }}
+                            animate={{ strokeDashoffset: 125.6 - (125.6 * atsScore / 100) }}
+                            transition={{ duration: 1.5, ease: "easeOut" }}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <TrendingUp className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-white/80">ATS Score</div>
+                        <div className="text-2xl font-bold">{atsScore}%</div>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-white/80">ATS Score</div>
-                    <div className="text-2xl font-bold">{atsScore}%</div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* AI Optimized badge */}
-            <motion.div
-              className="absolute -left-2 sm:left-0 top-1/3 z-20"
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              animate={{ y: [0, 10, 0] }}
-              transition={{ 
-                y: { duration: 3.5, repeat: Infinity, ease: "easeInOut" },
-                opacity: { duration: 0.5 },
-                x: { duration: 0.5 }
-              }}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-400 rounded-2xl blur-lg opacity-40" />
-                <div className="relative bg-gradient-to-r from-violet-500 to-purple-400 text-white px-5 py-3 rounded-2xl shadow-xl">
-                  <div className="flex items-center gap-2">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Sparkles className="h-5 w-5" />
-                    </motion.div>
-                    <span className="font-semibold">AI Optimized</span>
+            {/* Low ATS Score badge - only show when Before is selected */}
+            <AnimatePresence>
+              {!showAfterResume && (
+                <motion.div
+                  className="absolute -right-2 sm:right-0 top-8 z-20"
+                  initial={{ opacity: 0, x: 50, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 0, scale: 1, y: [0, -8, 0] }}
+                  exit={{ opacity: 0, x: 50, scale: 0.8 }}
+                  transition={{ 
+                    y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                    opacity: { duration: 0.3 },
+                    x: { duration: 0.3 },
+                    scale: { duration: 0.3 }
+                  }}
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-slate-500 to-slate-600 rounded-2xl blur-lg opacity-40" />
+                    <div className="relative bg-gradient-to-r from-slate-500 to-slate-600 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+                      <div className="relative w-12 h-12">
+                        <svg className="w-12 h-12 -rotate-90">
+                          <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
+                          <circle
+                            cx="24" cy="24" r="20"
+                            fill="none"
+                            stroke="rgba(255,255,255,0.5)"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeDasharray={125.6}
+                            strokeDashoffset={125.6 - (125.6 * 45 / 100)}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <X className="h-4 w-4 text-white/70" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-white/80">ATS Score</div>
+                        <div className="text-2xl font-bold">45%</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-white/70 mt-1">Keywords matched</div>
-                </div>
-              </div>
-            </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Ready to Export badge */}
-            <motion.div
-              className="absolute right-4 -bottom-2 z-20"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              animate={{ y: [0, -6, 0] }}
-              transition={{ 
-                y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
-                opacity: { duration: 0.5 }
-              }}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-400 rounded-2xl blur-lg opacity-40" />
-                <div className="relative bg-gradient-to-r from-cyan-500 to-blue-400 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2">
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <Zap className="h-5 w-5" />
-                  </motion.div>
-                  <div>
-                    <div className="font-semibold">Ready to Export</div>
-                    <div className="text-xs text-white/70">PDF, DOCX, TXT</div>
+            {/* AI Optimized badge - only show when After is selected */}
+            <AnimatePresence>
+              {showAfterResume && (
+                <motion.div
+                  className="absolute -left-2 sm:left-0 top-1/3 z-20"
+                  initial={{ opacity: 0, x: -50, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 0, scale: 1, y: [0, 10, 0] }}
+                  exit={{ opacity: 0, x: -50, scale: 0.8 }}
+                  transition={{ 
+                    y: { duration: 3.5, repeat: Infinity, ease: "easeInOut" },
+                    opacity: { duration: 0.3 },
+                    x: { duration: 0.3 },
+                    scale: { duration: 0.3 }
+                  }}
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-400 rounded-2xl blur-lg opacity-40" />
+                    <div className="relative bg-gradient-to-r from-violet-500 to-purple-400 text-white px-5 py-3 rounded-2xl shadow-xl">
+                      <div className="flex items-center gap-2">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Sparkles className="h-5 w-5" />
+                        </motion.div>
+                        <span className="font-semibold">AI Optimized</span>
+                      </div>
+                      <div className="text-xs text-white/70 mt-1">Keywords matched</div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Decorative elements */}
+            {/* Needs Work badge - only show when Before is selected */}
+            <AnimatePresence>
+              {!showAfterResume && (
+                <motion.div
+                  className="absolute -left-2 sm:left-0 top-1/3 z-20"
+                  initial={{ opacity: 0, x: -50, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 0, scale: 1, y: [0, 10, 0] }}
+                  exit={{ opacity: 0, x: -50, scale: 0.8 }}
+                  transition={{ 
+                    y: { duration: 3.5, repeat: Infinity, ease: "easeInOut" },
+                    opacity: { duration: 0.3 },
+                    x: { duration: 0.3 },
+                    scale: { duration: 0.3 }
+                  }}
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-400 rounded-2xl blur-lg opacity-40" />
+                    <div className="relative bg-gradient-to-r from-amber-500 to-orange-400 text-white px-5 py-3 rounded-2xl shadow-xl">
+                      <div className="flex items-center gap-2">
+                        <X className="h-5 w-5" />
+                        <span className="font-semibold">Needs Work</span>
+                      </div>
+                      <div className="text-xs text-white/70 mt-1">Missing keywords</div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Ready to Export badge - only show when After is selected */}
+            <AnimatePresence>
+              {showAfterResume && (
+                <motion.div
+                  className="absolute right-4 -bottom-2 z-20"
+                  initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                  animate={{ opacity: 1, y: [0, -6, 0], scale: 1 }}
+                  exit={{ opacity: 0, y: 50, scale: 0.8 }}
+                  transition={{ 
+                    y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+                    opacity: { duration: 0.3 },
+                    scale: { duration: 0.3 }
+                  }}
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-400 rounded-2xl blur-lg opacity-40" />
+                    <div className="relative bg-gradient-to-r from-cyan-500 to-blue-400 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2">
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <Zap className="h-5 w-5" />
+                      </motion.div>
+                      <div>
+                        <div className="font-semibold">Ready to Export</div>
+                        <div className="text-xs text-white/70">PDF, DOCX, TXT</div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Not Ready badge - only show when Before is selected */}
+            <AnimatePresence>
+              {!showAfterResume && (
+                <motion.div
+                  className="absolute right-4 -bottom-2 z-20"
+                  initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                  animate={{ opacity: 1, y: [0, -6, 0], scale: 1 }}
+                  exit={{ opacity: 0, y: 50, scale: 0.8 }}
+                  transition={{ 
+                    y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+                    opacity: { duration: 0.3 },
+                    scale: { duration: 0.3 }
+                  }}
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-rose-500 to-red-400 rounded-2xl blur-lg opacity-40" />
+                    <div className="relative bg-gradient-to-r from-rose-500 to-red-400 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2">
+                      <X className="h-5 w-5" />
+                      <div>
+                        <div className="font-semibold">Not Ready</div>
+                        <div className="text-xs text-white/70">Needs optimization</div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Decorative elements - colorful based on state */}
             <motion.div 
-              className="absolute -top-8 -right-8 w-24 h-24 border-2 border-dashed border-teal-200 rounded-full"
+              className={`absolute -top-8 -right-8 w-24 h-24 border-2 border-dashed rounded-full transition-colors duration-500 ${
+                showAfterResume ? 'border-teal-300' : 'border-slate-300'
+              }`}
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             />
             <motion.div 
-              className="absolute -bottom-8 -left-8 w-16 h-16 border-2 border-dashed border-violet-200 rounded-full"
+              className={`absolute -bottom-8 -left-8 w-16 h-16 border-2 border-dashed rounded-full transition-colors duration-500 ${
+                showAfterResume ? 'border-violet-300' : 'border-slate-300'
+              }`}
               animate={{ rotate: -360 }}
               transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
             />
