@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,27 +28,31 @@ import {
   Plus, Briefcase, Building2, MapPin, DollarSign, Calendar,
   ExternalLink, MoreVertical, Trash2, Edit, CheckCircle,
   Clock, XCircle, MessageSquare, TrendingUp, Target, Zap,
-  Filter, Search, ArrowUpDown, Bookmark, Send, Users
+  Filter, Search, ArrowUpDown, Bookmark, Send, Users, Loader2,
+  AlertCircle, RefreshCw
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/hooks/use-toast'
 
 interface JobApplication {
   id: string
+  user_id?: string
   company_name: string
   job_title: string
-  job_url?: string
-  job_description?: string
-  salary_min?: number
-  salary_max?: number
-  location?: string
-  remote_type?: 'remote' | 'hybrid' | 'onsite'
+  job_url?: string | null
+  job_description?: string | null
+  salary_min?: number | null
+  salary_max?: number | null
+  location?: string | null
+  remote_type?: 'remote' | 'hybrid' | 'onsite' | null
   status: 'saved' | 'applied' | 'interviewing' | 'offer' | 'rejected' | 'withdrawn'
-  applied_at?: string
-  response_at?: string
-  notes?: string
-  next_step?: string
-  next_step_date?: string
+  applied_at?: string | null
+  response_at?: string | null
+  notes?: string | null
+  next_step?: string | null
+  next_step_date?: string | null
   created_at: string
+  updated_at?: string
 }
 
 const statusConfig = {
@@ -60,67 +64,19 @@ const statusConfig = {
   withdrawn: { label: 'Withdrawn', color: 'bg-amber-100 text-amber-700', icon: Clock },
 }
 
-const sampleApplications: JobApplication[] = [
-  {
-    id: '1',
-    company_name: 'TechCorp Inc',
-    job_title: 'Senior Software Engineer',
-    job_url: 'https://example.com/job/1',
-    location: 'San Francisco, CA',
-    remote_type: 'hybrid',
-    salary_min: 150000,
-    salary_max: 200000,
-    status: 'interviewing',
-    applied_at: '2024-01-10',
-    next_step: 'Technical Interview',
-    next_step_date: '2024-01-20',
-    created_at: '2024-01-08',
-  },
-  {
-    id: '2',
-    company_name: 'StartupXYZ',
-    job_title: 'Full Stack Developer',
-    location: 'Remote',
-    remote_type: 'remote',
-    salary_min: 120000,
-    salary_max: 160000,
-    status: 'applied',
-    applied_at: '2024-01-12',
-    created_at: '2024-01-12',
-  },
-  {
-    id: '3',
-    company_name: 'Enterprise Solutions',
-    job_title: 'Tech Lead',
-    location: 'New York, NY',
-    remote_type: 'onsite',
-    salary_min: 180000,
-    salary_max: 220000,
-    status: 'saved',
-    created_at: '2024-01-14',
-  },
-  {
-    id: '4',
-    company_name: 'Innovation Labs',
-    job_title: 'Frontend Engineer',
-    location: 'Austin, TX',
-    remote_type: 'hybrid',
-    salary_min: 130000,
-    salary_max: 170000,
-    status: 'offer',
-    applied_at: '2024-01-05',
-    response_at: '2024-01-15',
-    created_at: '2024-01-03',
-  },
-]
-
 export default function ApplicationsPage() {
-  const [applications, setApplications] = useState<JobApplication[]>(sampleApplications)
+  const [applications, setApplications] = useState<JobApplication[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingApp, setEditingApp] = useState<JobApplication | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'date' | 'company' | 'status'>('date')
+  const [error, setError] = useState<string | null>(null)
+
+  const supabase = createClient()
+  const { toast } = useToast()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -137,6 +93,76 @@ export default function ApplicationsPage() {
     next_step: '',
     next_step_date: '',
   })
+
+  // Fetch applications from Supabase
+  const fetchApplications = useCallback(async () => {
+    try {
+      setError(null)
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        setError('Please log in to view your applications')
+        setIsLoading(false)
+        return
+      }
+
+      // Using type assertion since job_applications table was recently added
+      const { data, error: fetchError } = await (supabase as any)
+        .from('job_applications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (fetchError) throw fetchError
+
+      setApplications((data as JobApplication[]) || [])
+    } catch (err) {
+      console.error('Error fetching applications:', err)
+      setError('Failed to load applications')
+      toast({
+        title: 'Error',
+        description: 'Failed to load applications',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [supabase, toast])
+
+  // Initial fetch
+  useEffect(() => {
+    fetchApplications()
+  }, [fetchApplications])
+
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('job_applications_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'job_applications',
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setApplications(prev => [payload.new as JobApplication, ...prev])
+          } else if (payload.eventType === 'UPDATE') {
+            setApplications(prev => 
+              prev.map(app => app.id === payload.new.id ? payload.new as JobApplication : app)
+            )
+          } else if (payload.eventType === 'DELETE') {
+            setApplications(prev => prev.filter(app => app.id !== payload.old.id))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [supabase])
 
   const resetForm = () => {
     setFormData({
@@ -155,36 +181,72 @@ export default function ApplicationsPage() {
     })
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.company_name || !formData.job_title) return
 
-    const newApp: JobApplication = {
-      id: editingApp?.id || Date.now().toString(),
-      company_name: formData.company_name,
-      job_title: formData.job_title,
-      job_url: formData.job_url || undefined,
-      job_description: formData.job_description || undefined,
-      salary_min: formData.salary_min ? parseInt(formData.salary_min) : undefined,
-      salary_max: formData.salary_max ? parseInt(formData.salary_max) : undefined,
-      location: formData.location || undefined,
-      remote_type: formData.remote_type,
-      status: formData.status,
-      notes: formData.notes || undefined,
-      next_step: formData.next_step || undefined,
-      next_step_date: formData.next_step_date || undefined,
-      applied_at: formData.status !== 'saved' ? new Date().toISOString().split('T')[0] : undefined,
-      created_at: editingApp?.created_at || new Date().toISOString(),
-    }
+    setIsSaving(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
 
-    if (editingApp) {
-      setApplications(applications.map(app => app.id === editingApp.id ? newApp : app))
-    } else {
-      setApplications([newApp, ...applications])
-    }
+      const applicationData = {
+        user_id: user.id,
+        company_name: formData.company_name,
+        job_title: formData.job_title,
+        job_url: formData.job_url || null,
+        job_description: formData.job_description || null,
+        salary_min: formData.salary_min ? parseInt(formData.salary_min) : null,
+        salary_max: formData.salary_max ? parseInt(formData.salary_max) : null,
+        location: formData.location || null,
+        remote_type: formData.remote_type || null,
+        status: formData.status,
+        notes: formData.notes || null,
+        next_step: formData.next_step || null,
+        next_step_date: formData.next_step_date || null,
+        applied_at: formData.status !== 'saved' ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      }
 
-    setIsAddDialogOpen(false)
-    setEditingApp(null)
-    resetForm()
+      if (editingApp) {
+        const { error } = await (supabase as any)
+          .from('job_applications')
+          .update(applicationData)
+          .eq('id', editingApp.id)
+
+        if (error) throw error
+
+        toast({
+          title: 'Success',
+          description: 'Application updated successfully',
+        })
+      } else {
+        const { error } = await (supabase as any)
+          .from('job_applications')
+          .insert(applicationData)
+
+        if (error) throw error
+
+        toast({
+          title: 'Success',
+          description: 'Application added successfully',
+        })
+      }
+
+      setIsAddDialogOpen(false)
+      setEditingApp(null)
+      resetForm()
+      // Refresh to get the latest data
+      fetchApplications()
+    } catch (err) {
+      console.error('Error saving application:', err)
+      toast({
+        title: 'Error',
+        description: 'Failed to save application',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleEdit = (app: JobApplication) => {
@@ -201,19 +263,71 @@ export default function ApplicationsPage() {
       status: app.status,
       notes: app.notes || '',
       next_step: app.next_step || '',
-      next_step_date: app.next_step_date || '',
+      next_step_date: app.next_step_date?.split('T')[0] || '',
     })
     setIsAddDialogOpen(true)
   }
 
-  const handleDelete = (id: string) => {
-    setApplications(applications.filter(app => app.id !== id))
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('job_applications')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      toast({
+        title: 'Deleted',
+        description: 'Application removed',
+      })
+    } catch (err) {
+      console.error('Error deleting application:', err)
+      toast({
+        title: 'Error',
+        description: 'Failed to delete application',
+        variant: 'destructive',
+      })
+    }
   }
 
-  const updateStatus = (id: string, status: JobApplication['status']) => {
-    setApplications(applications.map(app => 
-      app.id === id ? { ...app, status, applied_at: status !== 'saved' ? app.applied_at || new Date().toISOString().split('T')[0] : app.applied_at } : app
-    ))
+  const updateStatus = async (id: string, status: JobApplication['status']) => {
+    try {
+      const app = applications.find(a => a.id === id)
+      const updateData: Partial<JobApplication> = {
+        status,
+        updated_at: new Date().toISOString(),
+      }
+
+      // Set applied_at when moving from saved to any other status
+      if (status !== 'saved' && (!app?.applied_at)) {
+        updateData.applied_at = new Date().toISOString()
+      }
+
+      // Set response_at when getting offer or rejection
+      if ((status === 'offer' || status === 'rejected') && (!app?.response_at)) {
+        updateData.response_at = new Date().toISOString()
+      }
+
+      const { error } = await (supabase as any)
+        .from('job_applications')
+        .update(updateData)
+        .eq('id', id)
+
+      if (error) throw error
+
+      toast({
+        title: 'Updated',
+        description: `Status changed to ${statusConfig[status].label}`,
+      })
+    } catch (err) {
+      console.error('Error updating status:', err)
+      toast({
+        title: 'Error',
+        description: 'Failed to update status',
+        variant: 'destructive',
+      })
+    }
   }
 
   // Filter and sort applications
@@ -413,8 +527,19 @@ export default function ApplicationsPage() {
                     />
                   </div>
 
-                  <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-blue-500 to-indigo-500">
-                    {editingApp ? 'Update Application' : 'Add Application'}
+                  <Button 
+                    onClick={handleSubmit} 
+                    disabled={isSaving || !formData.company_name || !formData.job_title}
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      editingApp ? 'Update Application' : 'Add Application'
+                    )}
                   </Button>
                 </div>
               </DialogContent>
@@ -495,7 +620,32 @@ export default function ApplicationsPage() {
           </CardContent>
         </Card>
 
+        {/* Loading State */}
+        {isLoading && (
+          <Card>
+            <CardContent className="py-16 text-center">
+              <Loader2 className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-spin" />
+              <h3 className="text-lg font-semibold text-slate-800 mb-2">Loading applications...</h3>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error State */}
+        {error && !isLoading && (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="py-8 text-center">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-red-800 mb-2">{error}</h3>
+              <Button onClick={fetchApplications} variant="outline" className="mt-2">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Applications List */}
+        {!isLoading && !error && (
         <div className="space-y-4">
           <AnimatePresence>
             {filteredApps.map((app, index) => {
@@ -614,6 +764,7 @@ export default function ApplicationsPage() {
             </Card>
           )}
         </div>
+        )}
       </div>
     </div>
   )
