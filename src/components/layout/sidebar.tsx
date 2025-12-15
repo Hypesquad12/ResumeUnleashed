@@ -17,7 +17,6 @@ import {
   Loader2,
   Brain,
   Target,
-  Briefcase,
   FlaskConical,
   DollarSign,
 } from 'lucide-react'
@@ -34,7 +33,6 @@ const navigation = [
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Interview Coach', href: '/interview', icon: Brain },
   { name: 'Resume Score', href: '/score', icon: Target },
-  { name: 'Job Tracker', href: '/applications', icon: Briefcase },
   { name: 'A/B Testing', href: '/ab-test', icon: FlaskConical },
   { name: 'Salary Guide', href: '/salary', icon: DollarSign },
 ]
