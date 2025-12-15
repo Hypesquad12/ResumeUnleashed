@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,11 +9,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { 
   Mic, MicOff, Play, Pause, RotateCcw, ChevronRight, ChevronLeft,
   Sparkles, MessageSquare, ThumbsUp, ThumbsDown, Target, Trophy,
-  Lightbulb, Clock, CheckCircle, AlertCircle, Loader2, Volume2,
-  Brain, Zap, Star, Award, TrendingUp
+  Lightbulb, Clock, CheckCircle, AlertCircle, Loader2, Volume2, VolumeX,
+  Brain, Zap, Star, Award, TrendingUp, FileText, Upload
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -37,40 +44,152 @@ interface Answer {
   }
 }
 
-// Sample questions based on common interview patterns
-const generateQuestions = (jobTitle: string, skills: string[]): Question[] => {
-  const behavioralQuestions = [
-    { q: "Tell me about a time when you had to lead a team through a challenging project.", type: 'behavioral' as const, difficulty: 'medium' as const },
-    { q: "Describe a situation where you had to deal with a difficult colleague or stakeholder.", type: 'behavioral' as const, difficulty: 'medium' as const },
-    { q: "Give an example of when you had to learn something new quickly to complete a task.", type: 'behavioral' as const, difficulty: 'easy' as const },
+interface Resume {
+  id: string
+  title: string
+  content: any
+}
+
+// Speech Recognition types
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList
+  resultIndex: number
+}
+
+interface SpeechRecognitionResultList {
+  length: number
+  item(index: number): SpeechRecognitionResult
+  [index: number]: SpeechRecognitionResult
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean
+  length: number
+  item(index: number): SpeechRecognitionAlternative
+  [index: number]: SpeechRecognitionAlternative
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string
+  confidence: number
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: any
+    webkitSpeechRecognition: any
+  }
+}
+
+// Generate questions based on JD and resume
+const generateQuestionsFromContext = (
+  jobTitle: string, 
+  jobDescription: string, 
+  skills: string[],
+  resumeData?: any
+): Question[] => {
+  const questions: Question[] = []
+  
+  // Extract key requirements from JD
+  const jdLower = jobDescription.toLowerCase()
+  const hasLeadership = jdLower.includes('lead') || jdLower.includes('manage') || jdLower.includes('team')
+  const hasCollaboration = jdLower.includes('collaborat') || jdLower.includes('cross-functional')
+  const hasProblemSolving = jdLower.includes('problem') || jdLower.includes('solution')
+  const hasInnovation = jdLower.includes('innovat') || jdLower.includes('creative')
+  
+  // Behavioral questions based on JD
+  if (hasLeadership) {
+    questions.push({
+      id: questions.length + 1,
+      question: "Tell me about a time when you led a team through a challenging project. What was your approach and what was the outcome?",
+      type: 'behavioral',
+      difficulty: 'medium',
+      tips: getTipsForType('behavioral')
+    })
+  }
+  
+  if (hasCollaboration) {
+    questions.push({
+      id: questions.length + 1,
+      question: "Describe a situation where you had to collaborate with multiple teams or stakeholders. How did you ensure effective communication?",
+      type: 'behavioral',
+      difficulty: 'medium',
+      tips: getTipsForType('behavioral')
+    })
+  }
+  
+  if (hasProblemSolving) {
+    questions.push({
+      id: questions.length + 1,
+      question: "Walk me through a complex problem you solved. What was your approach and how did you arrive at the solution?",
+      type: 'technical',
+      difficulty: 'hard',
+      tips: getTipsForType('technical')
+    })
+  }
+  
+  // Technical questions based on skills
+  skills.slice(0, 3).forEach((skill, index) => {
+    questions.push({
+      id: questions.length + 1,
+      question: `Can you tell me about your experience with ${skill}? Describe a project where you used it effectively.`,
+      type: 'technical',
+      difficulty: index === 0 ? 'easy' : 'medium',
+      tips: getTipsForType('technical')
+    })
+  })
+  
+  // Resume-based questions
+  if (resumeData?.experience && resumeData.experience.length > 0) {
+    const latestJob = resumeData.experience[0]
+    if (latestJob?.company) {
+      questions.push({
+        id: questions.length + 1,
+        question: `I see you worked at ${latestJob.company}. What was your biggest achievement there and how does it prepare you for this role?`,
+        type: 'behavioral',
+        difficulty: 'medium',
+        tips: getTipsForType('behavioral')
+      })
+    }
+  }
+  
+  // Standard situational questions
+  questions.push({
+    id: questions.length + 1,
+    question: `Why are you interested in this ${jobTitle} position and what makes you a great fit?`,
+    type: 'situational',
+    difficulty: 'easy',
+    tips: getTipsForType('situational')
+  })
+  
+  questions.push({
+    id: questions.length + 1,
+    question: "Where do you see yourself in 5 years and how does this role fit into your career goals?",
+    type: 'situational',
+    difficulty: 'medium',
+    tips: getTipsForType('situational')
+  })
+  
+  // Add more standard questions if we don't have enough
+  const standardQuestions = [
     { q: "Tell me about a time you failed and what you learned from it.", type: 'behavioral' as const, difficulty: 'hard' as const },
-    { q: "Describe a situation where you had to make a decision with incomplete information.", type: 'behavioral' as const, difficulty: 'hard' as const },
+    { q: "How do you handle tight deadlines and pressure?", type: 'situational' as const, difficulty: 'medium' as const },
+    { q: "Describe a situation where you had to learn something new quickly.", type: 'behavioral' as const, difficulty: 'easy' as const },
+    { q: "How do you stay updated with the latest trends in your field?", type: 'technical' as const, difficulty: 'easy' as const },
   ]
-
-  const technicalQuestions = [
-    { q: `What experience do you have with ${skills[0] || 'the technologies'} mentioned in your resume?`, type: 'technical' as const, difficulty: 'easy' as const },
-    { q: "Walk me through your approach to solving a complex technical problem.", type: 'technical' as const, difficulty: 'medium' as const },
-    { q: "How do you stay updated with the latest trends and technologies in your field?", type: 'technical' as const, difficulty: 'easy' as const },
-    { q: `Can you explain a project where you used ${skills[1] || 'your technical skills'} effectively?`, type: 'technical' as const, difficulty: 'medium' as const },
-  ]
-
-  const situationalQuestions = [
-    { q: `Why are you interested in this ${jobTitle} position?`, type: 'situational' as const, difficulty: 'easy' as const },
-    { q: "Where do you see yourself in 5 years?", type: 'situational' as const, difficulty: 'medium' as const },
-    { q: "How would you handle a situation where you disagree with your manager's decision?", type: 'situational' as const, difficulty: 'hard' as const },
-    { q: "What would you do if you were given a tight deadline that you knew was unrealistic?", type: 'situational' as const, difficulty: 'medium' as const },
-  ]
-
-  const allQuestions = [...behavioralQuestions, ...technicalQuestions, ...situationalQuestions]
-  const shuffled = allQuestions.sort(() => Math.random() - 0.5).slice(0, 8)
-
-  return shuffled.map((q, i) => ({
-    id: i + 1,
-    question: q.q,
-    type: q.type,
-    difficulty: q.difficulty,
-    tips: getTipsForType(q.type),
-  }))
+  
+  while (questions.length < 8) {
+    const q = standardQuestions[questions.length % standardQuestions.length]
+    questions.push({
+      id: questions.length + 1,
+      question: q.q,
+      type: q.type,
+      difficulty: q.difficulty,
+      tips: getTipsForType(q.type)
+    })
+  }
+  
+  return questions.slice(0, 8)
 }
 
 const getTipsForType = (type: string): string[] => {
@@ -167,8 +286,168 @@ export default function InterviewCoachPage() {
   const [showTips, setShowTips] = useState(true)
   const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false)
   const [overallScore, setOverallScore] = useState(0)
+  
+  // Audio states
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [audioEnabled, setAudioEnabled] = useState(true)
+  const [speechSupported, setSpeechSupported] = useState(false)
+  const [recognitionSupported, setRecognitionSupported] = useState(false)
+  const [interimTranscript, setInterimTranscript] = useState('')
+  
+  // Resume states
+  const [resumes, setResumes] = useState<Resume[]>([])
+  const [selectedResumeId, setSelectedResumeId] = useState<string>('')
+  const [selectedResumeData, setSelectedResumeData] = useState<any>(null)
+  const [loadingResumes, setLoadingResumes] = useState(true)
+  
+  // Refs
+  const recognitionRef = useRef<any>(null)
+  const synthRef = useRef<SpeechSynthesis | null>(null)
 
   const supabase = createClient()
+  
+  // Check for speech support on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSpeechSupported('speechSynthesis' in window)
+      setRecognitionSupported('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+      synthRef.current = window.speechSynthesis
+    }
+  }, [])
+  
+  // Load user's resumes
+  useEffect(() => {
+    const loadResumes = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setLoadingResumes(false)
+        return
+      }
+      
+      const { data } = await (supabase as any)
+        .from('resumes')
+        .select('id, title, content')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+      
+      if (data) {
+        setResumes(data)
+      }
+      setLoadingResumes(false)
+    }
+    
+    loadResumes()
+  }, [supabase])
+  
+  // Load selected resume data
+  useEffect(() => {
+    if (selectedResumeId) {
+      const resume = resumes.find(r => r.id === selectedResumeId)
+      if (resume) {
+        setSelectedResumeData(resume.content)
+        // Auto-populate skills from resume
+        if (resume.content?.skills) {
+          const resumeSkills = resume.content.skills
+            .slice(0, 5)
+            .map((s: any) => typeof s === 'string' ? s : s.name || s.skill)
+            .filter(Boolean)
+          setSkills(prev => [...new Set([...prev, ...resumeSkills])])
+        }
+      }
+    }
+  }, [selectedResumeId, resumes])
+  
+  // Text-to-Speech function
+  const speakText = useCallback((text: string) => {
+    if (!speechSupported || !audioEnabled || !synthRef.current) return
+    
+    // Cancel any ongoing speech
+    synthRef.current.cancel()
+    
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.rate = 0.9
+    utterance.pitch = 1
+    utterance.volume = 1
+    
+    // Try to use a natural voice
+    const voices = synthRef.current.getVoices()
+    const preferredVoice = voices.find(v => 
+      v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')
+    ) || voices.find(v => v.lang.startsWith('en'))
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice
+    }
+    
+    utterance.onstart = () => setIsSpeaking(true)
+    utterance.onend = () => setIsSpeaking(false)
+    utterance.onerror = () => setIsSpeaking(false)
+    
+    synthRef.current.speak(utterance)
+  }, [speechSupported, audioEnabled])
+  
+  // Stop speaking
+  const stopSpeaking = useCallback(() => {
+    if (synthRef.current) {
+      synthRef.current.cancel()
+      setIsSpeaking(false)
+    }
+  }, [])
+  
+  // Speech-to-Text functions
+  const startRecording = useCallback(() => {
+    if (!recognitionSupported) return
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    recognitionRef.current = new SpeechRecognition()
+    
+    recognitionRef.current.continuous = true
+    recognitionRef.current.interimResults = true
+    recognitionRef.current.lang = 'en-US'
+    
+    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+      let interim = ''
+      let final = ''
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          final += transcript + ' '
+        } else {
+          interim += transcript
+        }
+      }
+      
+      if (final) {
+        setCurrentAnswer(prev => prev + final)
+      }
+      setInterimTranscript(interim)
+    }
+    
+    recognitionRef.current.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error)
+      setIsRecording(false)
+    }
+    
+    recognitionRef.current.onend = () => {
+      // Restart if still recording
+      if (isRecording && recognitionRef.current) {
+        recognitionRef.current.start()
+      }
+    }
+    
+    recognitionRef.current.start()
+    setIsRecording(true)
+  }, [recognitionSupported, isRecording])
+  
+  const stopRecording = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      recognitionRef.current = null
+    }
+    setIsRecording(false)
+    setInterimTranscript('')
+  }, [])
 
   // Timer effect
   useEffect(() => {
@@ -197,13 +476,20 @@ export default function InterviewCoachPage() {
   }
 
   const startPractice = () => {
-    const generatedQuestions = generateQuestions(jobTitle, skills)
+    const generatedQuestions = generateQuestionsFromContext(jobTitle, jobDescription, skills, selectedResumeData)
     setQuestions(generatedQuestions)
     setStep('practice')
     setCurrentQuestion(0)
     setAnswers([])
     setTimer(0)
     setIsTimerRunning(true)
+    
+    // Speak the first question after a short delay
+    setTimeout(() => {
+      if (generatedQuestions.length > 0) {
+        speakText(generatedQuestions[0].question)
+      }
+    }, 500)
   }
 
   const submitAnswer = async () => {
@@ -225,10 +511,16 @@ export default function InterviewCoachPage() {
     setIsGeneratingFeedback(false)
 
     if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1)
+      const nextQ = currentQuestion + 1
+      setCurrentQuestion(nextQ)
       setCurrentAnswer('')
       setTimer(0)
       setIsTimerRunning(true)
+      
+      // Speak the next question
+      setTimeout(() => {
+        speakText(questions[nextQ].question)
+      }, 500)
     } else {
       // Calculate overall score
       const allAnswers = [...answers, newAnswer]
@@ -350,8 +642,37 @@ export default function InterviewCoachPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Resume Selection */}
                   <div className="space-y-2">
-                    <Label htmlFor="jobTitle">Job Title</Label>
+                    <Label className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Select Your Resume
+                    </Label>
+                    {loadingResumes ? (
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading resumes...
+                      </div>
+                    ) : resumes.length > 0 ? (
+                      <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a resume for personalized questions" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {resumes.map((resume) => (
+                            <SelectItem key={resume.id} value={resume.id}>
+                              {resume.title || 'Untitled Resume'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-sm text-slate-500">No resumes found. Create one first for personalized questions.</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="jobTitle">Job Title *</Label>
                     <Input
                       id="jobTitle"
                       placeholder="e.g., Senior Software Engineer"
@@ -361,14 +682,17 @@ export default function InterviewCoachPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="jobDescription">Job Description (Optional)</Label>
+                    <Label htmlFor="jobDescription">Job Description *</Label>
                     <Textarea
                       id="jobDescription"
-                      placeholder="Paste the job description here for more tailored questions..."
+                      placeholder="Paste the job description here for tailored interview questions..."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
-                      rows={4}
+                      rows={6}
                     />
+                    <p className="text-xs text-slate-500">
+                      The AI will analyze this to generate relevant interview questions
+                    </p>
                   </div>
 
                   <div className="space-y-2">
@@ -396,15 +720,52 @@ export default function InterviewCoachPage() {
                     </div>
                   </div>
 
+                  {/* Audio Settings */}
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {audioEnabled ? (
+                          <Volume2 className="h-5 w-5 text-violet-500" />
+                        ) : (
+                          <VolumeX className="h-5 w-5 text-slate-400" />
+                        )}
+                        <div>
+                          <h4 className="font-medium text-slate-800">Audio Mode</h4>
+                          <p className="text-sm text-slate-500">
+                            {speechSupported 
+                              ? 'Questions will be read aloud' 
+                              : 'Audio not supported in this browser'}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant={audioEnabled ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setAudioEnabled(!audioEnabled)}
+                        disabled={!speechSupported}
+                      >
+                        {audioEnabled ? 'On' : 'Off'}
+                      </Button>
+                    </div>
+                    {recognitionSupported && (
+                      <div className="mt-3 pt-3 border-t border-slate-200">
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Mic className="h-4 w-4" />
+                          <span>Voice input available - speak your answers!</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="bg-violet-50 rounded-xl p-4 border border-violet-100">
                     <div className="flex items-start gap-3">
                       <Lightbulb className="h-5 w-5 text-violet-500 mt-0.5" />
                       <div>
                         <h4 className="font-medium text-violet-800">Pro Tips</h4>
                         <ul className="text-sm text-violet-600 mt-1 space-y-1">
-                          <li>• Add 3-5 key skills from your resume</li>
-                          <li>• Include both technical and soft skills</li>
-                          <li>• The more context you provide, the better the questions</li>
+                          <li>• Select your resume for personalized questions</li>
+                          <li>• Paste the full job description for best results</li>
+                          <li>• Use voice mode to practice speaking naturally</li>
                         </ul>
                       </div>
                     </div>
@@ -412,12 +773,12 @@ export default function InterviewCoachPage() {
 
                   <Button
                     onClick={startPractice}
-                    disabled={!jobTitle}
+                    disabled={!jobTitle || !jobDescription}
                     className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
                     size="lg"
                   >
                     <Play className="mr-2 h-5 w-5" />
-                    Start Practice Session
+                    Start Interview Practice
                   </Button>
                 </CardContent>
               </Card>
@@ -458,14 +819,40 @@ export default function InterviewCoachPage() {
                   <Progress value={(currentQuestion / questions.length) * 100} className="mt-4" />
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Question */}
+                  {/* Question with Audio Controls */}
                   <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-6 border border-violet-100">
-                    <div className="flex items-start gap-3">
-                      <MessageSquare className="h-6 w-6 text-violet-500 mt-1" />
-                      <p className="text-lg text-slate-800 font-medium">
-                        {questions[currentQuestion].question}
-                      </p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1">
+                        <MessageSquare className="h-6 w-6 text-violet-500 mt-1 flex-shrink-0" />
+                        <p className="text-lg text-slate-800 font-medium">
+                          {questions[currentQuestion].question}
+                        </p>
+                      </div>
+                      {speechSupported && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => isSpeaking ? stopSpeaking() : speakText(questions[currentQuestion].question)}
+                          className="flex-shrink-0"
+                        >
+                          {isSpeaking ? (
+                            <VolumeX className="h-5 w-5 text-violet-500" />
+                          ) : (
+                            <Volume2 className="h-5 w-5 text-violet-500" />
+                          )}
+                        </Button>
+                      )}
                     </div>
+                    {isSpeaking && (
+                      <div className="mt-3 flex items-center gap-2 text-sm text-violet-600">
+                        <div className="flex gap-1">
+                          <span className="w-1 h-4 bg-violet-400 rounded animate-pulse" />
+                          <span className="w-1 h-4 bg-violet-500 rounded animate-pulse delay-75" />
+                          <span className="w-1 h-4 bg-violet-400 rounded animate-pulse delay-150" />
+                        </div>
+                        Speaking...
+                      </div>
+                    )}
                   </div>
 
                   {/* Tips */}
@@ -489,25 +876,67 @@ export default function InterviewCoachPage() {
                     </motion.div>
                   )}
 
-                  {/* Answer Input */}
+                  {/* Answer Input with Voice */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label>Your Answer</Label>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowTips(!showTips)}
-                      >
-                        {showTips ? 'Hide Tips' : 'Show Tips'}
-                      </Button>
+                      <Label className="flex items-center gap-2">
+                        Your Answer
+                        {isRecording && (
+                          <span className="flex items-center gap-1 text-red-500 text-xs font-normal">
+                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                            Recording...
+                          </span>
+                        )}
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        {recognitionSupported && (
+                          <Button
+                            variant={isRecording ? 'destructive' : 'outline'}
+                            size="sm"
+                            onClick={() => isRecording ? stopRecording() : startRecording()}
+                          >
+                            {isRecording ? (
+                              <>
+                                <MicOff className="mr-1 h-4 w-4" />
+                                Stop
+                              </>
+                            ) : (
+                              <>
+                                <Mic className="mr-1 h-4 w-4" />
+                                Speak
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowTips(!showTips)}
+                        >
+                          {showTips ? 'Hide Tips' : 'Show Tips'}
+                        </Button>
+                      </div>
                     </div>
-                    <Textarea
-                      placeholder="Type your answer here... Be specific and use examples from your experience."
-                      value={currentAnswer}
-                      onChange={(e) => setCurrentAnswer(e.target.value)}
-                      rows={6}
-                      className="resize-none"
-                    />
+                    <div className="relative">
+                      <Textarea
+                        placeholder={isRecording ? "Listening... speak your answer" : "Type or speak your answer... Be specific and use examples from your experience."}
+                        value={currentAnswer + (interimTranscript ? ` ${interimTranscript}` : '')}
+                        onChange={(e) => setCurrentAnswer(e.target.value)}
+                        rows={6}
+                        className={`resize-none ${isRecording ? 'border-red-300 bg-red-50/50' : ''}`}
+                      />
+                      {isRecording && (
+                        <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                          <div className="flex gap-0.5">
+                            <span className="w-1 h-3 bg-red-400 rounded animate-pulse" />
+                            <span className="w-1 h-4 bg-red-500 rounded animate-pulse delay-75" />
+                            <span className="w-1 h-3 bg-red-400 rounded animate-pulse delay-150" />
+                            <span className="w-1 h-5 bg-red-500 rounded animate-pulse delay-200" />
+                            <span className="w-1 h-3 bg-red-400 rounded animate-pulse delay-300" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex justify-between text-sm text-slate-500">
                       <span>{currentAnswer.split(' ').filter(w => w).length} words</span>
                       <span>Aim for 50-150 words</span>
@@ -518,13 +947,21 @@ export default function InterviewCoachPage() {
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
-                      onClick={skipQuestion}
+                      onClick={() => {
+                        stopRecording()
+                        stopSpeaking()
+                        skipQuestion()
+                      }}
                       className="flex-1"
                     >
                       Skip Question
                     </Button>
                     <Button
-                      onClick={submitAnswer}
+                      onClick={() => {
+                        stopRecording()
+                        stopSpeaking()
+                        submitAnswer()
+                      }}
                       disabled={!currentAnswer.trim() || isGeneratingFeedback}
                       className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
                     >
