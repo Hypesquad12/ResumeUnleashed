@@ -50,6 +50,15 @@ interface Resume {
   content: any
 }
 
+interface JobDescription {
+  id: string
+  title: string
+  company: string
+  description: string
+  requirements: string[] | null
+  extracted_keywords: string[] | null
+}
+
 // Speech Recognition types
 interface SpeechRecognitionEvent {
   results: SpeechRecognitionResultList
@@ -300,6 +309,12 @@ export default function InterviewCoachPage() {
   const [selectedResumeData, setSelectedResumeData] = useState<any>(null)
   const [loadingResumes, setLoadingResumes] = useState(true)
   
+  // Job Description states
+  const [savedJDs, setSavedJDs] = useState<JobDescription[]>([])
+  const [selectedJDId, setSelectedJDId] = useState<string>('')
+  const [loadingJDs, setLoadingJDs] = useState(true)
+  const [inputMode, setInputMode] = useState<'saved' | 'manual'>('saved')
+  
   // Refs
   const recognitionRef = useRef<any>(null)
   const synthRef = useRef<SpeechSynthesis | null>(null)
@@ -315,28 +330,45 @@ export default function InterviewCoachPage() {
     }
   }, [])
   
-  // Load user's resumes
+  // Load user's resumes and job descriptions
   useEffect(() => {
-    const loadResumes = async () => {
+    const loadData = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         setLoadingResumes(false)
+        setLoadingJDs(false)
         return
       }
       
-      const { data } = await (supabase as any)
-        .from('resumes')
-        .select('id, title, content')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false })
+      // Load resumes and JDs in parallel
+      const [resumesResult, jdsResult] = await Promise.all([
+        (supabase as any)
+          .from('resumes')
+          .select('id, title, content')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false }),
+        (supabase as any)
+          .from('job_descriptions')
+          .select('id, title, company, description, requirements, extracted_keywords')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+      ])
       
-      if (data) {
-        setResumes(data)
+      if (resumesResult.data) {
+        setResumes(resumesResult.data)
+      }
+      if (jdsResult.data) {
+        setSavedJDs(jdsResult.data)
+        // If user has saved JDs, default to saved mode; otherwise manual
+        if (jdsResult.data.length === 0) {
+          setInputMode('manual')
+        }
       }
       setLoadingResumes(false)
+      setLoadingJDs(false)
     }
     
-    loadResumes()
+    loadData()
   }, [supabase])
   
   // Load selected resume data
@@ -356,6 +388,21 @@ export default function InterviewCoachPage() {
       }
     }
   }, [selectedResumeId, resumes])
+  
+  // Auto-fill when JD is selected
+  useEffect(() => {
+    if (selectedJDId && inputMode === 'saved') {
+      const jd = savedJDs.find(j => j.id === selectedJDId)
+      if (jd) {
+        setJobTitle(jd.title || '')
+        setJobDescription(jd.description || '')
+        // Auto-populate skills from JD keywords
+        if (jd.extracted_keywords && jd.extracted_keywords.length > 0) {
+          setSkills(prev => [...new Set([...prev, ...jd.extracted_keywords!.slice(0, 5)])])
+        }
+      }
+    }
+  }, [selectedJDId, savedJDs, inputMode])
   
   // Text-to-Speech function
   const speakText = useCallback((text: string) => {
@@ -642,12 +689,123 @@ export default function InterviewCoachPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Resume Selection */}
+                  {/* Step 1: Job Description Source */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="flex items-center gap-2 text-base font-semibold">
+                        <Target className="h-4 w-4 text-violet-500" />
+                        Step 1: Job Description
+                      </Label>
+                      {savedJDs.length > 0 && (
+                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
+                          <Button
+                            variant={inputMode === 'saved' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => {
+                              setInputMode('saved')
+                              if (!selectedJDId && savedJDs.length > 0) {
+                                setSelectedJDId(savedJDs[0].id)
+                              }
+                            }}
+                            className="text-xs h-7"
+                          >
+                            Saved JDs
+                          </Button>
+                          <Button
+                            variant={inputMode === 'manual' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => {
+                              setInputMode('manual')
+                              setSelectedJDId('')
+                              setJobTitle('')
+                              setJobDescription('')
+                            }}
+                            className="text-xs h-7"
+                          >
+                            Paste New
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {loadingJDs ? (
+                      <div className="flex items-center gap-2 text-sm text-slate-500 p-4 bg-slate-50 rounded-lg">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading your job descriptions...
+                      </div>
+                    ) : inputMode === 'saved' && savedJDs.length > 0 ? (
+                      <div className="space-y-3">
+                        <Select value={selectedJDId} onValueChange={setSelectedJDId}>
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Select a saved job description" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {savedJDs.map((jd) => (
+                              <SelectItem key={jd.id} value={jd.id}>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{jd.title || 'Untitled'}</span>
+                                  <span className="text-xs text-slate-500">{jd.company || 'No company'}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {selectedJDId && (
+                          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                            <div className="flex items-center gap-2 text-emerald-700 text-sm">
+                              <CheckCircle className="h-4 w-4" />
+                              <span>Job description loaded! Title and skills auto-filled.</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="jobTitle">Job Title *</Label>
+                          <Input
+                            id="jobTitle"
+                            placeholder="e.g., Senior Software Engineer"
+                            value={jobTitle}
+                            onChange={(e) => setJobTitle(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="jobDescription">Job Description *</Label>
+                          <Textarea
+                            id="jobDescription"
+                            placeholder="Paste the job description here for tailored interview questions..."
+                            value={jobDescription}
+                            onChange={(e) => setJobDescription(e.target.value)}
+                            rows={5}
+                          />
+                          <p className="text-xs text-slate-500">
+                            The AI will analyze this to generate relevant interview questions
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-200" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-white px-3 text-sm text-slate-500">Optional Enhancements</span>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Resume Selection */}
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Select Your Resume
+                      <FileText className="h-4 w-4 text-violet-500" />
+                      Step 2: Your Resume (Optional)
                     </Label>
+                    <p className="text-xs text-slate-500 mb-2">
+                      Select a resume to get questions about your specific experience
+                    </p>
                     {loadingResumes ? (
                       <div className="flex items-center gap-2 text-sm text-slate-500">
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -667,36 +825,18 @@ export default function InterviewCoachPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <p className="text-sm text-slate-500">No resumes found. Create one first for personalized questions.</p>
+                      <p className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
+                        No resumes found. <a href="/resumes/new" className="text-violet-600 hover:underline">Create one</a> for personalized questions.
+                      </p>
                     )}
                   </div>
 
+                  {/* Step 3: Additional Skills */}
                   <div className="space-y-2">
-                    <Label htmlFor="jobTitle">Job Title *</Label>
-                    <Input
-                      id="jobTitle"
-                      placeholder="e.g., Senior Software Engineer"
-                      value={jobTitle}
-                      onChange={(e) => setJobTitle(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="jobDescription">Job Description *</Label>
-                    <Textarea
-                      id="jobDescription"
-                      placeholder="Paste the job description here for tailored interview questions..."
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                      rows={6}
-                    />
-                    <p className="text-xs text-slate-500">
-                      The AI will analyze this to generate relevant interview questions
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Key Skills</Label>
+                    <Label className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-amber-500" />
+                      Step 3: Key Skills
+                    </Label>
                     <div className="flex gap-2">
                       <Input
                         placeholder="Add a skill..."
@@ -706,18 +846,23 @@ export default function InterviewCoachPage() {
                       />
                       <Button onClick={addSkill} variant="outline">Add</Button>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {skills.map((skill) => (
-                        <Badge
-                          key={skill}
-                          variant="secondary"
-                          className="cursor-pointer hover:bg-red-100"
-                          onClick={() => removeSkill(skill)}
-                        >
-                          {skill} ×
-                        </Badge>
-                      ))}
-                    </div>
+                    {skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {skills.map((skill) => (
+                          <Badge
+                            key={skill}
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-red-100 transition-colors"
+                            onClick={() => removeSkill(skill)}
+                          >
+                            {skill} ×
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    {skills.length === 0 && (
+                      <p className="text-xs text-slate-400">Skills will be auto-extracted from your resume and JD</p>
+                    )}
                   </div>
 
                   {/* Audio Settings */}
