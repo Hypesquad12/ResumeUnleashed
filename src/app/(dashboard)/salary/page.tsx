@@ -192,138 +192,137 @@ export default function SalaryNegotiationPage() {
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        {/* Two Column Layout: Your Details + Negotiation Tips */}
+        <div className="grid lg:grid-cols-2 gap-6 mb-6">
           {/* Input Section */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-emerald-500" />
-                  Your Details
-                </CardTitle>
-                <CardDescription>
-                  Enter your information to get personalized salary insights
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="jobTitle">Job Title</Label>
-                  <Input
-                    id="jobTitle"
-                    value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                    placeholder="e.g., Software Engineer, Product Manager"
-                  />
-                </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-emerald-500" />
+                Your Details
+              </CardTitle>
+              <CardDescription>
+                Enter your information to get personalized salary insights
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="jobTitle">Job Title</Label>
+                <Input
+                  id="jobTitle"
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  placeholder="e.g., Software Engineer, Product Manager"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label>Experience Level</Label>
-                  <Select value={experience} onValueChange={setExperience}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select experience level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {experienceLevels.map(level => (
-                        <SelectItem key={level.value} value={level.value}>
-                          {level.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label>Experience Level</Label>
+                <Select value={experience} onValueChange={setExperience}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select experience level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {experienceLevels.map(level => (
+                      <SelectItem key={level.value} value={level.value}>
+                        {level.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-2">
-                  <Label>Location</Label>
-                  <Select value={location} onValueChange={setLocation}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {locations.map(loc => (
-                        <SelectItem key={loc.value} value={loc.value}>
-                          {loc.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Select value={location} onValueChange={setLocation}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map(loc => (
+                      <SelectItem key={loc.value} value={loc.value}>
+                        {loc.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="currentSalary">Current Salary (Optional)</Label>
-                  <Input
-                    id="currentSalary"
-                    type="number"
-                    value={currentSalary}
-                    onChange={(e) => setCurrentSalary(e.target.value)}
-                    placeholder="e.g., 100000"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="currentSalary">Current Salary (Optional)</Label>
+                <Input
+                  id="currentSalary"
+                  type="number"
+                  value={currentSalary}
+                  onChange={(e) => setCurrentSalary(e.target.value)}
+                  placeholder="e.g., 100000"
+                />
+              </div>
 
-                <Button
-                  onClick={calculateSalary}
-                  disabled={!jobTitle || !experience || !location || isCalculating}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
-                >
-                  {isCalculating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Calculating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Get Salary Insights
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
+              <Button
+                onClick={calculateSalary}
+                disabled={!jobTitle || !experience || !location || isCalculating}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+              >
+                {isCalculating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Calculating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Get Salary Insights
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* Negotiation Tips */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-amber-500" />
-                  Negotiation Tips
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {negotiationTips.map((tip, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="p-3 bg-slate-50 rounded-lg"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-xs font-bold text-emerald-600">{index + 1}</span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-slate-800">{tip.title}</h4>
-                          <p className="text-sm text-slate-600 mt-1">{tip.description}</p>
-                          {tip.script && (
-                            <div className="mt-2 p-2 bg-white rounded border border-slate-200 text-sm italic text-slate-600">
-                              {tip.script}
-                            </div>
-                          )}
-                        </div>
+          {/* Negotiation Tips - Now side by side */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 text-amber-500" />
+                Negotiation Tips
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {negotiationTips.map((tip, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-3 bg-slate-50 rounded-lg"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-emerald-600">{index + 1}</span>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                      <div>
+                        <h4 className="font-medium text-slate-800">{tip.title}</h4>
+                        <p className="text-sm text-slate-600 mt-1">{tip.description}</p>
+                        {tip.script && (
+                          <div className="mt-2 p-2 bg-white rounded border border-slate-200 text-sm italic text-slate-600">
+                            {tip.script}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Results Section */}
-          <div className="space-y-6">
-            {salaryData ? (
-              <>
-                {/* Salary Range Card */}
-                <Card className="overflow-hidden">
+        {/* Results Section - Full Width Below */}
+        {salaryData && (
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Salary Range Card */}
+            <Card className="overflow-hidden">
                   <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white">
                     <div className="flex items-center justify-between mb-4">
                       <div>
@@ -451,26 +450,8 @@ export default function SalaryNegotiationPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </>
-            ) : (
-              <Card className="h-full flex items-center justify-center">
-                <CardContent className="text-center py-16">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-emerald-100 to-teal-100 flex items-center justify-center">
-                    <DollarSign className="h-8 w-8 text-emerald-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-2">Ready to Calculate</h3>
-                  <p className="text-slate-500 mb-4">
-                    Enter your details to get salary insights and negotiation tips
-                  </p>
-                  <div className="flex items-center justify-center gap-2 text-sm text-emerald-600">
-                    <ArrowRight className="h-4 w-4" />
-                    <span>Get market-based salary data</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

@@ -46,7 +46,6 @@ const navigationGroups = [
       { name: 'Interview Prep', href: '/interview', icon: Brain },
       { name: 'Resume Score', href: '/score', icon: Target },
       { name: 'Salary Guide', href: '/salary', icon: DollarSign },
-      { name: 'Job Tracker', href: '/applications', icon: Briefcase },
     ]
   },
   {
