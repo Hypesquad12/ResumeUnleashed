@@ -16,7 +16,6 @@ import {
   Loader2,
   Brain,
   Target,
-  FlaskConical,
   DollarSign,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -31,7 +30,6 @@ const navigation = [
   { name: 'Visiting Cards', href: '/cards', icon: CreditCard },
   { name: 'Interview Coach', href: '/interview', icon: Brain },
   { name: 'Resume Score', href: '/score', icon: Target },
-  { name: 'A/B Testing', href: '/ab-test', icon: FlaskConical },
   { name: 'Salary Guide', href: '/salary', icon: DollarSign },
 ]
 
