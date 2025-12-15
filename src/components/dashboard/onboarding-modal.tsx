@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { 
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle 
 } from '@/components/ui/dialog'
-import { FileText, Upload, Sparkles, ArrowRight, Check } from 'lucide-react'
+import { FileText, Upload, Sparkles, ArrowRight, Check, Brain, Target, CreditCard, ChevronLeft } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface OnboardingModalProps {
@@ -14,19 +14,6 @@ interface OnboardingModalProps {
   onClose: () => void
   userName?: string
 }
-
-const steps = [
-  {
-    id: 'welcome',
-    title: 'Welcome to ResumeAI! 🎉',
-    description: 'Let\'s get you started with creating your perfect resume.',
-  },
-  {
-    id: 'choose',
-    title: 'How would you like to start?',
-    description: 'Choose the option that works best for you.',
-  },
-]
 
 export function OnboardingModal({ open, onClose, userName }: OnboardingModalProps) {
   const router = useRouter()
@@ -46,131 +33,137 @@ export function OnboardingModal({ open, onClose, userName }: OnboardingModalProp
     onClose()
   }
 
+  const firstName = userName?.split(' ')[0] || ''
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {currentStep === 0 ? (
             <motion.div
               key="welcome"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="p-6"
             >
               <DialogHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl w-fit">
+                <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-primary to-violet-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <FileText className="h-8 w-8 text-white" />
                 </div>
                 <DialogTitle className="text-2xl">
-                  Welcome{userName ? `, ${userName.split(' ')[0]}` : ''}! 🎉
+                  Welcome{firstName ? `, ${firstName}` : ''}! 👋
                 </DialogTitle>
                 <DialogDescription className="text-base">
-                  You&apos;re all set to create AI-powered resumes that get you hired.
+                  Your complete career toolkit is ready
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-4 py-4">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <Check className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium">AI-Powered Optimization</p>
-                    <p className="text-sm text-muted-foreground">
-                      Tailor your resume for any job description
-                    </p>
+              <div className="grid grid-cols-2 gap-3 py-4">
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-primary" />
                   </div>
+                  <span className="text-sm font-medium">Resume Builder</span>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <Check className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium">ATS-Friendly Templates</p>
-                    <p className="text-sm text-muted-foreground">
-                      Pass applicant tracking systems with ease
-                    </p>
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-violet-500/5 border border-violet-500/10">
+                  <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-violet-500" />
                   </div>
+                  <span className="text-sm font-medium">AI Customize</span>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <Check className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium">Digital Business Cards</p>
-                    <p className="text-sm text-muted-foreground">
-                      Share your profile with a QR code
-                    </p>
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <Brain className="h-4 w-4 text-amber-500" />
                   </div>
+                  <span className="text-sm font-medium">Interview Prep</span>
+                </div>
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-teal-500/5 border border-teal-500/10">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center">
+                    <Target className="h-4 w-4 text-teal-500" />
+                  </div>
+                  <span className="text-sm font-medium">Resume Score</span>
                 </div>
               </div>
 
-              <div className="flex justify-end pt-4">
-                <Button onClick={() => setCurrentStep(1)}>
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+              <div className="bg-muted/30 rounded-xl p-4 mb-4">
+                <p className="text-sm text-center text-muted-foreground">
+                  <span className="font-medium text-foreground">Pro tip:</span> Start by creating your base resume, then use AI to tailor it for each job application.
+                </p>
               </div>
+
+              <Button onClick={() => setCurrentStep(1)} className="w-full" size="lg">
+                Let&apos;s Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </motion.div>
           ) : (
             <motion.div
               key="choose"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="p-6"
             >
+              <button 
+                onClick={() => setCurrentStep(0)}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back
+              </button>
+
               <DialogHeader className="text-center pb-4">
-                <DialogTitle className="text-2xl">
-                  How would you like to start?
+                <DialogTitle className="text-xl">
+                  Create Your First Resume
                 </DialogTitle>
-                <DialogDescription className="text-base">
-                  Choose the option that works best for you
+                <DialogDescription>
+                  Choose how you&apos;d like to get started
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="grid gap-4 py-4">
+              <div className="space-y-3 py-2">
                 <button
                   onClick={handleStartFromScratch}
-                  className="flex items-start gap-4 p-4 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all text-left group"
+                  className="flex items-center gap-4 w-full p-4 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all text-left group"
                 >
-                  <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <FileText className="h-6 w-6 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold mb-1">Start from Scratch</p>
+                    <p className="font-semibold">Start Fresh</p>
                     <p className="text-sm text-muted-foreground">
-                      Build your resume step by step with our guided form
+                      Build step by step with our guided form
                     </p>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors mt-1" />
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 </button>
 
                 <button
                   onClick={handleUploadResume}
-                  className="flex items-start gap-4 p-4 rounded-xl border-2 hover:border-violet-500 hover:bg-violet-500/5 transition-all text-left group"
+                  className="flex items-center gap-4 w-full p-4 rounded-xl border-2 hover:border-violet-500 hover:bg-violet-500/5 transition-all text-left group"
                 >
-                  <div className="p-3 rounded-lg bg-violet-500/10 group-hover:bg-violet-500/20 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center group-hover:bg-violet-500/20 transition-colors">
                     <Upload className="h-6 w-6 text-violet-500" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold mb-1">Upload Existing Resume</p>
+                    <p className="font-semibold">Upload Existing</p>
                     <p className="text-sm text-muted-foreground">
-                      Upload a PDF or DOCX and we&apos;ll extract the content
+                      Import from PDF or DOCX file
                     </p>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-violet-500 transition-colors mt-1" />
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-violet-500 transition-colors" />
                 </button>
+              </div>
 
+              <div className="pt-4 border-t mt-4">
                 <button
                   onClick={handleExplore}
-                  className="flex items-start gap-4 p-4 rounded-xl border-2 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
                 >
-                  <div className="p-3 rounded-lg bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
-                    <Sparkles className="h-6 w-6 text-emerald-500" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold mb-1">Explore First</p>
-                    <p className="text-sm text-muted-foreground">
-                      Take a look around and start when you&apos;re ready
-                    </p>
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-emerald-500 transition-colors mt-1" />
+                  I&apos;ll explore first →
                 </button>
               </div>
             </motion.div>
