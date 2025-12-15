@@ -17,20 +17,44 @@ import {
   Brain,
   Target,
   DollarSign,
+  Plus,
+  Briefcase,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { useState, useTransition } from 'react'
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'My Resumes', href: '/resumes', icon: FileText },
-  { name: 'AI Customize', href: '/customize', icon: Sparkles },
-  { name: 'Templates', href: '/templates', icon: Palette },
-  { name: 'Visiting Cards', href: '/cards', icon: CreditCard },
-  { name: 'Interview Coach', href: '/interview', icon: Brain },
-  { name: 'Resume Score', href: '/score', icon: Target },
-  { name: 'Salary Guide', href: '/salary', icon: DollarSign },
+// Grouped navigation for better UX
+const navigationGroups = [
+  {
+    label: null, // No label for main items
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    ]
+  },
+  {
+    label: 'Resume',
+    items: [
+      { name: 'My Resumes', href: '/resumes', icon: FileText },
+      { name: 'AI Customize', href: '/customize', icon: Sparkles },
+      { name: 'Templates', href: '/templates', icon: Palette },
+    ]
+  },
+  {
+    label: 'Career Tools',
+    items: [
+      { name: 'Interview Prep', href: '/interview', icon: Brain },
+      { name: 'Resume Score', href: '/score', icon: Target },
+      { name: 'Salary Guide', href: '/salary', icon: DollarSign },
+      { name: 'Job Tracker', href: '/applications', icon: Briefcase },
+    ]
+  },
+  {
+    label: 'Professional',
+    items: [
+      { name: 'Visiting Cards', href: '/cards', icon: CreditCard },
+    ]
+  },
 ]
 
 const bottomNavigation = [
@@ -90,37 +114,48 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          const isNavigating = isPending && navigatingTo === item.href
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              prefetch={true}
-              onClick={(e) => {
-                e.preventDefault()
-                handleNavigation(item.href)
-              }}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-                collapsed && 'justify-center px-2'
-              )}
-              title={collapsed ? item.name : undefined}
-            >
-              {isNavigating ? (
-                <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin" />
-              ) : (
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-              )}
-              {!collapsed && <span>{item.name}</span>}
-            </Link>
-          )
-        })}
+      <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
+        {navigationGroups.map((group, groupIndex) => (
+          <div key={groupIndex} className="space-y-1">
+            {group.label && !collapsed && (
+              <div className="px-3 py-1.5">
+                <span className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                  {group.label}
+                </span>
+              </div>
+            )}
+            {group.items.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+              const isNavigating = isPending && navigatingTo === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  prefetch={true}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleNavigation(item.href)
+                  }}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all w-full',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                    collapsed && 'justify-center px-2'
+                  )}
+                  title={collapsed ? item.name : undefined}
+                >
+                  {isNavigating ? (
+                    <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" />
+                  ) : (
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                  )}
+                  {!collapsed && <span>{item.name}</span>}
+                </Link>
+              )
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Bottom Navigation */}
