@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,11 +8,20 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { 
   Eye, Target, Zap, CheckCircle, AlertTriangle, XCircle, 
   TrendingUp, FileText, Sparkles, BarChart3, Clock, 
-  MousePointer, Lightbulb, ArrowRight, Loader2, RefreshCw
+  MousePointer, Lightbulb, ArrowRight, Loader2, RefreshCw,
+  Upload, File, X
 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 interface ScoreBreakdown {
   ats: number
@@ -164,6 +173,12 @@ const calculateScores = (resumeText: string, jobDescription: string): ScoreBreak
   return { ats: atsScore, keywords: keywordScore, format: formatScore, content: contentScore, overall }
 }
 
+interface Resume {
+  id: string
+  title: string
+  content: any
+}
+
 export default function ResumeScorePage() {
   const [resumeText, setResumeText] = useState('')
   const [jobDescription, setJobDescription] = useState('')
@@ -173,6 +188,145 @@ export default function ResumeScorePage() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [selectedZone, setSelectedZone] = useState<HeatmapZone | null>(null)
   const [showHeatmap, setShowHeatmap] = useState(true)
+  
+  // File upload and resume selection states
+  const [inputMode, setInputMode] = useState<'upload' | 'saved'>('saved')
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [isParsingFile, setIsParsingFile] = useState(false)
+  const [resumes, setResumes] = useState<Resume[]>([])
+  const [selectedResumeId, setSelectedResumeId] = useState('')
+  const [loadingResumes, setLoadingResumes] = useState(true)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const supabase = createClient()
+  
+  // Load user's resumes
+  useEffect(() => {
+    const loadResumes = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setLoadingResumes(false)
+        return
+      }
+      
+      const { data } = await (supabase as any)
+        .from('resumes')
+        .select('id, title, content')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+      
+      if (data) {
+        setResumes(data)
+        // Default to saved mode if user has resumes
+        if (data.length === 0) {
+          setInputMode('upload')
+        }
+      }
+      setLoadingResumes(false)
+    }
+    
+    loadResumes()
+  }, [supabase])
+  
+  // Extract text from resume content when selected
+  useEffect(() => {
+    if (selectedResumeId && inputMode === 'saved') {
+      const resume = resumes.find(r => r.id === selectedResumeId)
+      if (resume?.content) {
+        const text = extractTextFromResumeContent(resume.content)
+        setResumeText(text)
+      }
+    }
+  }, [selectedResumeId, resumes, inputMode])
+  
+  // Extract text from resume JSON content
+  const extractTextFromResumeContent = (content: any): string => {
+    const parts: string[] = []
+    
+    if (content.personalInfo) {
+      const p = content.personalInfo
+      if (p.fullName) parts.push(p.fullName)
+      if (p.email) parts.push(p.email)
+      if (p.phone) parts.push(p.phone)
+      if (p.location) parts.push(p.location)
+      if (p.linkedin) parts.push(`LinkedIn: ${p.linkedin}`)
+      if (p.summary) parts.push(`\nSummary:\n${p.summary}`)
+    }
+    
+    if (content.experience && content.experience.length > 0) {
+      parts.push('\nExperience:')
+      content.experience.forEach((exp: any) => {
+        if (exp.title) parts.push(exp.title)
+        if (exp.company) parts.push(exp.company)
+        if (exp.startDate || exp.endDate) parts.push(`${exp.startDate || ''} - ${exp.endDate || 'Present'}`)
+        if (exp.description) parts.push(exp.description)
+        if (exp.achievements) {
+          exp.achievements.forEach((a: string) => parts.push(`• ${a}`))
+        }
+      })
+    }
+    
+    if (content.education && content.education.length > 0) {
+      parts.push('\nEducation:')
+      content.education.forEach((edu: any) => {
+        if (edu.degree) parts.push(edu.degree)
+        if (edu.school) parts.push(edu.school)
+        if (edu.year) parts.push(edu.year)
+      })
+    }
+    
+    if (content.skills && content.skills.length > 0) {
+      parts.push('\nSkills:')
+      const skillNames = content.skills.map((s: any) => 
+        typeof s === 'string' ? s : s.name || s.skill
+      ).filter(Boolean)
+      parts.push(skillNames.join(', '))
+    }
+    
+    if (content.certifications && content.certifications.length > 0) {
+      parts.push('\nCertifications:')
+      content.certifications.forEach((cert: any) => {
+        if (typeof cert === 'string') parts.push(cert)
+        else if (cert.name) parts.push(cert.name)
+      })
+    }
+    
+    return parts.join('\n')
+  }
+  
+  // Handle file upload
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    setUploadedFile(file)
+    setIsParsingFile(true)
+    
+    try {
+      // For now, read as text (works for .txt files)
+      // PDF/DOCX parsing would require a server-side solution or library
+      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+        const text = await file.text()
+        setResumeText(text)
+      } else {
+        // For PDF/DOCX, we'll show a message to paste content
+        // In production, you'd use a parsing library or API
+        setResumeText(`[File uploaded: ${file.name}]\n\nNote: For best results with PDF/DOCX files, please paste the text content below or use a saved resume.`)
+      }
+    } catch (error) {
+      console.error('Error reading file:', error)
+    } finally {
+      setIsParsingFile(false)
+    }
+  }
+  
+  // Remove uploaded file
+  const removeFile = () => {
+    setUploadedFile(null)
+    setResumeText('')
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
 
   const analyzeResume = async () => {
     if (!resumeText.trim()) return
@@ -240,24 +394,160 @@ export default function ResumeScorePage() {
                   Your Resume
                 </CardTitle>
                 <CardDescription>
-                  Paste your resume content to get instant analysis
+                  Select a saved resume or upload a file to analyze
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Textarea
-                  placeholder="Paste your resume text here..."
-                  value={resumeText}
-                  onChange={(e) => setResumeText(e.target.value)}
-                  rows={10}
-                  className="resize-none"
-                />
-                <Textarea
-                  placeholder="(Optional) Paste job description for keyword matching..."
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                  rows={4}
-                  className="resize-none"
-                />
+                {/* Input Mode Toggle */}
+                {resumes.length > 0 && (
+                  <div className="flex gap-1 p-1 bg-slate-100 rounded-lg w-fit">
+                    <Button
+                      variant={inputMode === 'saved' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => {
+                        setInputMode('saved')
+                        setUploadedFile(null)
+                        if (!selectedResumeId && resumes.length > 0) {
+                          setSelectedResumeId(resumes[0].id)
+                        }
+                      }}
+                      className="text-xs h-8"
+                    >
+                      <FileText className="mr-1 h-3 w-3" />
+                      Saved Resumes
+                    </Button>
+                    <Button
+                      variant={inputMode === 'upload' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => {
+                        setInputMode('upload')
+                        setSelectedResumeId('')
+                        setResumeText('')
+                      }}
+                      className="text-xs h-8"
+                    >
+                      <Upload className="mr-1 h-3 w-3" />
+                      Upload File
+                    </Button>
+                  </div>
+                )}
+
+                {loadingResumes ? (
+                  <div className="flex items-center gap-2 text-sm text-slate-500 p-4 bg-slate-50 rounded-lg">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading your resumes...
+                  </div>
+                ) : inputMode === 'saved' && resumes.length > 0 ? (
+                  <div className="space-y-3">
+                    <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select a resume to analyze" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {resumes.map((resume) => (
+                          <SelectItem key={resume.id} value={resume.id}>
+                            {resume.title || 'Untitled Resume'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedResumeId && (
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2 text-emerald-700 text-sm">
+                          <CheckCircle className="h-4 w-4" />
+                          <span>Resume loaded and ready to analyze!</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {/* File Upload Area */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    
+                    {!uploadedFile ? (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:border-teal-400 hover:bg-teal-50/50 transition-colors"
+                      >
+                        <Upload className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+                        <p className="text-sm font-medium text-slate-700">
+                          Click to upload your resume
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          PDF, DOC, DOCX, or TXT (max 5MB)
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-slate-50 rounded-xl p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
+                              <File className="h-5 w-5 text-teal-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-slate-700">{uploadedFile.name}</p>
+                              <p className="text-xs text-slate-500">
+                                {(uploadedFile.size / 1024).toFixed(1)} KB
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={removeFile}
+                            className="text-slate-400 hover:text-red-500"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        {isParsingFile && (
+                          <div className="mt-3 flex items-center gap-2 text-sm text-teal-600">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Parsing file...
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Show extracted text preview */}
+                    {resumeText && inputMode === 'upload' && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-slate-600">Preview / Edit extracted text:</label>
+                        <Textarea
+                          value={resumeText}
+                          onChange={(e) => setResumeText(e.target.value)}
+                          rows={6}
+                          className="resize-none text-sm"
+                        />
+                      </div>
+                    )}
+
+                    {resumes.length === 0 && !uploadedFile && (
+                      <p className="text-xs text-slate-500 text-center">
+                        Or <a href="/resumes/new" className="text-teal-600 hover:underline">create a resume</a> first
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Job Description (Optional) */}
+                <div className="pt-2 border-t border-slate-100">
+                  <Textarea
+                    placeholder="(Optional) Paste job description for keyword matching..."
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    rows={3}
+                    className="resize-none"
+                  />
+                </div>
+
                 <Button
                   onClick={analyzeResume}
                   disabled={!resumeText.trim() || isAnalyzing}
