@@ -315,6 +315,11 @@ export default function InterviewCoachPage() {
   const [loadingJDs, setLoadingJDs] = useState(true)
   const [inputMode, setInputMode] = useState<'saved' | 'manual'>('saved')
   
+  // History states
+  const [pastSessions, setPastSessions] = useState<any[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(true)
+  const [showHistory, setShowHistory] = useState(false)
+  
   // Refs
   const recognitionRef = useRef<any>(null)
   const synthRef = useRef<SpeechSynthesis | null>(null)
@@ -330,18 +335,19 @@ export default function InterviewCoachPage() {
     }
   }, [])
   
-  // Load user's resumes and job descriptions
+  // Load user's resumes, job descriptions, and history
   useEffect(() => {
     const loadData = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         setLoadingResumes(false)
         setLoadingJDs(false)
+        setLoadingHistory(false)
         return
       }
       
-      // Load resumes and JDs in parallel
-      const [resumesResult, jdsResult] = await Promise.all([
+      // Load resumes, JDs, and history in parallel
+      const [resumesResult, jdsResult, historyResult] = await Promise.all([
         (supabase as any)
           .from('resumes')
           .select('id, title, content')
@@ -351,7 +357,13 @@ export default function InterviewCoachPage() {
           .from('job_descriptions')
           .select('id, title, company, description, requirements, extracted_keywords')
           .eq('user_id', user.id)
+          .order('created_at', { ascending: false }),
+        (supabase as any)
+          .from('interview_sessions')
+          .select('id, job_title, overall_score, status, created_at, questions, answers')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false })
+          .limit(10)
       ])
       
       if (resumesResult.data) {
@@ -364,8 +376,12 @@ export default function InterviewCoachPage() {
           setInputMode('manual')
         }
       }
+      if (historyResult.data) {
+        setPastSessions(historyResult.data)
+      }
       setLoadingResumes(false)
       setLoadingJDs(false)
+      setLoadingHistory(false)
     }
     
     loadData()
@@ -576,6 +592,33 @@ export default function InterviewCoachPage() {
       )
       setOverallScore(avgScore)
       setStep('review')
+      
+      // Save session to database
+      saveSession(allAnswers, avgScore)
+    }
+  }
+  
+  // Save interview session to database
+  const saveSession = async (allAnswers: Answer[], score: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      
+      const totalDuration = allAnswers.reduce((sum, a) => sum + a.duration, 0)
+      
+      await (supabase as any).from('interview_sessions').insert({
+        user_id: user.id,
+        resume_id: selectedResumeId || null,
+        job_title: jobTitle,
+        job_description: jobDescription,
+        questions: questions,
+        answers: allAnswers,
+        feedback: allAnswers.map(a => a.feedback),
+        overall_score: score,
+        status: 'completed'
+      })
+    } catch (error) {
+      console.error('Error saving interview session:', error)
     }
   }
 
@@ -599,6 +642,9 @@ export default function InterviewCoachPage() {
       )
       setOverallScore(avgScore)
       setStep('review')
+      
+      // Save session to database
+      saveSession(allAnswers, avgScore)
     }
   }
 
@@ -677,7 +723,67 @@ export default function InterviewCoachPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
             >
+              {/* Past Sessions History */}
+              {pastSessions.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Clock className="h-5 w-5 text-violet-500" />
+                        Practice History
+                      </CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowHistory(!showHistory)}
+                      >
+                        {showHistory ? 'Hide' : 'Show'} ({pastSessions.length})
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  {showHistory && (
+                    <CardContent className="pt-0">
+                      <div className="space-y-3">
+                        {pastSessions.map((session) => (
+                          <div
+                            key={session.id}
+                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                session.overall_score >= 70 ? 'bg-emerald-100' :
+                                session.overall_score >= 50 ? 'bg-amber-100' : 'bg-red-100'
+                              }`}>
+                                <span className={`font-bold text-sm ${
+                                  session.overall_score >= 70 ? 'text-emerald-600' :
+                                  session.overall_score >= 50 ? 'text-amber-600' : 'text-red-600'
+                                }`}>
+                                  {session.overall_score}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="font-medium text-slate-800">{session.job_title}</p>
+                                <p className="text-xs text-slate-500">
+                                  {new Date(session.created_at).toLocaleDateString()} • {session.questions?.length || 0} questions
+                                </p>
+                              </div>
+                            </div>
+                            <Badge className={`${
+                              session.overall_score >= 70 ? 'bg-emerald-100 text-emerald-700' :
+                              session.overall_score >= 50 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                            }`}>
+                              {session.overall_score >= 70 ? 'Strong' : session.overall_score >= 50 ? 'Good' : 'Needs Work'}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              )}
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
