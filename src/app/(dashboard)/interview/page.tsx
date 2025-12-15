@@ -983,7 +983,7 @@ export default function InterviewCoachPage() {
             </motion.div>
           )}
 
-          {/* Review Step */}
+          {/* Review Step - Detailed Performance Dashboard */}
           {step === 'review' && (
             <motion.div
               key="review"
@@ -992,131 +992,443 @@ export default function InterviewCoachPage() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              {/* Overall Score Card */}
+              {/* Hero Score Card */}
               <Card className="overflow-hidden">
-                <div className="bg-gradient-to-r from-violet-500 to-purple-500 p-6 text-white">
-                  <div className="flex items-center justify-between">
+                <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-8 text-white relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItNCAyLTRzLTItMi00LTItNC0yLTItNCAyLTQgMi00czItMiA0LTIgNC0yIDItNGMwLTItMi00LTItNHMyLTIgNC0yIDQtMiAyLTRjMC0yLTItNC0yLTRzMi0yIDQtMiA0LTIgMi00Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20" />
+                  <div className="relative flex items-center justify-between">
                     <div>
-                      <h2 className="text-xl font-semibold mb-1">Practice Session Complete!</h2>
-                      <p className="text-violet-100">Here&apos;s how you performed</p>
+                      <h2 className="text-2xl font-bold mb-2">Interview Performance Report</h2>
+                      <p className="text-violet-200">Session for: {jobTitle}</p>
+                      <div className="flex items-center gap-4 mt-4">
+                        <Badge className="bg-white/20 text-white border-0">
+                          {questions.length} Questions
+                        </Badge>
+                        <Badge className="bg-white/20 text-white border-0">
+                          {formatTime(answers.reduce((sum, a) => sum + a.duration, 0))} Total Time
+                        </Badge>
+                      </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-5xl font-bold">{overallScore}</div>
-                      <div className="text-violet-100 text-sm">Overall Score</div>
+                      <div className="w-32 h-32 rounded-full bg-white/10 backdrop-blur flex items-center justify-center border-4 border-white/30">
+                        <div>
+                          <div className="text-5xl font-bold">{overallScore}</div>
+                          <div className="text-sm text-violet-200">Overall</div>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-lg font-medium">
+                        {overallScore >= 80 ? '🌟 Excellent!' : overallScore >= 60 ? '👍 Good Progress' : '💪 Keep Practicing'}
+                      </div>
                     </div>
                   </div>
                 </div>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="p-4 rounded-xl bg-emerald-50">
-                      <Trophy className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-emerald-600">
-                        {answers.filter(a => (a.feedback?.score || 0) >= 70).length}
-                      </div>
-                      <div className="text-sm text-emerald-600">Strong Answers</div>
+              </Card>
+
+              {/* Key Metrics Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                      <Trophy className="h-6 w-6 text-emerald-600" />
                     </div>
-                    <div className="p-4 rounded-xl bg-amber-50">
-                      <TrendingUp className="h-6 w-6 text-amber-500 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-amber-600">
-                        {answers.filter(a => (a.feedback?.score || 0) >= 50 && (a.feedback?.score || 0) < 70).length}
-                      </div>
-                      <div className="text-sm text-amber-600">Need Work</div>
+                    <div className="text-3xl font-bold text-emerald-600">
+                      {answers.filter(a => (a.feedback?.score || 0) >= 70).length}
                     </div>
-                    <div className="p-4 rounded-xl bg-violet-50">
-                      <Clock className="h-6 w-6 text-violet-500 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-violet-600">
-                        {formatTime(answers.reduce((sum, a) => sum + a.duration, 0))}
-                      </div>
-                      <div className="text-sm text-violet-600">Total Time</div>
+                    <div className="text-sm text-slate-600">Strong Answers</div>
+                    <div className="text-xs text-slate-400 mt-1">Score ≥ 70</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-3">
+                      <TrendingUp className="h-6 w-6 text-amber-600" />
                     </div>
+                    <div className="text-3xl font-bold text-amber-600">
+                      {answers.filter(a => (a.feedback?.score || 0) >= 50 && (a.feedback?.score || 0) < 70).length}
+                    </div>
+                    <div className="text-sm text-slate-600">Need Improvement</div>
+                    <div className="text-xs text-slate-400 mt-1">Score 50-69</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3">
+                      <AlertCircle className="h-6 w-6 text-red-600" />
+                    </div>
+                    <div className="text-3xl font-bold text-red-600">
+                      {answers.filter(a => (a.feedback?.score || 0) < 50).length}
+                    </div>
+                    <div className="text-sm text-slate-600">Weak/Skipped</div>
+                    <div className="text-xs text-slate-400 mt-1">Score &lt; 50</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-3">
+                      <Clock className="h-6 w-6 text-violet-600" />
+                    </div>
+                    <div className="text-3xl font-bold text-violet-600">
+                      {answers.length > 0 ? Math.round(answers.reduce((sum, a) => sum + a.duration, 0) / answers.length) : 0}s
+                    </div>
+                    <div className="text-sm text-slate-600">Avg Response Time</div>
+                    <div className="text-xs text-slate-400 mt-1">Per question</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Performance by Question Type */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-violet-500" />
+                    Performance by Question Type
+                  </CardTitle>
+                  <CardDescription>See how you performed across different question categories</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {(['behavioral', 'technical', 'situational'] as const).map((type) => {
+                      const typeAnswers = answers.filter((_, i) => questions[i]?.type === type)
+                      const typeScore = typeAnswers.length > 0 
+                        ? Math.round(typeAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / typeAnswers.length)
+                        : 0
+                      const typeCount = typeAnswers.length
+                      
+                      return (
+                        <div key={type} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Badge variant="outline" className="capitalize">{type}</Badge>
+                              <span className="text-sm text-slate-500">{typeCount} questions</span>
+                            </div>
+                            <span className={`font-bold ${getScoreColor(typeScore)}`}>{typeScore}%</span>
+                          </div>
+                          <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${typeScore}%` }}
+                              transition={{ duration: 1, ease: 'easeOut' }}
+                              className={`h-full rounded-full ${
+                                typeScore >= 70 ? 'bg-emerald-500' :
+                                typeScore >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Individual Question Reviews */}
-              {answers.map((answer, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          (answer.feedback?.score || 0) >= 70 ? 'bg-emerald-100' :
-                          (answer.feedback?.score || 0) >= 50 ? 'bg-amber-100' : 'bg-red-100'
-                        }`}>
-                          <span className={`font-bold ${getScoreColor(answer.feedback?.score || 0)}`}>
-                            {answer.feedback?.score || 0}
-                          </span>
-                        </div>
-                        <div>
-                          <CardTitle className="text-base">Question {index + 1}</CardTitle>
-                          <CardDescription>{questions[index]?.question}</CardDescription>
-                        </div>
-                      </div>
-                      <Badge className={`${
-                        (answer.feedback?.score || 0) >= 70 ? 'bg-emerald-100 text-emerald-700' :
-                        (answer.feedback?.score || 0) >= 50 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-                      }`}>
-                        {getScoreLabel(answer.feedback?.score || 0)}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {answer.answer ? (
-                      <>
-                        <div className="bg-slate-50 rounded-lg p-4">
-                          <h4 className="text-sm font-medium text-slate-600 mb-2">Your Answer:</h4>
-                          <p className="text-slate-800">{answer.answer}</p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {answer.feedback?.strengths && answer.feedback.strengths.length > 0 && (
-                            <div className="bg-emerald-50 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <ThumbsUp className="h-4 w-4 text-emerald-500" />
-                                <h4 className="font-medium text-emerald-700">Strengths</h4>
-                              </div>
-                              <ul className="text-sm text-emerald-600 space-y-1">
-                                {answer.feedback.strengths.map((s, i) => (
-                                  <li key={i}>• {s}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {answer.feedback?.improvements && answer.feedback.improvements.length > 0 && (
-                            <div className="bg-amber-50 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <AlertCircle className="h-4 w-4 text-amber-500" />
-                                <h4 className="font-medium text-amber-700">Areas to Improve</h4>
-                              </div>
-                              <ul className="text-sm text-amber-600 space-y-1">
-                                {answer.feedback.improvements.map((s, i) => (
-                                  <li key={i}>• {s}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-
-                        {answer.feedback?.sampleAnswer && (
-                          <div className="bg-violet-50 rounded-lg p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Sparkles className="h-4 w-4 text-violet-500" />
-                              <h4 className="font-medium text-violet-700">Sample Strong Answer</h4>
-                            </div>
-                            <p className="text-sm text-violet-600">{answer.feedback.sampleAnswer}</p>
+              {/* Performance by Difficulty */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-amber-500" />
+                    Performance by Difficulty Level
+                  </CardTitle>
+                  <CardDescription>Your scores across easy, medium, and hard questions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    {(['easy', 'medium', 'hard'] as const).map((difficulty) => {
+                      const diffAnswers = answers.filter((_, i) => questions[i]?.difficulty === difficulty)
+                      const diffScore = diffAnswers.length > 0 
+                        ? Math.round(diffAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / diffAnswers.length)
+                        : 0
+                      const diffCount = diffAnswers.length
+                      
+                      const colors = {
+                        easy: { bg: 'bg-emerald-50', text: 'text-emerald-600', ring: 'ring-emerald-500' },
+                        medium: { bg: 'bg-amber-50', text: 'text-amber-600', ring: 'ring-amber-500' },
+                        hard: { bg: 'bg-red-50', text: 'text-red-600', ring: 'ring-red-500' },
+                      }
+                      
+                      return (
+                        <div key={difficulty} className={`${colors[difficulty].bg} rounded-xl p-4 text-center`}>
+                          <div className="capitalize font-medium text-slate-700 mb-2">{difficulty}</div>
+                          <div className={`text-3xl font-bold ${colors[difficulty].text}`}>{diffScore}%</div>
+                          <div className="text-xs text-slate-500 mt-1">{diffCount} questions</div>
+                          <div className="mt-3 h-2 bg-white/50 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${diffScore}%` }}
+                              transition={{ duration: 1, delay: 0.3 }}
+                              className={`h-full ${
+                                difficulty === 'easy' ? 'bg-emerald-500' :
+                                difficulty === 'medium' ? 'bg-amber-500' : 'bg-red-500'
+                              }`}
+                            />
                           </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="text-center py-4 text-slate-500">
-                        <AlertCircle className="h-8 w-8 mx-auto mb-2 text-slate-400" />
-                        <p>This question was skipped</p>
-                      </div>
-                    )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Strengths & Weaknesses Analysis */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="border-emerald-200">
+                  <CardHeader className="bg-emerald-50/50">
+                    <CardTitle className="flex items-center gap-2 text-emerald-700">
+                      <ThumbsUp className="h-5 w-5" />
+                      Your Strengths
+                    </CardTitle>
+                    <CardDescription>Areas where you performed well</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    {(() => {
+                      const allStrengths = answers.flatMap(a => a.feedback?.strengths || [])
+                      const uniqueStrengths = [...new Set(allStrengths)]
+                      return uniqueStrengths.length > 0 ? (
+                        <ul className="space-y-2">
+                          {uniqueStrengths.slice(0, 5).map((strength, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-slate-700">{strength}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-slate-500 text-center py-4">Complete more questions to see your strengths</p>
+                      )
+                    })()}
                   </CardContent>
                 </Card>
-              ))}
+
+                <Card className="border-amber-200">
+                  <CardHeader className="bg-amber-50/50">
+                    <CardTitle className="flex items-center gap-2 text-amber-700">
+                      <Target className="h-5 w-5" />
+                      Areas to Improve
+                    </CardTitle>
+                    <CardDescription>Focus on these to boost your score</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    {(() => {
+                      const allImprovements = answers.flatMap(a => a.feedback?.improvements || [])
+                      const uniqueImprovements = [...new Set(allImprovements)]
+                      return uniqueImprovements.length > 0 ? (
+                        <ul className="space-y-2">
+                          {uniqueImprovements.slice(0, 5).map((improvement, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-slate-700">{improvement}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-slate-500 text-center py-4">Great job! No major areas for improvement</p>
+                      )
+                    })()}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Score Distribution Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-500" />
+                    Question-by-Question Scores
+                  </CardTitle>
+                  <CardDescription>Visual breakdown of your performance on each question</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {answers.map((answer, index) => (
+                      <div key={index} className="flex items-center gap-4">
+                        <div className="w-8 text-sm font-medium text-slate-500">Q{index + 1}</div>
+                        <div className="flex-1 h-8 bg-slate-100 rounded-lg overflow-hidden relative">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${answer.feedback?.score || 0}%` }}
+                            transition={{ duration: 0.8, delay: index * 0.1 }}
+                            className={`h-full rounded-lg ${
+                              (answer.feedback?.score || 0) >= 70 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' :
+                              (answer.feedback?.score || 0) >= 50 ? 'bg-gradient-to-r from-amber-400 to-amber-500' :
+                              'bg-gradient-to-r from-red-400 to-red-500'
+                            }`}
+                          />
+                          <div className="absolute inset-0 flex items-center px-3">
+                            <span className="text-xs font-medium text-white drop-shadow">
+                              {questions[index]?.type}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={`w-12 text-right font-bold ${getScoreColor(answer.feedback?.score || 0)}`}>
+                          {answer.feedback?.score || 0}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Detailed Question Reviews (Collapsible) */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-violet-500" />
+                    Detailed Question Analysis
+                  </CardTitle>
+                  <CardDescription>Review each question and your response</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {answers.map((answer, index) => (
+                    <details key={index} className="group border rounded-lg">
+                      <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            (answer.feedback?.score || 0) >= 70 ? 'bg-emerald-100' :
+                            (answer.feedback?.score || 0) >= 50 ? 'bg-amber-100' : 'bg-red-100'
+                          }`}>
+                            <span className={`font-bold text-sm ${getScoreColor(answer.feedback?.score || 0)}`}>
+                              {answer.feedback?.score || 0}
+                            </span>
+                          </div>
+                          <div>
+                            <div className="font-medium text-slate-800">Question {index + 1}</div>
+                            <div className="text-sm text-slate-500 line-clamp-1">{questions[index]?.question}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">{questions[index]?.type}</Badge>
+                          <Badge className={`text-xs ${
+                            questions[index]?.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :
+                            questions[index]?.difficulty === 'medium' ? 'bg-amber-100 text-amber-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {questions[index]?.difficulty}
+                          </Badge>
+                          <ChevronRight className="h-4 w-4 text-slate-400 group-open:rotate-90 transition-transform" />
+                        </div>
+                      </summary>
+                      <div className="p-4 pt-0 border-t space-y-4">
+                        <div className="bg-violet-50 rounded-lg p-4">
+                          <h4 className="text-sm font-medium text-violet-700 mb-2">Question:</h4>
+                          <p className="text-slate-800">{questions[index]?.question}</p>
+                        </div>
+                        
+                        {answer.answer ? (
+                          <>
+                            <div className="bg-slate-50 rounded-lg p-4">
+                              <h4 className="text-sm font-medium text-slate-600 mb-2">Your Answer:</h4>
+                              <p className="text-slate-800">{answer.answer}</p>
+                              <div className="mt-2 text-xs text-slate-500">
+                                {answer.answer.split(' ').filter(w => w).length} words • {formatTime(answer.duration)} response time
+                              </div>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-4">
+                              {answer.feedback?.strengths && answer.feedback.strengths.length > 0 && (
+                                <div className="bg-emerald-50 rounded-lg p-4">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <ThumbsUp className="h-4 w-4 text-emerald-500" />
+                                    <h4 className="font-medium text-emerald-700">Strengths</h4>
+                                  </div>
+                                  <ul className="text-sm text-emerald-600 space-y-1">
+                                    {answer.feedback.strengths.map((s, i) => (
+                                      <li key={i}>• {s}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {answer.feedback?.improvements && answer.feedback.improvements.length > 0 && (
+                                <div className="bg-amber-50 rounded-lg p-4">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                                    <h4 className="font-medium text-amber-700">Areas to Improve</h4>
+                                  </div>
+                                  <ul className="text-sm text-amber-600 space-y-1">
+                                    {answer.feedback.improvements.map((s, i) => (
+                                      <li key={i}>• {s}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+
+                            {answer.feedback?.sampleAnswer && (
+                              <div className="bg-blue-50 rounded-lg p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Sparkles className="h-4 w-4 text-blue-500" />
+                                  <h4 className="font-medium text-blue-700">Sample Strong Answer</h4>
+                                </div>
+                                <p className="text-sm text-blue-600">{answer.feedback.sampleAnswer}</p>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-center py-4 text-slate-500 bg-slate-50 rounded-lg">
+                            <AlertCircle className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+                            <p>This question was skipped</p>
+                          </div>
+                        )}
+                      </div>
+                    </details>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Recommendations */}
+              <Card className="border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-violet-800">
+                    <Lightbulb className="h-5 w-5" />
+                    Personalized Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {overallScore < 60 && (
+                      <div className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-violet-600 font-bold">1</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-slate-800">Practice the STAR Method</h4>
+                          <p className="text-sm text-slate-600">Structure your answers with Situation, Task, Action, and Result for clearer responses.</p>
+                        </div>
+                      </div>
+                    )}
+                    {answers.some(a => (a.answer?.split(' ').length || 0) < 30) && (
+                      <div className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-violet-600 font-bold">2</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-slate-800">Provide More Detail</h4>
+                          <p className="text-sm text-slate-600">Some answers were brief. Aim for 50-150 words with specific examples.</p>
+                        </div>
+                      </div>
+                    )}
+                    {!answers.some(a => /\d+/.test(a.answer || '')) && (
+                      <div className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-violet-600 font-bold">3</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-slate-800">Quantify Your Achievements</h4>
+                          <p className="text-sm text-slate-600">Use numbers and metrics to make your accomplishments more impactful.</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                      <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                        <Star className="h-4 w-4 text-violet-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-slate-800">Keep Practicing!</h4>
+                        <p className="text-sm text-slate-600">Regular practice builds confidence. Try another session with different questions.</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Actions */}
               <div className="flex gap-4">
