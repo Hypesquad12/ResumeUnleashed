@@ -792,19 +792,16 @@ export default function InterviewCoachPage() {
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-slate-200" />
                     </div>
-                    <div className="relative flex justify-center">
-                      <span className="bg-white px-3 text-sm text-slate-500">Optional Enhancements</span>
-                    </div>
                   </div>
 
                   {/* Step 2: Resume Selection */}
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-violet-500" />
-                      Step 2: Your Resume (Optional)
+                      Step 2: Your Resume *
                     </Label>
                     <p className="text-xs text-slate-500 mb-2">
-                      Select a resume to get questions about your specific experience
+                      Select your resume for personalized interview questions
                     </p>
                     {loadingResumes ? (
                       <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -825,9 +822,11 @@ export default function InterviewCoachPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <p className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
-                        No resumes found. <a href="/resumes/new" className="text-violet-600 hover:underline">Create one</a> for personalized questions.
-                      </p>
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <p className="text-sm text-amber-800">
+                          No resumes found. <a href="/resumes/new" className="text-violet-600 font-medium hover:underline">Create a resume first</a> to start interview practice.
+                        </p>
+                      </div>
                     )}
                   </div>
 
@@ -918,7 +917,7 @@ export default function InterviewCoachPage() {
 
                   <Button
                     onClick={startPractice}
-                    disabled={!jobTitle || !jobDescription}
+                    disabled={!jobTitle || !jobDescription || !selectedResumeId}
                     className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
                     size="lg"
                   >
