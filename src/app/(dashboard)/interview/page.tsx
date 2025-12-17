@@ -346,8 +346,8 @@ export default function InterviewCoachPage() {
         return
       }
       
-      // Load resumes, JDs, and history in parallel
-      const [resumesResult, jdsResult, historyResult] = await Promise.all([
+      // Load resumes, JDs, customized resumes (for JDs), and history in parallel
+      const [resumesResult, jdsResult, customizedResult, historyResult] = await Promise.all([
         (supabase as any)
           .from('resumes')
           .select('id, title, content')
@@ -359,6 +359,12 @@ export default function InterviewCoachPage() {
           .eq('user_id', user.id)
           .order('created_at', { ascending: false }),
         (supabase as any)
+          .from('customized_resumes')
+          .select('id, title, ai_suggestions, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(10),
+        (supabase as any)
           .from('interview_sessions')
           .select('id, job_title, overall_score, status, created_at, questions, answers')
           .eq('user_id', user.id)
@@ -369,13 +375,40 @@ export default function InterviewCoachPage() {
       if (resumesResult.data) {
         setResumes(resumesResult.data)
       }
+      
+      // Combine JDs from job_descriptions table and customized_resumes
+      const allJDs: JobDescription[] = []
+      
       if (jdsResult.data) {
-        setSavedJDs(jdsResult.data)
-        // If user has saved JDs, default to saved mode; otherwise manual
-        if (jdsResult.data.length === 0) {
-          setInputMode('manual')
-        }
+        allJDs.push(...jdsResult.data)
       }
+      
+      // Extract JDs from customized resumes
+      if (customizedResult.data) {
+        customizedResult.data.forEach((cr: any) => {
+          if (cr.ai_suggestions?.job_description) {
+            // Extract job title from the customized resume title (format: "Resume - JobTitle")
+            const titleParts = cr.title?.split(' - ') || []
+            const jobTitle = titleParts.length > 1 ? titleParts[1] : 'Job Position'
+            
+            allJDs.push({
+              id: `cr_${cr.id}`,
+              title: jobTitle,
+              company: '',
+              description: cr.ai_suggestions.job_description,
+              requirements: null,
+              extracted_keywords: cr.ai_suggestions.keywords_added || null,
+            })
+          }
+        })
+      }
+      
+      setSavedJDs(allJDs)
+      // If user has saved JDs, default to saved mode; otherwise manual
+      if (allJDs.length === 0) {
+        setInputMode('manual')
+      }
+      
       if (historyResult.data) {
         setPastSessions(historyResult.data)
       }
