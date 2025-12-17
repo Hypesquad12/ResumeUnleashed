@@ -363,7 +363,7 @@ export default function InterviewCoachPage() {
           .order('created_at', { ascending: false }),
         (supabase as any)
           .from('customized_resumes')
-          .select('id, title, ai_suggestions, contact, summary, experience, education, skills, created_at')
+          .select('id, title, ai_suggestions, customized_content, contact, summary, experience, education, skills, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(20),
@@ -410,30 +410,48 @@ export default function InterviewCoachPage() {
           const jobTitle = titleParts.length > 1 ? titleParts[1] : 'Job Position'
           const jdId = `cr_${cr.id}`
           
+          // Get resume content from customized_content or direct fields
+          const resumeContent = cr.customized_content || {
+            contact: cr.contact,
+            summary: cr.summary,
+            experience: cr.experience,
+            education: cr.education,
+            skills: cr.skills,
+          }
+          
           // Add customized resume as a resume option
           allResumes.push({
             id: `cr_${cr.id}`,
             title: `${cr.title || 'Customized Resume'} (Customized)`,
-            content: {
-              contact: cr.contact,
-              summary: cr.summary,
-              experience: cr.experience,
-              education: cr.education,
-              skills: cr.skills,
-            },
+            content: resumeContent,
             isCustomized: true,
             linkedJDId: jdId,
           })
           
-          // Add JD from customized resume
-          if (cr.ai_suggestions?.job_description) {
+          // Add JD from customized resume (skip if it's just a URL)
+          const jdText = cr.ai_suggestions?.job_description || ''
+          const isUrl = jdText.startsWith('http://') || jdText.startsWith('https://')
+          const hasContent = jdText.length > 100 && !isUrl
+          
+          if (hasContent) {
             allJDs.push({
               id: jdId,
               title: jobTitle,
               company: '',
-              description: cr.ai_suggestions.job_description,
+              description: jdText,
               requirements: null,
               extracted_keywords: cr.ai_suggestions.keywords_added || null,
+              linkedResumeId: `cr_${cr.id}`,
+            })
+          } else {
+            // Still add a JD entry with just the title for reference
+            allJDs.push({
+              id: jdId,
+              title: jobTitle,
+              company: '',
+              description: `Position: ${jobTitle}\n\nKeywords: ${(cr.ai_suggestions?.keywords_added || []).join(', ')}`,
+              requirements: null,
+              extracted_keywords: cr.ai_suggestions?.keywords_added || null,
               linkedResumeId: `cr_${cr.id}`,
             })
           }
