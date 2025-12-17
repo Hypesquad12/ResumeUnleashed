@@ -428,33 +428,38 @@ export default function InterviewCoachPage() {
             linkedJDId: jdId,
           })
           
-          // Add JD from customized resume (skip if it's just a URL)
+          // Get keywords - handle both array and string formats
+          let keywords: string[] = []
+          if (cr.ai_suggestions?.keywords_added) {
+            if (Array.isArray(cr.ai_suggestions.keywords_added)) {
+              keywords = cr.ai_suggestions.keywords_added
+            } else if (typeof cr.ai_suggestions.keywords_added === 'string') {
+              try {
+                keywords = JSON.parse(cr.ai_suggestions.keywords_added)
+              } catch {
+                keywords = [cr.ai_suggestions.keywords_added]
+              }
+            }
+          }
+          
+          // Add JD from customized resume
           const jdText = cr.ai_suggestions?.job_description || ''
           const isUrl = jdText.startsWith('http://') || jdText.startsWith('https://')
-          const hasContent = jdText.length > 100 && !isUrl
           
-          if (hasContent) {
-            allJDs.push({
-              id: jdId,
-              title: jobTitle,
-              company: '',
-              description: jdText,
-              requirements: null,
-              extracted_keywords: cr.ai_suggestions.keywords_added || null,
-              linkedResumeId: `cr_${cr.id}`,
-            })
-          } else {
-            // Still add a JD entry with just the title for reference
-            allJDs.push({
-              id: jdId,
-              title: jobTitle,
-              company: '',
-              description: `Position: ${jobTitle}\n\nKeywords: ${(cr.ai_suggestions?.keywords_added || []).join(', ')}`,
-              requirements: null,
-              extracted_keywords: cr.ai_suggestions?.keywords_added || null,
-              linkedResumeId: `cr_${cr.id}`,
-            })
-          }
+          // Create description - use actual JD text if available, otherwise create from title/keywords
+          const description = isUrl || jdText.length < 50
+            ? `Position: ${jobTitle}\n\nKey Skills & Requirements:\n${keywords.map(k => `• ${k}`).join('\n')}`
+            : jdText
+          
+          allJDs.push({
+            id: jdId,
+            title: jobTitle,
+            company: '',
+            description: description,
+            requirements: null,
+            extracted_keywords: keywords,
+            linkedResumeId: `cr_${cr.id}`,
+          })
         })
       }
       
