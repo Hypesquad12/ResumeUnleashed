@@ -48,6 +48,8 @@ interface Resume {
   id: string
   title: string
   content: any
+  isCustomized?: boolean
+  linkedJDId?: string
 }
 
 interface JobDescription {
@@ -57,6 +59,7 @@ interface JobDescription {
   description: string
   requirements: string[] | null
   extracted_keywords: string[] | null
+  linkedResumeId?: string
 }
 
 // Speech Recognition types
@@ -350,7 +353,7 @@ export default function InterviewCoachPage() {
       const [resumesResult, jdsResult, customizedResult, historyResult] = await Promise.all([
         (supabase as any)
           .from('resumes')
-          .select('id, title, content')
+          .select('id, title, contact, summary, experience, education, skills')
           .eq('user_id', user.id)
           .order('updated_at', { ascending: false }),
         (supabase as any)
@@ -360,10 +363,10 @@ export default function InterviewCoachPage() {
           .order('created_at', { ascending: false }),
         (supabase as any)
           .from('customized_resumes')
-          .select('id, title, ai_suggestions, created_at')
+          .select('id, title, ai_suggestions, contact, summary, experience, education, skills, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
-          .limit(10),
+          .limit(20),
         (supabase as any)
           .from('interview_sessions')
           .select('id, job_title, overall_score, status, created_at, questions, answers')
@@ -372,8 +375,24 @@ export default function InterviewCoachPage() {
           .limit(10)
       ])
       
+      // Combine base resumes and customized resumes
+      const allResumes: Resume[] = []
+      
       if (resumesResult.data) {
-        setResumes(resumesResult.data)
+        resumesResult.data.forEach((r: any) => {
+          allResumes.push({
+            id: r.id,
+            title: r.title || 'Untitled Resume',
+            content: {
+              contact: r.contact,
+              summary: r.summary,
+              experience: r.experience,
+              education: r.education,
+              skills: r.skills,
+            },
+            isCustomized: false,
+          })
+        })
       }
       
       // Combine JDs from job_descriptions table and customized_resumes
@@ -383,26 +402,45 @@ export default function InterviewCoachPage() {
         allJDs.push(...jdsResult.data)
       }
       
-      // Extract JDs from customized resumes
+      // Extract JDs and resumes from customized resumes
       if (customizedResult.data) {
         customizedResult.data.forEach((cr: any) => {
+          // Extract job title from the customized resume title (format: "Resume - JobTitle")
+          const titleParts = cr.title?.split(' - ') || []
+          const jobTitle = titleParts.length > 1 ? titleParts[1] : 'Job Position'
+          const jdId = `cr_${cr.id}`
+          
+          // Add customized resume as a resume option
+          allResumes.push({
+            id: `cr_${cr.id}`,
+            title: `${cr.title || 'Customized Resume'} (Customized)`,
+            content: {
+              contact: cr.contact,
+              summary: cr.summary,
+              experience: cr.experience,
+              education: cr.education,
+              skills: cr.skills,
+            },
+            isCustomized: true,
+            linkedJDId: jdId,
+          })
+          
+          // Add JD from customized resume
           if (cr.ai_suggestions?.job_description) {
-            // Extract job title from the customized resume title (format: "Resume - JobTitle")
-            const titleParts = cr.title?.split(' - ') || []
-            const jobTitle = titleParts.length > 1 ? titleParts[1] : 'Job Position'
-            
             allJDs.push({
-              id: `cr_${cr.id}`,
+              id: jdId,
               title: jobTitle,
               company: '',
               description: cr.ai_suggestions.job_description,
               requirements: null,
               extracted_keywords: cr.ai_suggestions.keywords_added || null,
+              linkedResumeId: `cr_${cr.id}`,
             })
           }
         })
       }
       
+      setResumes(allResumes)
       setSavedJDs(allJDs)
       // If user has saved JDs, default to saved mode; otherwise manual
       if (allJDs.length === 0) {
@@ -448,6 +486,10 @@ export default function InterviewCoachPage() {
         // Auto-populate skills from JD keywords
         if (jd.extracted_keywords && jd.extracted_keywords.length > 0) {
           setSkills(prev => [...new Set([...prev, ...jd.extracted_keywords!.slice(0, 5)])])
+        }
+        // Auto-select the linked customized resume if available
+        if (jd.linkedResumeId) {
+          setSelectedResumeId(jd.linkedResumeId)
         }
       }
     }
@@ -948,23 +990,54 @@ export default function InterviewCoachPage() {
                         Loading resumes...
                       </div>
                     ) : resumes.length > 0 ? (
-                      <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a resume for personalized questions" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {resumes.map((resume) => (
-                            <SelectItem key={resume.id} value={resume.id}>
-                              {resume.title || 'Untitled Resume'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-3">
+                        <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose a resume for personalized questions" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {resumes.map((resume) => (
+                              <SelectItem key={resume.id} value={resume.id}>
+                                <div className="flex items-center gap-2">
+                                  <span>{resume.title || 'Untitled Resume'}</span>
+                                  {resume.isCustomized && (
+                                    <Badge variant="secondary" className="text-xs bg-violet-100 text-violet-700">
+                                      Customized
+                                    </Badge>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {selectedResumeId && resumes.find(r => r.id === selectedResumeId)?.isCustomized && (
+                          <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
+                            <div className="flex items-center gap-2 text-violet-700 text-sm">
+                              <CheckCircle className="h-4 w-4" />
+                              <span>Using customized resume tailored for this role</span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <span>Or</span>
+                          <a href="/resumes/new" className="text-violet-600 font-medium hover:underline flex items-center gap-1">
+                            <Upload className="h-3 w-3" />
+                            Upload a new resume
+                          </a>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-3">
                         <p className="text-sm text-amber-800">
-                          No resumes found. <a href="/resumes/new" className="text-violet-600 font-medium hover:underline">Create a resume first</a> to start interview practice.
+                          No resumes found. Upload a resume to start interview practice.
                         </p>
+                        <a 
+                          href="/resumes/new" 
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors"
+                        >
+                          <Upload className="h-4 w-4" />
+                          Upload Resume
+                        </a>
                       </div>
                     )}
                   </div>
