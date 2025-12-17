@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { 
   Sparkles, FileText, Link as LinkIcon, ArrowRight, Check, 
-  Loader2, Wand2, Target, Shield, Download, Eye, QrCode, Copy, ExternalLink, History, Clock
+  Loader2, Wand2, Target, Shield, Download, Eye, QrCode, Copy, ExternalLink, History, Clock,
+  Mail, ChevronDown, ChevronUp
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -59,6 +60,9 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
     changes: string[]
     ats_tips: string[]
   }>({ keywords_added: [], changes: [], ats_tips: [] })
+  const [coverLetter, setCoverLetter] = useState<string>('')
+  const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false)
+  const [showCoverLetter, setShowCoverLetter] = useState(false)
 
   const hasResumes = resumes.length > 0
   const canStartCustomization = selectedResume && (jobDescription.trim() || jobUrl.trim())
@@ -268,6 +272,98 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
     setCustomizedResumeId(null)
     setShowQRCode(false)
     setPublicResumeSlug(null)
+    setCoverLetter('')
+    setShowCoverLetter(false)
+  }
+
+  const generateCoverLetter = async () => {
+    if (!selectedResume || (!jobDescription && !jobUrl)) return
+    
+    setGeneratingCoverLetter(true)
+    const supabase = createClient()
+    
+    try {
+      const { data: sourceResume } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('id', selectedResume)
+        .single()
+
+      if (!sourceResume) {
+        toast.error('Resume not found')
+        return
+      }
+
+      const jdText = jobDescription || jobUrl
+      
+      // Call edge function for cover letter generation
+      const { data: result, error } = await supabase.functions.invoke('generate-cover-letter', {
+        body: {
+          resume: {
+            contact: sourceResume.contact,
+            summary: sourceResume.summary,
+            experience: sourceResume.experience,
+            education: sourceResume.education,
+            skills: sourceResume.skills,
+          },
+          jobDescription: jdText,
+        },
+      })
+
+      if (error || !result?.success) {
+        // Fallback to local generation if edge function fails
+        const contact = (sourceResume.contact as any) || {}
+        const name = contact.name || 'Your Name'
+        const experience = (sourceResume.experience as any[]) || []
+        const skills = (sourceResume.skills as any[]) || []
+        
+        // Extract company name from JD if possible
+        const companyMatch = jdText.match(/(?:at|for|join)\s+([A-Z][a-zA-Z\s&]+?)(?:\s+as|\s+is|\.|,)/i)
+        const companyName = companyMatch ? companyMatch[1].trim() : '[Company Name]'
+        
+        // Extract job title from JD
+        const titleMatch = jdText.match(/(?:position|role|job|hiring|looking for)\s*:?\s*([A-Za-z\s]+?)(?:\s+at|\s+to|\.|,|\n)/i)
+        const jobTitle = titleMatch ? titleMatch[1].trim() : 'the position'
+        
+        // Get recent experience
+        const recentJob = experience[0] || {}
+        const recentTitle = recentJob.title || 'professional'
+        const recentCompany = recentJob.company || ''
+        
+        // Get top skills
+        const topSkills = skills.slice(0, 3).map((s: any) => typeof s === 'string' ? s : s.name || s.skill).filter(Boolean)
+        
+        const generatedLetter = `Dear Hiring Manager,
+
+I am writing to express my strong interest in ${jobTitle} at ${companyName}. With my background as a ${recentTitle}${recentCompany ? ` at ${recentCompany}` : ''}, I am confident in my ability to contribute meaningfully to your team.
+
+${sourceResume.summary || `Throughout my career, I have developed expertise in ${topSkills.join(', ') || 'various technical and professional skills'}. I am passionate about delivering high-quality results and continuously improving my craft.`}
+
+My experience has equipped me with ${topSkills.length > 0 ? `strong skills in ${topSkills.join(', ')}` : 'a diverse skill set'}, which I believe align well with the requirements outlined in your job description. I am particularly drawn to this opportunity because it would allow me to leverage my expertise while continuing to grow professionally.
+
+I would welcome the opportunity to discuss how my background and skills would benefit ${companyName}. Thank you for considering my application.
+
+Sincerely,
+${name}`
+
+        setCoverLetter(generatedLetter)
+      } else {
+        setCoverLetter(result.data.cover_letter)
+      }
+      
+      setShowCoverLetter(true)
+      toast.success('Cover letter generated!')
+    } catch (error) {
+      console.error('Cover letter generation error:', error)
+      toast.error('Failed to generate cover letter')
+    } finally {
+      setGeneratingCoverLetter(false)
+    }
+  }
+
+  const handleCopyCoverLetter = async () => {
+    await navigator.clipboard.writeText(coverLetter)
+    toast.success('Cover letter copied to clipboard!')
   }
 
   if (!hasResumes) {
@@ -410,6 +506,80 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             </CardContent>
           </Card>
         </div>
+
+        {/* Cover Letter Section */}
+        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-amber-600" />
+                <CardTitle>Cover Letter</CardTitle>
+              </div>
+              {!coverLetter ? (
+                <Button 
+                  onClick={generateCoverLetter}
+                  disabled={generatingCoverLetter}
+                  variant="outline"
+                  className="border-amber-300 hover:bg-amber-100"
+                >
+                  {generatingCoverLetter ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Generate Cover Letter
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCoverLetter(!showCoverLetter)}
+                    className="border-amber-300"
+                  >
+                    {showCoverLetter ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    {showCoverLetter ? 'Hide' : 'Show'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyCoverLetter}
+                    className="border-amber-300"
+                  >
+                    <Copy className="h-4 w-4 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+              )}
+            </div>
+            <CardDescription>
+              {coverLetter 
+                ? 'Your personalized cover letter is ready'
+                : 'Generate a tailored cover letter based on your resume and the job description'
+              }
+            </CardDescription>
+          </CardHeader>
+          {showCoverLetter && coverLetter && (
+            <CardContent>
+              <div className="bg-white rounded-lg p-4 border border-amber-200">
+                <Textarea
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
+                  className="min-h-[300px] font-serif text-sm leading-relaxed border-0 focus-visible:ring-0 resize-none"
+                  placeholder="Your cover letter will appear here..."
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                You can edit the cover letter above before copying
+              </p>
+            </CardContent>
+          )}
+        </Card>
 
         {/* AI Changes Made */}
         {aiSuggestions.changes.length > 0 && (
