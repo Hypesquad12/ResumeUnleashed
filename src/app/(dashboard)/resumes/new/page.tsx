@@ -309,11 +309,17 @@ export default function NewResumePage() {
       setUploadProgress(15)
       setParsing(true)
       
+      // Get the user's session token for authentication
+      const { data: { session } } = await supabase.auth.getSession()
+      
       const formData = new FormData()
       formData.append('file', uploadedFile)
 
       const parseResponse = await fetch('/api/parse-resume', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
         body: formData,
       })
 

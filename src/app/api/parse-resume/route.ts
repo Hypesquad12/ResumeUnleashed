@@ -104,11 +104,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get the authorization header from the incoming request (user's JWT)
+    const authHeader = request.headers.get('authorization')
+    
     const edgeFnResponse = await fetch(`${supabaseUrl}/functions/v1/parse-resume-text`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Authorization': authHeader || `Bearer ${supabaseAnonKey}`,
+        'apikey': supabaseAnonKey,
       },
       body: JSON.stringify({ text }),
     })
