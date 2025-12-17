@@ -316,7 +316,7 @@ export default function InterviewCoachPage() {
   const [savedJDs, setSavedJDs] = useState<JobDescription[]>([])
   const [selectedJDId, setSelectedJDId] = useState<string>('')
   const [loadingJDs, setLoadingJDs] = useState(true)
-  const [inputMode, setInputMode] = useState<'saved' | 'manual'>('saved')
+  const [inputMode, setInputMode] = useState<'saved' | 'manual'>('manual') // Start with manual, switch to saved when JDs load
   
   // History states
   const [pastSessions, setPastSessions] = useState<any[]>([])
@@ -463,11 +463,20 @@ export default function InterviewCoachPage() {
         })
       }
       
+      console.log('Interview Prep - Data loaded:', {
+        resumesCount: allResumes.length,
+        jdsCount: allJDs.length,
+        customizedCount: customizedResult.data?.length || 0,
+        allJDs: allJDs.map(j => ({ id: j.id, title: j.title })),
+      })
+      
       setResumes(allResumes)
       setSavedJDs(allJDs)
       // If user has saved JDs, default to saved mode; otherwise manual
       if (allJDs.length === 0) {
         setInputMode('manual')
+      } else {
+        setInputMode('saved')
       }
       
       if (historyResult.data) {
