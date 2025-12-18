@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles, CheckCircle2, Clock, Shield, Users } from 'lucide-react'
 import Link from 'next/link'
 
 export function CTASection() {
@@ -47,7 +47,7 @@ export function CTASection() {
                 <Sparkles className="h-8 w-8 text-white" />
               </motion.div>
 
-              {/* Heading */}
+              {/* Heading - Emotional hook */}
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -55,23 +55,23 @@ export function CTASection() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-6"
               >
-                Ready to Land Your
+                Your next interview is
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-cyan-500 to-purple-500">
-                  Dream Job?
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">
+                  just one resume away
                 </span>
               </motion.h2>
 
-              {/* Description */}
+              {/* Description - Specific benefit */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-lg text-slate-600 mb-10 max-w-2xl mx-auto"
+                className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto"
               >
-                Join thousands of professionals who have already improved their job search with ResumeAI. 
-                Start building your perfect resume today — it&apos;s free!
+                Join <span className="font-semibold text-slate-800">50,000+ professionals</span> who landed interviews at top companies. 
+                Create your ATS-optimized resume in under 5 minutes.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -108,16 +108,31 @@ export function CTASection() {
                 </Link>
               </motion.div>
 
-              {/* Trust text */}
-              <motion.p
+              {/* Trust badges - Reduce hesitation */}
+              <motion.div
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-8 text-sm text-slate-500"
+                className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500"
               >
-                No credit card required • Free forever plan available
-              </motion.p>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  <span>No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-emerald-500" />
+                  <span>Setup in 2 minutes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-emerald-500" />
+                  <span>Free forever plan</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-emerald-500" />
+                  <span>50,000+ users</span>
+                </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>

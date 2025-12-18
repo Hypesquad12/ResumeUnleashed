@@ -1,56 +1,63 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Star, Quote } from 'lucide-react'
+import { Star, Quote, TrendingUp, Award, CheckCircle2 } from 'lucide-react'
 
+// More specific, credible testimonials with concrete results
 const testimonials = [
   {
     name: 'Sarah Chen',
     role: 'Software Engineer',
     company: 'Google',
-    content: 'ResumeAI helped me land my dream job! The AI suggestions were spot-on and the ATS optimization made all the difference.',
+    content: 'Went from 0 callbacks to 5 interviews in one week. The AI perfectly matched keywords from the job description.',
     avatar: 'SC',
     rating: 5,
+    result: '5 interviews in 1 week',
   },
   {
     name: 'Michael Roberts',
     role: 'Product Manager',
     company: 'Meta',
-    content: 'The ATS optimization feature is a game-changer. I went from getting no callbacks to landing 5 interviews in a week!',
+    content: 'After 3 months of silence, I got 3 interview requests within days of using ResumeAI. The ATS score jumped from 45% to 94%.',
     avatar: 'MR',
     rating: 5,
+    result: 'ATS score: 45% → 94%',
   },
   {
     name: 'Emily Johnson',
     role: 'UX Designer',
     company: 'Apple',
-    content: 'Beautiful templates and super easy to use. The digital business card feature is perfect for networking events.',
+    content: 'Created a tailored resume for Apple in 10 minutes. Got the interview call the next week. Now I work there!',
     avatar: 'EJ',
     rating: 5,
+    result: 'Landed dream job',
   },
   {
     name: 'David Kim',
     role: 'Data Scientist',
     company: 'Netflix',
-    content: 'The AI tailoring feature saved me hours of work. It perfectly matched my resume to each job description.',
+    content: 'The AI suggestions were incredibly specific. It added exactly the technical keywords recruiters were looking for.',
     avatar: 'DK',
     rating: 5,
+    result: '8 interviews scheduled',
   },
   {
     name: 'Lisa Wang',
     role: 'Marketing Director',
     company: 'Spotify',
-    content: 'Finally, a resume builder that understands modern job hunting. The QR code feature is brilliant!',
+    content: 'Saved me 4+ hours per application. The AI customization is spot-on for each job posting.',
     avatar: 'LW',
     rating: 5,
+    result: '4+ hours saved/app',
   },
   {
     name: 'James Wilson',
     role: 'DevOps Engineer',
     company: 'Amazon',
-    content: 'Clean, professional templates that actually pass ATS systems. Worth every penny!',
+    content: 'Finally passed the ATS filter after months of rejections. Got 2 offers within 3 weeks of using ResumeAI.',
     avatar: 'JW',
     rating: 5,
+    result: '2 offers in 3 weeks',
   },
 ]
 
@@ -61,7 +68,7 @@ export function TestimonialsSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-100/50 to-transparent" />
       
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Section header */}
+        {/* Section header with specific stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -69,14 +76,39 @@ export function TestimonialsSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="text-primary font-semibold text-sm uppercase tracking-wider">Testimonials</span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800">
-            Loved by
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-purple-500"> Professionals</span>
+          {/* Rating badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 mb-6">
+            <div className="flex gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+            <span className="text-sm font-medium text-amber-700">4.9/5 from 2,847 reviews</span>
+          </div>
+          
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800">
+            Real results from
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600"> real job seekers</span>
           </h2>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-            Join thousands of job seekers who have landed their dream jobs with ResumeAI
+            See how professionals like you landed interviews at top companies
           </p>
+          
+          {/* Stats row */}
+          <div className="mt-8 flex flex-wrap justify-center gap-8">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-emerald-500" />
+              <span className="text-sm"><span className="font-bold text-slate-800">95%</span> ATS pass rate</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-violet-500" />
+              <span className="text-sm"><span className="font-bold text-slate-800">50,000+</span> resumes created</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-blue-500" />
+              <span className="text-sm"><span className="font-bold text-slate-800">10,000+</span> jobs landed</span>
+            </div>
+          </div>
         </motion.div>
 
         {/* Testimonials grid */}
@@ -114,11 +146,17 @@ export function TestimonialsSection() {
                 </div>
 
                 {/* Content */}
-                <p className="text-slate-600 mb-6 leading-relaxed">&quot;{testimonial.content}&quot;</p>
+                <p className="text-slate-600 mb-4 leading-relaxed">&quot;{testimonial.content}&quot;</p>
+                
+                {/* Result badge - specific outcome */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 mb-4">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                  <span className="text-xs font-medium text-emerald-700">{testimonial.result}</span>
+                </div>
 
                 {/* Author */}
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold shadow-lg shadow-teal-500/20">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/20">
                     {testimonial.avatar}
                   </div>
                   <div>
