@@ -179,6 +179,18 @@ interface Resume {
   content: any
 }
 
+interface ScoreHistory {
+  id: string
+  resume_id: string
+  overall_score: number
+  ats_score: number
+  keyword_score: number
+  format_score: number
+  content_score: number
+  created_at: string
+  resume_title?: string
+}
+
 export default function ResumeScorePage() {
   const [resumeText, setResumeText] = useState('')
   const [jobDescription, setJobDescription] = useState('')
@@ -199,32 +211,57 @@ export default function ResumeScorePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   
-  // Load user's resumes
+  // Score history state
+  const [scoreHistory, setScoreHistory] = useState<ScoreHistory[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(true)
+  const [showHistory, setShowHistory] = useState(false)
+  
+  // Load user's resumes and score history
   useEffect(() => {
-    const loadResumes = async () => {
+    const loadData = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         setLoadingResumes(false)
+        setLoadingHistory(false)
         return
       }
       
-      const { data } = await (supabase as any)
-        .from('resumes')
-        .select('id, title, content')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false })
+      // Load resumes and score history in parallel
+      const [resumesResult, historyResult] = await Promise.all([
+        (supabase as any)
+          .from('resumes')
+          .select('id, title, content')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false }),
+        (supabase as any)
+          .from('resume_scores')
+          .select('id, resume_id, overall_score, ats_score, keyword_score, format_score, content_score, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(10)
+      ])
       
-      if (data) {
-        setResumes(data)
+      if (resumesResult.data) {
+        setResumes(resumesResult.data)
         // Default to saved mode if user has resumes
-        if (data.length === 0) {
+        if (resumesResult.data.length === 0) {
           setInputMode('upload')
+        }
+        
+        // Enrich history with resume titles
+        if (historyResult.data) {
+          const enrichedHistory = historyResult.data.map((h: any) => ({
+            ...h,
+            resume_title: resumesResult.data.find((r: any) => r.id === h.resume_id)?.title || 'Unknown Resume'
+          }))
+          setScoreHistory(enrichedHistory)
         }
       }
       setLoadingResumes(false)
+      setLoadingHistory(false)
     }
     
-    loadResumes()
+    loadData()
   }, [supabase])
   
   // Extract text from resume content when selected
@@ -344,6 +381,41 @@ export default function ResumeScorePage() {
     setSuggestions(generatedSuggestions)
     setHeatmapZones(zones)
     setIsAnalyzing(false)
+    
+    // Save score to database if using a saved resume
+    if (selectedResumeId && inputMode === 'saved') {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: newScore } = await (supabase as any)
+            .from('resume_scores')
+            .insert({
+              user_id: user.id,
+              resume_id: selectedResumeId,
+              overall_score: calculatedScores.overall,
+              ats_score: calculatedScores.ats,
+              keyword_score: calculatedScores.keywords,
+              format_score: calculatedScores.format,
+              content_score: calculatedScores.content,
+              suggestions: generatedSuggestions,
+              heatmap_data: zones,
+            })
+            .select()
+            .single()
+          
+          // Update history
+          if (newScore) {
+            const resume = resumes.find(r => r.id === selectedResumeId)
+            setScoreHistory(prev => [{
+              ...newScore,
+              resume_title: resume?.title || 'Unknown Resume'
+            }, ...prev.slice(0, 9)])
+          }
+        }
+      } catch (error) {
+        console.error('Error saving score:', error)
+      }
+    }
   }
 
   const getScoreColor = (score: number) => {
@@ -383,6 +455,64 @@ export default function ResumeScorePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* Score History Section */}
+        {scoreHistory.length > 0 && !loadingHistory && (
+          <Card className="mb-6 border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Clock className="h-5 w-5 text-teal-500" />
+                  Score History
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowHistory(!showHistory)}
+                >
+                  {showHistory ? 'Hide' : 'Show'} ({scoreHistory.length})
+                </Button>
+              </div>
+              <CardDescription>
+                Your previous resume score analyses
+              </CardDescription>
+            </CardHeader>
+            {showHistory && (
+              <CardContent className="pt-0">
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {scoreHistory.map((score) => (
+                    <div
+                      key={score.id}
+                      className="flex items-center gap-3 p-3 bg-white rounded-lg border border-teal-100"
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        score.overall_score >= 80 ? 'bg-emerald-100' :
+                        score.overall_score >= 60 ? 'bg-amber-100' : 'bg-red-100'
+                      }`}>
+                        <span className={`font-bold text-lg ${
+                          score.overall_score >= 80 ? 'text-emerald-600' :
+                          score.overall_score >= 60 ? 'text-amber-600' : 'text-red-600'
+                        }`}>
+                          {score.overall_score}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-slate-800 truncate">{score.resume_title}</p>
+                        <p className="text-xs text-slate-500">
+                          {new Date(score.created_at).toLocaleDateString()}
+                        </p>
+                        <div className="flex gap-2 mt-1">
+                          <span className="text-xs text-slate-400">ATS: {score.ats_score}</span>
+                          <span className="text-xs text-slate-400">KW: {score.keyword_score}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        )}
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Input Section */}

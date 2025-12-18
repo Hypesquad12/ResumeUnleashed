@@ -20,7 +20,7 @@ import {
   Mic, MicOff, Play, Pause, RotateCcw, ChevronRight, ChevronLeft,
   Sparkles, MessageSquare, ThumbsUp, ThumbsDown, Target, Trophy,
   Lightbulb, Clock, CheckCircle, AlertCircle, Loader2, Volume2, VolumeX,
-  Brain, Zap, Star, Award, TrendingUp, FileText, Upload
+  Brain, Zap, Star, Award, TrendingUp, FileText, Upload, Briefcase
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -891,11 +891,66 @@ export default function InterviewCoachPage() {
                 </Card>
               )}
 
+              {/* Quick Start from Previous Customizations */}
+              {savedJDs.length > 0 && !loadingJDs && (
+                <Card className="border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Sparkles className="h-5 w-5 text-violet-500" />
+                      Quick Start from Previous Roles
+                    </CardTitle>
+                    <CardDescription>
+                      Practice for roles you&apos;ve already customized your resume for
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-2">
+                      {savedJDs.slice(0, 3).map((jd) => (
+                        <button
+                          key={jd.id}
+                          onClick={() => {
+                            setInputMode('saved')
+                            setSelectedJDId(jd.id)
+                            setJobTitle(jd.title || '')
+                            setJobDescription(jd.description || '')
+                            if (jd.linkedResumeId) {
+                              setSelectedResumeId(jd.linkedResumeId)
+                            }
+                            if (jd.extracted_keywords) {
+                              setSkills(jd.extracted_keywords.slice(0, 5))
+                            }
+                          }}
+                          className="flex items-center justify-between p-3 bg-white rounded-lg border border-violet-100 hover:border-violet-300 hover:shadow-sm transition-all text-left group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
+                              <Briefcase className="h-5 w-5 text-violet-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-slate-800">{jd.title || 'Job Position'}</p>
+                              <p className="text-xs text-slate-500">
+                                {jd.extracted_keywords?.slice(0, 3).join(', ') || 'Click to start'}
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-violet-500 transition-colors" />
+                        </button>
+                      ))}
+                    </div>
+                    {savedJDs.length > 3 && (
+                      <p className="text-xs text-slate-500 mt-3 text-center">
+                        +{savedJDs.length - 3} more roles available
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Target className="h-5 w-5 text-violet-500" />
-                    Set Up Your Practice Session
+                    {savedJDs.length > 0 ? 'Or Start a New Practice Session' : 'Set Up Your Practice Session'}
                   </CardTitle>
                   <CardDescription>
                     Tell us about the role you&apos;re interviewing for to get personalized questions
@@ -909,36 +964,6 @@ export default function InterviewCoachPage() {
                         <Target className="h-4 w-4 text-violet-500" />
                         Step 1: Job Description
                       </Label>
-                      {savedJDs.length > 0 && (
-                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
-                          <Button
-                            variant={inputMode === 'saved' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => {
-                              setInputMode('saved')
-                              if (!selectedJDId && savedJDs.length > 0) {
-                                setSelectedJDId(savedJDs[0].id)
-                              }
-                            }}
-                            className="text-xs h-7"
-                          >
-                            Saved JDs
-                          </Button>
-                          <Button
-                            variant={inputMode === 'manual' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => {
-                              setInputMode('manual')
-                              setSelectedJDId('')
-                              setJobTitle('')
-                              setJobDescription('')
-                            }}
-                            className="text-xs h-7"
-                          >
-                            Paste New
-                          </Button>
-                        </div>
-                      )}
                     </div>
 
                     {loadingJDs ? (
