@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { FileText, Menu, X } from 'lucide-react'
+import { Zap, Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
@@ -18,10 +18,10 @@ export function Navbar() {
     return () => unsubscribe()
   }, [scrollY])
 
+  // Simplified nav for conversion focus (Framer best practice #4)
   const navItems = [
     { label: 'Features', href: '#features' },
-    { label: 'Templates', href: '/templates' },
-    { label: 'Blog', href: '/blog' },
+    { label: 'Testimonials', href: '#testimonials' },
     { label: 'Pricing', href: '#pricing' },
   ]
 
@@ -39,17 +39,17 @@ export function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
+            {/* Logo - Consistent with dashboard branding */}
             <Link href="/">
               <motion.div 
                 className="flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg shadow-lg shadow-teal-500/20">
-                  <FileText className="h-5 w-5 text-white" />
+                <div className="p-1.5 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg shadow-lg shadow-violet-500/20">
+                  <Zap className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-bold text-lg text-slate-800">ResumeAI</span>
+                <span className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">ResumeAI</span>
               </motion.div>
             </Link>
 
@@ -68,7 +68,7 @@ export function Navbar() {
               ))}
             </div>
 
-            {/* Desktop CTA */}
+            {/* Desktop CTA - Primary conversion action */}
             <div className="hidden md:flex items-center gap-3">
               <Link href="/login">
                 <Button variant="ghost" className="text-slate-600 hover:text-slate-900 hover:bg-slate-100">
@@ -76,9 +76,9 @@ export function Navbar() {
                 </Button>
               </Link>
               <Link href="/signup">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 shadow-lg shadow-teal-500/25 border-0 transition-all duration-300 text-white">
-                    Get Started
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0 transition-all duration-300 text-white">
+                    Get Started Free
                   </Button>
                 </motion.div>
               </Link>
@@ -137,8 +137,8 @@ export function Navbar() {
                 </Button>
               </Link>
               <Link href="/signup" className="block">
-                <Button className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 border-0 text-white">
-                  Get Started
+                <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 border-0 text-white">
+                  Get Started Free
                 </Button>
               </Link>
             </div>
