@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/landing/hero-section'
 import { FeaturesSection } from '@/components/landing/features-section'
 import { PreviewSection } from '@/components/landing/preview-section'
 import { GameSection } from '@/components/landing/game-section'
+import { PricingSection } from '@/components/landing/pricing-section'
 import { TestimonialsSection } from '@/components/landing/testimonials-section'
 import { CTASection } from '@/components/landing/cta-section'
 import { Footer } from '@/components/landing/footer'
@@ -23,6 +24,7 @@ export default function Home() {
       <FeaturesSection />
       <PreviewSection />
       <GameSection />
+      <PricingSection />
       <TestimonialsSection />
       <CTASection />
       <Footer />
