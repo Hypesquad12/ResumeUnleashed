@@ -758,11 +758,6 @@ export default function InterviewCoachPage() {
         improvements: aiResponse.improvements || ['Add more specific examples'],
         sampleAnswer: aiResponse.sampleAnswer || 'Use the STAR method for behavioral questions.',
       }
-      
-      // Speak the AI feedback
-      if (audioEnabled && aiResponse.overallFeedback) {
-        speakText(aiResponse.overallFeedback)
-      }
     } catch (error) {
       console.error('Error grading answer:', error)
       // Fallback to local feedback generation
@@ -786,20 +781,15 @@ export default function InterviewCoachPage() {
       setTimer(0)
       setIsTimerRunning(true)
       
-      // Wait a moment for feedback to be spoken, then move to next question
+      // Move to next question
       setTimeout(() => {
-        const transitionText = "Let's move to the next question."
-        speakText(transitionText, () => {
-          setTimeout(() => {
-            speakText(questions[nextQ].question, () => {
-              // Auto-start recording after question for natural dialog
-              if (recognitionSupported) {
-                setTimeout(() => startRecording(), 800)
-              }
-            })
-          }, 300)
+        speakText(questions[nextQ].question, () => {
+          // Auto-start recording after question for natural dialog
+          if (recognitionSupported) {
+            setTimeout(() => startRecording(), 800)
+          }
         })
-      }, 3000) // Wait 3 seconds for feedback audio to finish
+      }, 500)
     } else {
       // Calculate overall score
       const allAnswers = [...answers, newAnswer]
@@ -807,13 +797,6 @@ export default function InterviewCoachPage() {
         allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length
       )
       setOverallScore(avgScore)
-      
-      // Speak completion message
-      setTimeout(() => {
-        const completionText = `Great job completing the interview! Your overall score is ${avgScore} out of 100. Let's review your answers.`
-        speakText(completionText)
-      }, 2000)
-      
       setStep('review')
       
       // Save session to database
