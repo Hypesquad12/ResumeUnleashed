@@ -325,16 +325,17 @@ export default function InterviewCoachPage() {
   
   // Refs
   const recognitionRef = useRef<any>(null)
-  const synthRef = useRef<SpeechSynthesis | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const supabase = createClient()
   
   // Check for speech support on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setSpeechSupported('speechSynthesis' in window)
+      setSpeechSupported(true) // OpenAI TTS is always supported
       setRecognitionSupported('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
-      synthRef.current = window.speechSynthesis
+      // Create audio element for OpenAI TTS
+      audioRef.current = new Audio()
     }
   }, [])
   
@@ -527,55 +528,82 @@ export default function InterviewCoachPage() {
     }
   }, [selectedJDId, savedJDs, inputMode])
   
-  // Text-to-Speech function - soothing, natural voice
-  const speakText = useCallback((text: string, onComplete?: () => void) => {
-    if (!speechSupported || !audioEnabled || !synthRef.current) {
+  // Text-to-Speech function using OpenAI TTS - natural, soothing voice
+  const speakText = useCallback(async (text: string, onComplete?: () => void) => {
+    if (!audioEnabled) {
       onComplete?.()
       return
     }
     
-    // Cancel any ongoing speech
-    synthRef.current.cancel()
-    
-    const utterance = new SpeechSynthesisUtterance(text)
-    // Slower, calmer speech for a more soothing experience
-    utterance.rate = 0.85
-    utterance.pitch = 0.95
-    utterance.volume = 0.9
-    
-    // Find the most natural sounding voice
-    const voices = synthRef.current.getVoices()
-    const preferredVoice = voices.find(v => 
-      v.name.includes('Samantha') || // macOS natural voice
-      v.name.includes('Karen') || // Australian English
-      v.name.includes('Daniel') || // British English
-      v.name.includes('Google UK English Female') ||
-      v.name.includes('Microsoft Zira') // Windows natural voice
-    ) || voices.find(v => 
-      v.name.includes('Natural') || v.name.includes('Premium')
-    ) || voices.find(v => v.lang === 'en-US' || v.lang === 'en-GB')
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice
+    // Stop any ongoing audio
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
     }
     
-    utterance.onstart = () => setIsSpeaking(true)
-    utterance.onend = () => {
+    setIsSpeaking(true)
+    
+    try {
+      // Get session for auth
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Call OpenAI TTS edge function
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/text-to-speech`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ 
+            text,
+            voice: 'nova' // nova is warm and soothing
+          }),
+        }
+      )
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate speech')
+      }
+      
+      const { audio } = await response.json()
+      
+      // Convert base64 to audio blob and play
+      const audioData = atob(audio)
+      const audioArray = new Uint8Array(audioData.length)
+      for (let i = 0; i < audioData.length; i++) {
+        audioArray[i] = audioData.charCodeAt(i)
+      }
+      const audioBlob = new Blob([audioArray], { type: 'audio/mp3' })
+      const audioUrl = URL.createObjectURL(audioBlob)
+      
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl
+        audioRef.current.onended = () => {
+          setIsSpeaking(false)
+          URL.revokeObjectURL(audioUrl)
+          onComplete?.()
+        }
+        audioRef.current.onerror = () => {
+          setIsSpeaking(false)
+          URL.revokeObjectURL(audioUrl)
+          onComplete?.()
+        }
+        await audioRef.current.play()
+      }
+    } catch (error) {
+      console.error('OpenAI TTS error:', error)
       setIsSpeaking(false)
       onComplete?.()
     }
-    utterance.onerror = () => {
-      setIsSpeaking(false)
-      onComplete?.()
-    }
-    
-    synthRef.current.speak(utterance)
-  }, [speechSupported, audioEnabled])
+  }, [audioEnabled, supabase.auth])
   
   // Stop speaking
   const stopSpeaking = useCallback(() => {
-    if (synthRef.current) {
-      synthRef.current.cancel()
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
       setIsSpeaking(false)
     }
   }, [])
