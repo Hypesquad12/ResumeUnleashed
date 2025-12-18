@@ -858,7 +858,7 @@ export default function ResumeEditorPage() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))} 
             </div>
           )}
         </TabsContent>

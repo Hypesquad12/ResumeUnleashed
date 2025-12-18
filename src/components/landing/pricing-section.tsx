@@ -2,11 +2,29 @@
 
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Check, Sparkles, Zap, Crown, ChevronDown, ChevronUp } from 'lucide-react'
+import { Check, Sparkles, Zap, Crown, ChevronDown, ChevronUp, Gift } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
 const plans = [
+  {
+    name: 'Free',
+    price: 0,
+    period: '',
+    description: 'Try it out, no credit card required',
+    icon: Gift,
+    popular: false,
+    savings: null,
+    isFree: true,
+    freeFeatures: [
+      '1 resume creation',
+      '1 AI customization',
+      '1 cover letter',
+      '3 basic templates',
+      'ATS score check',
+      'PDF export',
+    ],
+  },
   {
     name: 'Monthly',
     price: 20,
@@ -15,6 +33,7 @@ const plans = [
     icon: Zap,
     popular: false,
     savings: null,
+    isFree: false,
   },
   {
     name: 'Quarterly',
@@ -24,6 +43,7 @@ const plans = [
     icon: Sparkles,
     popular: true,
     savings: 'Save 17%',
+    isFree: false,
   },
   {
     name: 'Annual',
@@ -33,12 +53,14 @@ const plans = [
     icon: Crown,
     popular: false,
     savings: 'Save 38%',
+    isFree: false,
   },
 ]
 
-const features = [
+const paidFeatures = [
   'Unlimited resume creations',
   'Unlimited AI customizations',
+  'Unlimited cover letters',
   'All premium templates',
   'ATS optimization & scoring',
   'AI-powered keyword matching',
@@ -47,7 +69,7 @@ const features = [
   'Shareable resume links',
   'Real-time preview',
   'PDF, DOCX, TXT exports',
-  'Interview prep tools',
+  'AI interview prep',
   'Priority support',
 ]
 
@@ -75,16 +97,16 @@ export function PricingSection() {
           </div>
           
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800">
-            One plan,
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600"> unlimited access</span>
+            Start free,
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600"> upgrade anytime</span>
           </h2>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-            Get full access to all features with any plan. Choose the billing cycle that works best for you.
+            Try our free plan with no credit card required. Upgrade for unlimited access.
           </p>
         </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
@@ -137,8 +159,14 @@ export function PricingSection() {
                 {/* Price */}
                 <div className="mb-4">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-slate-900">${plan.price}</span>
-                    <span className="text-slate-500">{plan.period}</span>
+                    {plan.isFree ? (
+                      <span className="text-4xl font-bold text-slate-900">Free</span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-bold text-slate-900">${plan.price}</span>
+                        <span className="text-slate-500">{plan.period}</span>
+                      </>
+                    )}
                   </div>
                   <p className="text-sm text-slate-500 mt-1">{plan.description}</p>
                 </div>
@@ -149,41 +177,56 @@ export function PricingSection() {
                     className={`w-full ${
                       plan.popular 
                         ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/25' 
+                        : plan.isFree
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                         : 'bg-slate-900 hover:bg-slate-800 text-white'
                     }`}
                     size="lg"
                   >
-                    Get Started
+                    {plan.isFree ? 'Start Free' : 'Get Started'}
                   </Button>
                 </Link>
                 
                 {/* Features preview */}
                 <div className="pt-4 border-t border-slate-100">
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Everything included:</p>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                    {plan.isFree ? 'Includes:' : 'Everything included:'}
+                  </p>
                   <ul className="space-y-2">
-                    {(expandedPlan === index ? features : features.slice(0, 5)).map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
-                        <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    onClick={() => setExpandedPlan(expandedPlan === index ? null : index)}
-                    className="flex items-center gap-1 text-sm text-violet-600 font-medium mt-3 hover:text-violet-700 transition-colors"
-                  >
-                    {expandedPlan === index ? (
-                      <>
-                        <ChevronUp className="h-4 w-4" />
-                        Show less
-                      </>
+                    {plan.isFree ? (
+                      plan.freeFeatures?.map((feature: string) => (
+                        <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
+                          <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))
                     ) : (
-                      <>
-                        <ChevronDown className="h-4 w-4" />
-                        + {features.length - 5} more features
-                      </>
+                      (expandedPlan === index ? paidFeatures : paidFeatures.slice(0, 5)).map((feature: string) => (
+                        <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
+                          <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))
                     )}
-                  </button>
+                  </ul>
+                  {!plan.isFree && (
+                    <button
+                      onClick={() => setExpandedPlan(expandedPlan === index ? null : index)}
+                      className="flex items-center gap-1 text-sm text-violet-600 font-medium mt-3 hover:text-violet-700 transition-colors"
+                    >
+                      {expandedPlan === index ? (
+                        <>
+                          <ChevronUp className="h-4 w-4" />
+                          Show less
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="h-4 w-4" />
+                          + {paidFeatures.length - 5} more features
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -199,12 +242,12 @@ export function PricingSection() {
           className="mt-16 max-w-4xl mx-auto"
         >
           <div className="text-center mb-8">
-            <h3 className="text-xl font-semibold text-slate-800">All plans include</h3>
-            <p className="text-slate-500 mt-1">Full access to every feature, no restrictions</p>
+            <h3 className="text-xl font-semibold text-slate-800">Paid plans include</h3>
+            <p className="text-slate-500 mt-1">Full access to every feature, unlimited usage</p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {features.map((feature, index) => (
+            {paidFeatures.map((feature: string, index: number) => (
               <motion.div
                 key={feature}
                 initial={{ opacity: 0, scale: 0.9 }}
