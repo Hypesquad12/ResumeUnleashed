@@ -719,11 +719,56 @@ export default function InterviewCoachPage() {
   const submitAnswer = async () => {
     setIsGeneratingFeedback(true)
     setIsTimerRunning(false)
+    stopRecording()
 
-    // Simulate AI feedback generation
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    let feedback: Answer['feedback']
+    
+    try {
+      // Get session for auth
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Call OpenAI grading edge function
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/grade-interview`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            question: questions[currentQuestion].question,
+            questionType: questions[currentQuestion].type,
+            answer: currentAnswer,
+            jobTitle,
+            jobDescription,
+            resumeContext: selectedResumeData ? JSON.stringify(selectedResumeData).substring(0, 500) : undefined,
+          }),
+        }
+      )
+      
+      if (!response.ok) {
+        throw new Error('Failed to grade answer')
+      }
+      
+      const aiResponse = await response.json()
+      feedback = {
+        score: aiResponse.score || 70,
+        strengths: aiResponse.strengths || ['You provided a response'],
+        improvements: aiResponse.improvements || ['Add more specific examples'],
+        sampleAnswer: aiResponse.sampleAnswer || 'Use the STAR method for behavioral questions.',
+      }
+      
+      // Speak the AI feedback
+      if (audioEnabled && aiResponse.overallFeedback) {
+        speakText(aiResponse.overallFeedback)
+      }
+    } catch (error) {
+      console.error('Error grading answer:', error)
+      // Fallback to local feedback generation
+      feedback = generateFeedback(questions[currentQuestion], currentAnswer)
+    }
 
-    const feedback = generateFeedback(questions[currentQuestion], currentAnswer)
     const newAnswer: Answer = {
       questionId: questions[currentQuestion].id,
       answer: currentAnswer,
@@ -741,9 +786,9 @@ export default function InterviewCoachPage() {
       setTimer(0)
       setIsTimerRunning(true)
       
-      // Speak transition and next question, then auto-start recording
-      const transitionText = "Great, let's move to the next question."
+      // Wait a moment for feedback to be spoken, then move to next question
       setTimeout(() => {
+        const transitionText = "Let's move to the next question."
         speakText(transitionText, () => {
           setTimeout(() => {
             speakText(questions[nextQ].question, () => {
@@ -754,7 +799,7 @@ export default function InterviewCoachPage() {
             })
           }, 300)
         })
-      }, 500)
+      }, 3000) // Wait 3 seconds for feedback audio to finish
     } else {
       // Calculate overall score
       const allAnswers = [...answers, newAnswer]
@@ -762,6 +807,13 @@ export default function InterviewCoachPage() {
         allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length
       )
       setOverallScore(avgScore)
+      
+      // Speak completion message
+      setTimeout(() => {
+        const completionText = `Great job completing the interview! Your overall score is ${avgScore} out of 100. Let's review your answers.`
+        speakText(completionText)
+      }, 2000)
+      
       setStep('review')
       
       // Save session to database
