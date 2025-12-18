@@ -688,38 +688,56 @@ ${name}`
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">AI Customize</h1>
-        <p className="text-muted-foreground mt-1">
-          Tailor your resume for specific job descriptions using AI
-        </p>
+      {/* Header with gradient accent */}
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
+          <Sparkles className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">AI Customize</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
+            Tailor your resume for specific job descriptions using AI
+          </p>
+        </div>
       </div>
 
-      {/* Progress Steps */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className={`flex items-center gap-2 ${selectedResume ? 'text-primary' : 'text-muted-foreground'}`}>
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-            selectedResume ? 'bg-primary text-primary-foreground' : 'bg-muted'
-          }`}>
-            {selectedResume ? <Check className="h-4 w-4" /> : '1'}
+      {/* Progress Steps - Modern Design */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-4">
+          <div className={`flex items-center gap-3 ${selectedResume ? 'text-emerald-600' : 'text-slate-500'}`}>
+            <div className={`flex items-center justify-center w-9 h-9 rounded-full text-sm font-bold transition-all ${
+              selectedResume 
+                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' 
+                : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
+            }`}>
+              {selectedResume ? <Check className="h-4 w-4" /> : '1'}
+            </div>
+            <span className="font-medium text-sm hidden sm:inline">Select Resume</span>
           </div>
-          <span className="font-medium">Select Resume</span>
-        </div>
-        <div className="flex-1 h-px bg-border" />
-        <div className={`flex items-center gap-2 ${jobDescriptionMethod ? 'text-primary' : 'text-muted-foreground'}`}>
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-            jobDescriptionMethod ? 'bg-primary text-primary-foreground' : 'bg-muted'
-          }`}>
-            {canStartCustomization ? <Check className="h-4 w-4" /> : '2'}
+          <div className={`flex-1 h-1 rounded-full transition-colors ${
+            selectedResume ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+          }`} />
+          <div className={`flex items-center gap-3 ${jobDescriptionMethod ? 'text-emerald-600' : 'text-slate-500'}`}>
+            <div className={`flex items-center justify-center w-9 h-9 rounded-full text-sm font-bold transition-all ${
+              canStartCustomization 
+                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' 
+                : jobDescriptionMethod
+                  ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
+            }`}>
+              {canStartCustomization ? <Check className="h-4 w-4" /> : '2'}
+            </div>
+            <span className="font-medium text-sm hidden sm:inline">Job Description</span>
           </div>
-          <span className="font-medium">Job Description</span>
-        </div>
-        <div className="flex-1 h-px bg-border" />
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-sm font-bold">
-            3
+          <div className={`flex-1 h-1 rounded-full transition-colors ${
+            canStartCustomization ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+          }`} />
+          <div className="flex items-center gap-3 text-slate-500">
+            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 text-sm font-bold">
+              3
+            </div>
+            <span className="font-medium text-sm hidden sm:inline">Customize</span>
           </div>
-          <span className="font-medium">Customize</span>
         </div>
       </div>
 
