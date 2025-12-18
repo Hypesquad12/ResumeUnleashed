@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Check, Sparkles, Zap, Crown } from 'lucide-react'
+import { Check, Sparkles, Zap, Crown, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -53,6 +53,7 @@ const features = [
 
 export function PricingSection() {
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
+  const [expandedPlan, setExpandedPlan] = useState<number | null>(null)
 
   return (
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -160,16 +161,29 @@ export function PricingSection() {
                 <div className="pt-4 border-t border-slate-100">
                   <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Everything included:</p>
                   <ul className="space-y-2">
-                    {features.slice(0, 5).map((feature) => (
+                    {(expandedPlan === index ? features : features.slice(0, 5)).map((feature) => (
                       <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
                         <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                         {feature}
                       </li>
                     ))}
-                    <li className="text-sm text-violet-600 font-medium pt-1">
-                      + {features.length - 5} more features
-                    </li>
                   </ul>
+                  <button
+                    onClick={() => setExpandedPlan(expandedPlan === index ? null : index)}
+                    className="flex items-center gap-1 text-sm text-violet-600 font-medium mt-3 hover:text-violet-700 transition-colors"
+                  >
+                    {expandedPlan === index ? (
+                      <>
+                        <ChevronUp className="h-4 w-4" />
+                        Show less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-4 w-4" />
+                        + {features.length - 5} more features
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </motion.div>
