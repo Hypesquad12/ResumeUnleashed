@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FileText, Sparkles, CreditCard, Plus, ArrowRight, Brain, Target, Briefcase, TrendingUp, Clock } from 'lucide-react'
+import { FileText, Sparkles, CreditCard, Plus, ArrowRight, Brain, Target, Briefcase, TrendingUp, Clock, Zap, ChevronRight, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
 
@@ -46,199 +46,172 @@ export default async function DashboardPage() {
   return (
     <DashboardClient isNewUser={isNewUser} userName={userName}>
     <div className="space-y-8">
-      {/* Welcome Section - More Personal */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {isNewUser ? `Welcome, ${firstName}! 👋` : `Welcome back, ${firstName}!`}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {isNewUser 
-              ? "Let's build your professional presence together."
-              : "Here's your career toolkit at a glance."}
-          </p>
+      {/* Welcome Section with gradient accent */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700 p-6 md:p-8 text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+                <Zap className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-medium text-white/80">Career Dashboard</span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              {isNewUser ? `Welcome, ${firstName}! 👋` : `Welcome back, ${firstName}!`}
+            </h1>
+            <p className="text-white/80 mt-2 max-w-md">
+              {isNewUser 
+                ? "Let's build your professional presence together. Start by creating your first resume."
+                : "Your career toolkit is ready. Here's what's happening."}
+            </p>
+          </div>
+          <Link href="/resumes/new" className="hidden md:block">
+            <Button size="lg" className="bg-white text-violet-700 hover:bg-white/90 shadow-lg shadow-black/20 font-semibold">
+              <Plus className="mr-2 h-4 w-4" />
+              New Resume
+            </Button>
+          </Link>
         </div>
-        <Link href="/resumes/new">
-          <Button size="lg" className="hidden md:flex">
-            <Plus className="mr-2 h-4 w-4" />
-            New Resume
-          </Button>
-        </Link>
+        
+        {/* Quick Stats in Welcome Banner */}
+        {!isNewUser && (
+          <div className="relative z-10 mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
+              <p className="text-white/70 text-xs font-medium">Resumes</p>
+              <p className="text-2xl font-bold">{resumeCount || 0}</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
+              <p className="text-white/70 text-xs font-medium">AI Tailored</p>
+              <p className="text-2xl font-bold">{customizedCount || 0}</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
+              <p className="text-white/70 text-xs font-medium">Interviews</p>
+              <p className="text-2xl font-bold">{interviewCount || 0}</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
+              <p className="text-white/70 text-xs font-medium">Avg Score</p>
+              <p className="text-2xl font-bold">{avgInterviewScore || '—'}</p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Stats Grid - Cleaner Design */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Link href="/resumes">
-          <Card className="hover:shadow-md transition-all cursor-pointer group">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Resumes</p>
-                  <p className="text-3xl font-bold mt-1">{resumeCount || 0}</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <FileText className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/customize">
-          <Card className="hover:shadow-md transition-all cursor-pointer group">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">AI Tailored</p>
-                  <p className="text-3xl font-bold mt-1">{customizedCount || 0}</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-violet-500/10 flex items-center justify-center group-hover:bg-violet-500/20 transition-colors">
-                  <Sparkles className="h-5 w-5 text-violet-500" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/interview">
-          <Card className="hover:shadow-md transition-all cursor-pointer group">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Interviews</p>
-                  <p className="text-3xl font-bold mt-1">{interviewCount || 0}</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
-                  <Brain className="h-5 w-5 text-amber-500" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/cards">
-          <Card className="hover:shadow-md transition-all cursor-pointer group">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Cards</p>
-                  <p className="text-3xl font-bold mt-1">{cardCount || 0}</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                  <CreditCard className="h-5 w-5 text-emerald-500" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      {/* Quick Actions - Streamlined */}
+      {/* Quick Actions - Modern Card Design */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          <Link href="/resumes/new" className="block">
-            <Card className="h-full hover:shadow-md hover:border-primary/50 transition-all cursor-pointer">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Plus className="h-5 w-5 text-primary" />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Quick Actions</h2>
+          <span className="text-xs text-slate-500">Get started in seconds</span>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Link href="/resumes/new" className="block group">
+            <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300 cursor-pointer overflow-hidden">
+              <CardContent className="p-5 relative">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-3 shadow-md shadow-violet-500/30 group-hover:scale-110 transition-transform">
+                  <Plus className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <p className="font-medium">Create Resume</p>
-                  <p className="text-xs text-muted-foreground">Start fresh or upload</p>
-                </div>
+                <p className="font-semibold text-slate-800 dark:text-slate-200">Create Resume</p>
+                <p className="text-sm text-slate-500 mt-1">Start fresh or upload existing</p>
+                <ChevronRight className="absolute bottom-5 right-5 h-5 w-5 text-slate-300 group-hover:text-violet-500 group-hover:translate-x-1 transition-all" />
               </CardContent>
             </Card>
           </Link>
 
-          <Link href="/customize" className="block">
-            <Card className="h-full hover:shadow-md hover:border-violet-500/50 transition-all cursor-pointer">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="h-5 w-5 text-violet-500" />
+          <Link href="/customize" className="block group">
+            <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 cursor-pointer overflow-hidden">
+              <CardContent className="p-5 relative">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-3 shadow-md shadow-amber-500/30 group-hover:scale-110 transition-transform">
+                  <Sparkles className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <p className="font-medium">AI Customize</p>
-                  <p className="text-xs text-muted-foreground">Tailor for a job</p>
-                </div>
+                <p className="font-semibold text-slate-800 dark:text-slate-200">AI Customize</p>
+                <p className="text-sm text-slate-500 mt-1">Tailor for any job posting</p>
+                <ChevronRight className="absolute bottom-5 right-5 h-5 w-5 text-slate-300 group-hover:text-amber-500 group-hover:translate-x-1 transition-all" />
               </CardContent>
             </Card>
           </Link>
 
-          <Link href="/interview" className="block">
-            <Card className="h-full hover:shadow-md hover:border-amber-500/50 transition-all cursor-pointer">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                  <Brain className="h-5 w-5 text-amber-500" />
+          <Link href="/interview" className="block group">
+            <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 cursor-pointer overflow-hidden">
+              <CardContent className="p-5 relative">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-3 shadow-md shadow-emerald-500/30 group-hover:scale-110 transition-transform">
+                  <Brain className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <p className="font-medium">Practice Interview</p>
-                  <p className="text-xs text-muted-foreground">AI-powered prep</p>
-                </div>
+                <p className="font-semibold text-slate-800 dark:text-slate-200">Practice Interview</p>
+                <p className="text-sm text-slate-500 mt-1">AI-powered mock interviews</p>
+                <ChevronRight className="absolute bottom-5 right-5 h-5 w-5 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
               </CardContent>
             </Card>
           </Link>
 
-          <Link href="/score" className="block">
-            <Card className="h-full hover:shadow-md hover:border-teal-500/50 transition-all cursor-pointer">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center flex-shrink-0">
-                  <Target className="h-5 w-5 text-teal-500" />
+          <Link href="/score" className="block group">
+            <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-cyan-300 dark:hover:border-cyan-700 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 cursor-pointer overflow-hidden">
+              <CardContent className="p-5 relative">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-3 shadow-md shadow-cyan-500/30 group-hover:scale-110 transition-transform">
+                  <Target className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <p className="font-medium">Check Score</p>
-                  <p className="text-xs text-muted-foreground">ATS compatibility</p>
-                </div>
+                <p className="font-semibold text-slate-800 dark:text-slate-200">Check Score</p>
+                <p className="text-sm text-slate-500 mt-1">ATS compatibility analysis</p>
+                <ChevronRight className="absolute bottom-5 right-5 h-5 w-5 text-slate-300 group-hover:text-cyan-500 group-hover:translate-x-1 transition-all" />
               </CardContent>
             </Card>
           </Link>
         </div>
       </div>
 
-      {/* Recent Activity - Two Column Layout */}
+      {/* Recent Activity - Two Column Layout with improved styling */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Resumes */}
-        <Card>
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <div>
-              <CardTitle className="text-base">Recent Resumes</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                <FileText className="h-4 w-4 text-violet-600" />
+              </div>
+              <CardTitle className="text-base font-semibold">Recent Resumes</CardTitle>
             </div>
             <Link href="/resumes">
-              <Button variant="ghost" size="sm" className="text-xs">
+              <Button variant="ghost" size="sm" className="text-xs text-violet-600 hover:text-violet-700 hover:bg-violet-50">
                 View All <ArrowRight className="ml-1 h-3 w-3" />
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
             {recentResumes && recentResumes.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recentResumes.map((resume) => (
                   <Link
                     key={resume.id}
                     href={`/resumes/${resume.id}`}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors group"
+                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <FileText className="h-4 w-4 text-primary" />
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
+                      <FileText className="h-5 w-5 text-slate-500" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{resume.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-medium text-sm truncate text-slate-800 dark:text-slate-200">{resume.title}</p>
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <Clock className="h-3 w-3" />
                         {new Date(resume.updated_at || resume.created_at!).toLocaleDateString()}
-                      </p>
+                      </div>
                     </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-violet-500 group-hover:translate-x-1 transition-all" />
                   </Link>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
-                  <FileText className="h-6 w-6 text-muted-foreground/50" />
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-slate-400" />
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">No resumes yet</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">No resumes yet</p>
+                <p className="text-xs text-slate-500 mb-4">Create your first resume to get started</p>
                 <Link href="/resumes/new">
-                  <Button size="sm">Create Resume</Button>
+                  <Button size="sm" className="bg-violet-600 hover:bg-violet-700">Create Resume</Button>
                 </Link>
               </div>
             )}
@@ -246,30 +219,33 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Recent Interview Practice */}
-        <Card>
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <div>
-              <CardTitle className="text-base">Interview Practice</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                <Brain className="h-4 w-4 text-emerald-600" />
+              </div>
+              <CardTitle className="text-base font-semibold">Interview Practice</CardTitle>
             </div>
             <Link href="/interview">
-              <Button variant="ghost" size="sm" className="text-xs">
+              <Button variant="ghost" size="sm" className="text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50">
                 Practice <ArrowRight className="ml-1 h-3 w-3" />
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
             {recentInterviews && recentInterviews.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recentInterviews.map((interview: any) => (
                   <div
                     key={interview.id}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-accent/30"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800"
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      interview.overall_score >= 70 ? 'bg-emerald-100' :
-                      interview.overall_score >= 50 ? 'bg-amber-100' : 'bg-red-100'
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ${
+                      interview.overall_score >= 70 ? 'bg-emerald-100 ring-emerald-200 dark:ring-emerald-800' :
+                      interview.overall_score >= 50 ? 'bg-amber-100 ring-amber-200 dark:ring-amber-800' : 'bg-red-100 ring-red-200 dark:ring-red-800'
                     }`}>
-                      <span className={`text-xs font-bold ${
+                      <span className={`text-sm font-bold ${
                         interview.overall_score >= 70 ? 'text-emerald-600' :
                         interview.overall_score >= 50 ? 'text-amber-600' : 'text-red-600'
                       }`}>
@@ -277,22 +253,30 @@ export default async function DashboardPage() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{interview.job_title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-medium text-sm truncate text-slate-800 dark:text-slate-200">{interview.job_title}</p>
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <Clock className="h-3 w-3" />
                         {new Date(interview.created_at).toLocaleDateString()}
-                      </p>
+                      </div>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      interview.overall_score >= 70 ? 'bg-emerald-100 text-emerald-700' :
+                      interview.overall_score >= 50 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                    }`}>
+                      {interview.overall_score >= 70 ? 'Strong' : interview.overall_score >= 50 ? 'Good' : 'Needs Work'}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-3">
-                  <Brain className="h-6 w-6 text-amber-500/50" />
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mx-auto mb-4">
+                  <Brain className="h-8 w-8 text-emerald-400" />
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">No practice sessions yet</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">No practice sessions yet</p>
+                <p className="text-xs text-slate-500 mb-4">Ace your next interview with AI-powered practice</p>
                 <Link href="/interview">
-                  <Button size="sm" variant="outline">Start Practice</Button>
+                  <Button size="sm" variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">Start Practice</Button>
                 </Link>
               </div>
             )}
