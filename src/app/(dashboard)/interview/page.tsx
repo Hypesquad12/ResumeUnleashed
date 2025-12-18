@@ -527,31 +527,47 @@ export default function InterviewCoachPage() {
     }
   }, [selectedJDId, savedJDs, inputMode])
   
-  // Text-to-Speech function
-  const speakText = useCallback((text: string) => {
-    if (!speechSupported || !audioEnabled || !synthRef.current) return
+  // Text-to-Speech function - soothing, natural voice
+  const speakText = useCallback((text: string, onComplete?: () => void) => {
+    if (!speechSupported || !audioEnabled || !synthRef.current) {
+      onComplete?.()
+      return
+    }
     
     // Cancel any ongoing speech
     synthRef.current.cancel()
     
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.rate = 0.9
-    utterance.pitch = 1
-    utterance.volume = 1
+    // Slower, calmer speech for a more soothing experience
+    utterance.rate = 0.85
+    utterance.pitch = 0.95
+    utterance.volume = 0.9
     
-    // Try to use a natural voice
+    // Find the most natural sounding voice
     const voices = synthRef.current.getVoices()
     const preferredVoice = voices.find(v => 
-      v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')
-    ) || voices.find(v => v.lang.startsWith('en'))
+      v.name.includes('Samantha') || // macOS natural voice
+      v.name.includes('Karen') || // Australian English
+      v.name.includes('Daniel') || // British English
+      v.name.includes('Google UK English Female') ||
+      v.name.includes('Microsoft Zira') // Windows natural voice
+    ) || voices.find(v => 
+      v.name.includes('Natural') || v.name.includes('Premium')
+    ) || voices.find(v => v.lang === 'en-US' || v.lang === 'en-GB')
     
     if (preferredVoice) {
       utterance.voice = preferredVoice
     }
     
     utterance.onstart = () => setIsSpeaking(true)
-    utterance.onend = () => setIsSpeaking(false)
-    utterance.onerror = () => setIsSpeaking(false)
+    utterance.onend = () => {
+      setIsSpeaking(false)
+      onComplete?.()
+    }
+    utterance.onerror = () => {
+      setIsSpeaking(false)
+      onComplete?.()
+    }
     
     synthRef.current.speak(utterance)
   }, [speechSupported, audioEnabled])
@@ -654,12 +670,23 @@ export default function InterviewCoachPage() {
     setTimer(0)
     setIsTimerRunning(true)
     
-    // Speak the first question after a short delay
+    // Speak intro and first question, then auto-start recording for natural dialog
+    const introText = "Let's begin your interview practice. Take your time to think before answering."
     setTimeout(() => {
-      if (generatedQuestions.length > 0) {
-        speakText(generatedQuestions[0].question)
-      }
-    }, 500)
+      speakText(introText, () => {
+        // After intro, speak the first question
+        setTimeout(() => {
+          if (generatedQuestions.length > 0) {
+            speakText(generatedQuestions[0].question, () => {
+              // Auto-start recording after question is spoken for natural dialog
+              if (recognitionSupported) {
+                setTimeout(() => startRecording(), 800)
+              }
+            })
+          }
+        }, 500)
+      })
+    }, 300)
   }
 
   const submitAnswer = async () => {
@@ -687,9 +714,19 @@ export default function InterviewCoachPage() {
       setTimer(0)
       setIsTimerRunning(true)
       
-      // Speak the next question
+      // Speak transition and next question, then auto-start recording
+      const transitionText = "Great, let's move to the next question."
       setTimeout(() => {
-        speakText(questions[nextQ].question)
+        speakText(transitionText, () => {
+          setTimeout(() => {
+            speakText(questions[nextQ].question, () => {
+              // Auto-start recording after question for natural dialog
+              if (recognitionSupported) {
+                setTimeout(() => startRecording(), 800)
+              }
+            })
+          }, 300)
+        })
       }, 500)
     } else {
       // Calculate overall score

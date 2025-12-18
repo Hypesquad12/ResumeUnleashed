@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FileText, Sparkles, CreditCard, QrCode, Zap, Shield, Globe, Target } from 'lucide-react'
+import { FileText, Sparkles, CreditCard, QrCode, Zap, Shield, Globe, Target, Mic, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
 
 const features = [
@@ -16,6 +16,18 @@ const features = [
     title: 'AI-Powered Optimization',
     description: 'Let AI analyze job descriptions and tailor your resume with the right keywords to pass ATS systems.',
     gradient: 'from-violet-500 to-purple-500',
+  },
+  {
+    icon: Mic,
+    title: 'AI Interview Prep',
+    description: 'Practice with AI-powered mock interviews. Get real-time feedback, personalized questions based on your resume and job description.',
+    gradient: 'from-emerald-500 to-teal-500',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Voice Conversations',
+    description: 'Natural voice-based interview practice. Speak your answers and receive instant AI feedback to improve your responses.',
+    gradient: 'from-amber-500 to-orange-500',
   },
   {
     icon: CreditCard,
@@ -65,8 +77,8 @@ export function FeaturesSection() {
           </p>
         </motion.div>
 
-        {/* Main features grid - Gamified */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-16">
+        {/* Main features grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
