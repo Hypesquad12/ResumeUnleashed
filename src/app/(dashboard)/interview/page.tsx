@@ -955,13 +955,22 @@ export default function InterviewCoachPage() {
                         {pastSessions.map((session) => (
                           <div
                             key={session.id}
-                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                            className="group flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-violet-50 hover:border-violet-300 border border-transparent transition-all cursor-pointer"
+                            onClick={() => {
+                              // Load the session data into review mode
+                              setStep('review')
+                              setJobTitle(session.job_title || '')
+                              setJobDescription(session.job_description || '')
+                              setQuestions(session.questions || [])
+                              setAnswers(session.answers || [])
+                              setOverallScore(session.overall_score || 0)
+                            }}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 flex-1">
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                session.overall_score >= 70 ? 'bg-emerald-100' :
-                                session.overall_score >= 50 ? 'bg-amber-100' : 'bg-red-100'
-                              }`}>
+                                session.overall_score >= 70 ? 'bg-emerald-100 group-hover:bg-emerald-200' :
+                                session.overall_score >= 50 ? 'bg-amber-100 group-hover:bg-amber-200' : 'bg-red-100 group-hover:bg-red-200'
+                              } transition-colors`}>
                                 <span className={`font-bold text-sm ${
                                   session.overall_score >= 70 ? 'text-emerald-600' :
                                   session.overall_score >= 50 ? 'text-amber-600' : 'text-red-600'
@@ -969,8 +978,8 @@ export default function InterviewCoachPage() {
                                   {session.overall_score}
                                 </span>
                               </div>
-                              <div>
-                                <p className="font-medium text-slate-800">{session.job_title}</p>
+                              <div className="flex-1">
+                                <p className="font-medium text-slate-800 group-hover:text-violet-700 transition-colors">{session.job_title}</p>
                                 <p className="text-xs text-slate-500">
                                   {new Date(session.created_at).toLocaleDateString()} • {session.questions?.length || 0} questions
                                 </p>
@@ -1058,12 +1067,10 @@ export default function InterviewCoachPage() {
                 <CardContent className="space-y-6">
                   {/* Step 1: Job Description Source */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label className="flex items-center gap-2 text-base font-semibold">
-                        <Target className="h-4 w-4 text-violet-500" />
-                        Step 1: Job Description
-                      </Label>
-                    </div>
+                    <Label className="flex items-center gap-2 text-base font-semibold">
+                      <Target className="h-4 w-4 text-violet-500" />
+                      Step 1: Job Description
+                    </Label>
 
                     {loadingJDs ? (
                       <div className="flex items-center gap-2 text-sm text-slate-500 p-4 bg-slate-50 rounded-lg">
@@ -1132,12 +1139,12 @@ export default function InterviewCoachPage() {
                   </div>
 
                   {/* Step 2: Resume Selection */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
+                  <div className="space-y-4">
+                    <Label className="flex items-center gap-2 text-base font-semibold">
                       <FileText className="h-4 w-4 text-violet-500" />
                       Step 2: Your Resume *
                     </Label>
-                    <p className="text-xs text-slate-500 mb-2">
+                    <p className="text-sm text-slate-500">
                       Select your resume for personalized interview questions
                     </p>
                     {loadingResumes ? (
