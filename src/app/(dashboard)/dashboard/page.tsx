@@ -78,22 +78,30 @@ export default async function DashboardPage() {
         {/* Quick Stats in Welcome Banner */}
         {!isNewUser && (
           <div className="relative z-10 mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-              <p className="text-white/70 text-xs font-medium">Resumes</p>
-              <p className="text-2xl font-bold">{resumeCount || 0}</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-              <p className="text-white/70 text-xs font-medium">AI Tailored</p>
-              <p className="text-2xl font-bold">{customizedCount || 0}</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-              <p className="text-white/70 text-xs font-medium">Interviews</p>
-              <p className="text-2xl font-bold">{interviewCount || 0}</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-              <p className="text-white/70 text-xs font-medium">Avg Score</p>
-              <p className="text-2xl font-bold">{avgInterviewScore || '—'}</p>
-            </div>
+            <Link href="/resumes" className="block group">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 hover:bg-white/20 transition-all cursor-pointer">
+                <p className="text-white/70 text-xs font-medium">Resumes</p>
+                <p className="text-2xl font-bold">{resumeCount || 0}</p>
+              </div>
+            </Link>
+            <Link href="/customize" className="block group">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 hover:bg-white/20 transition-all cursor-pointer">
+                <p className="text-white/70 text-xs font-medium">AI Tailored</p>
+                <p className="text-2xl font-bold">{customizedCount || 0}</p>
+              </div>
+            </Link>
+            <Link href="/interview" className="block group">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 hover:bg-white/20 transition-all cursor-pointer">
+                <p className="text-white/70 text-xs font-medium">Interviews</p>
+                <p className="text-2xl font-bold">{interviewCount || 0}</p>
+              </div>
+            </Link>
+            <Link href="/interview" className="block group">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 hover:bg-white/20 transition-all cursor-pointer">
+                <p className="text-white/70 text-xs font-medium">Avg Score</p>
+                <p className="text-2xl font-bold">{avgInterviewScore || '—'}</p>
+              </div>
+            </Link>
           </div>
         )}
       </div>
