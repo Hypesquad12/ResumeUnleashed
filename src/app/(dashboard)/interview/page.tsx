@@ -1206,8 +1206,8 @@ export default function InterviewCoachPage() {
                   </div>
 
                   {/* Step 3: Additional Skills */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
+                  <div className="space-y-4">
+                    <Label className="flex items-center gap-2 text-base font-semibold">
                       <Zap className="h-4 w-4 text-amber-500" />
                       Step 3: Key Skills
                     </Label>
@@ -1217,26 +1217,28 @@ export default function InterviewCoachPage() {
                         value={skillInput}
                         onChange={(e) => setSkillInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+                        className="flex-1"
                       />
                       <Button onClick={addSkill} variant="outline">Add</Button>
                     </div>
-                    {skills.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {skills.map((skill) => (
-                          <Badge
-                            key={skill}
-                            variant="secondary"
-                            className="cursor-pointer hover:bg-red-100 transition-colors"
-                            onClick={() => removeSkill(skill)}
-                          >
-                            {skill} ×
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                    {skills.length === 0 && (
-                      <p className="text-xs text-slate-400">Skills will be auto-extracted from your resume and JD</p>
-                    )}
+                    <div className="min-h-[60px] p-3 border border-slate-200 rounded-lg bg-white">
+                      {skills.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {skills.map((skill) => (
+                            <Badge
+                              key={skill}
+                              variant="secondary"
+                              className="cursor-pointer hover:bg-red-100 transition-colors bg-violet-100 text-violet-700"
+                              onClick={() => removeSkill(skill)}
+                            >
+                              {skill} ×
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-slate-400">Skills will be auto-extracted from your resume and JD</p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Audio Settings */}
