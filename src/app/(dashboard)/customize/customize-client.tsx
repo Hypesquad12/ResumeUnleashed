@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import { QRCodeSVG } from 'qrcode.react'
 import { createClient } from '@/lib/supabase/client'
+import { OptionSelector } from './components/option-selector'
 
 interface Resume {
   id: string
@@ -63,6 +64,14 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   const [coverLetter, setCoverLetter] = useState<string>('')
   const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false)
   const [showCoverLetter, setShowCoverLetter] = useState(false)
+  
+  // Multiple options state
+  const [aiOptions, setAiOptions] = useState<any[]>([])
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null)
+  const [editableJobTitle, setEditableJobTitle] = useState('')
+  const [editableJobDescription, setEditableJobDescription] = useState('')
+  const [editableResume, setEditableResume] = useState<any>(null)
+  const [showOptionsStep, setShowOptionsStep] = useState(false)
 
   const hasResumes = resumes.length > 0
   const canStartCustomization = selectedResume && (jobDescription.trim() || jobUrl.trim())
@@ -115,20 +124,30 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
 
       const aiResult = edgeFnResult.data
       
-      // Extract job title from AI response or job description
-      const jobTitle = aiResult.job_title || 'Customized'
+      // Check if we have multiple options
+      if (aiResult.options && Array.isArray(aiResult.options) && aiResult.options.length > 1) {
+        // Multiple options - show selection UI
+        setAiOptions(aiResult.options)
+        setShowOptionsStep(true)
+        setIsCustomizing(false)
+        return
+      }
+      
+      // Single option or old format - proceed directly
+      const option = aiResult.options?.[0] || aiResult
+      const jobTitle = option.job_title || 'Customized'
       
       // Set optimization stats from AI response
       const stats = {
-        keywords: aiResult.keywords_added?.length || 0,
-        sections: aiResult.changes?.length || 0,
-        score: aiResult.match_score || 85
+        keywords: option.keywords_added?.length || 0,
+        sections: option.changes?.length || 0,
+        score: option.match_score || 85
       }
       setOptimizationStats(stats)
       setAiSuggestions({
-        keywords_added: aiResult.keywords_added || [],
-        changes: aiResult.changes || [],
-        ats_tips: aiResult.ats_tips || [],
+        keywords_added: option.keywords_added || [],
+        changes: option.changes || [],
+        ats_tips: option.ats_tips || [],
       })
 
       // Save to customized_resumes table with AI-customized content
@@ -138,7 +157,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           user_id: user.id,
           source_resume_id: selectedResume,
           title: `${sourceResume.title} - ${jobTitle}`,
-          customized_content: aiResult.customized_resume || {
+          customized_content: option.customized_resume || {
             contact: sourceResume.contact,
             summary: sourceResume.summary,
             experience: sourceResume.experience,
@@ -146,9 +165,9 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             skills: sourceResume.skills,
           },
           ai_suggestions: {
-            keywords_added: aiResult.keywords_added || [],
-            changes: aiResult.changes || [],
-            ats_tips: aiResult.ats_tips || [],
+            keywords_added: option.keywords_added || [],
+            changes: option.changes || [],
+            ats_tips: option.ats_tips || [],
             job_description: jdText,
           },
           match_score: stats.score,
@@ -274,6 +293,151 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
     setPublicResumeSlug(null)
     setCoverLetter('')
     setShowCoverLetter(false)
+    setAiOptions([])
+    setSelectedOptionIndex(null)
+    setShowOptionsStep(false)
+  }
+
+  const handleOptionSelect = async (index: number, editedData: {
+    jobTitle: string
+    jobDescription: string
+    resume: any
+  }) => {
+    setIsCustomizing(true)
+    const supabase = createClient()
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Please login to customize resumes')
+        return
+      }
+
+      if (!selectedResume) {
+        toast.error('No resume selected')
+        setIsCustomizing(false)
+        return
+      }
+
+      const { data: sourceResume } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('id', selectedResume)
+        .single()
+
+      if (!sourceResume) {
+        toast.error('Source resume not found')
+        setIsCustomizing(false)
+        return
+      }
+
+      const selectedOption = aiOptions[index]
+      
+      // Use edited data
+      const jobTitle = editedData.jobTitle
+      const customizedResume = editedData.resume
+      
+      // Set optimization stats
+      const stats = {
+        keywords: selectedOption.keywords_added?.length || 0,
+        sections: selectedOption.changes?.length || 0,
+        score: selectedOption.match_score || 85
+      }
+      setOptimizationStats(stats)
+      setAiSuggestions({
+        keywords_added: selectedOption.keywords_added || [],
+        changes: selectedOption.changes || [],
+        ats_tips: selectedOption.ats_tips || [],
+      })
+
+      // Save to database
+      const jdText = jobDescription || jobUrl
+      const { data: customized, error } = await supabase
+        .from('customized_resumes')
+        .insert({
+          user_id: user.id,
+          source_resume_id: selectedResume!,
+          title: `${sourceResume.title} - ${jobTitle}`,
+          customized_content: customizedResume,
+          ai_suggestions: {
+            keywords_added: selectedOption.keywords_added || [],
+            changes: selectedOption.changes || [],
+            ats_tips: selectedOption.ats_tips || [],
+            job_description: jdText,
+            job_description_summary: editedData.jobDescription,
+          },
+          match_score: stats.score,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error saving customization:', error)
+        setCustomizedResumeId(selectedResume!)
+      } else {
+        setCustomizedResumeId(customized.id)
+        setCustomizationHistory(prev => [{
+          id: customized.id,
+          title: customized.title,
+          source_resume_id: customized.source_resume_id,
+          match_score: customized.match_score,
+          created_at: customized.created_at || new Date().toISOString(),
+        }, ...prev])
+
+        // Create public link
+        try {
+          setCreatingPublicLink(true)
+          const existing = await supabase
+            .from('public_resume_links')
+            .select('public_slug')
+            .eq('user_id', user.id)
+            .eq('customized_resume_id', customized.id)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          if (existing.data?.public_slug) {
+            setPublicResumeSlug(existing.data.public_slug)
+          } else {
+            const slug = `${user.id.slice(0, 8)}-${Date.now()}`
+            const { data: newLink } = await supabase
+              .from('public_resume_links')
+              .insert({
+                user_id: user.id,
+                customized_resume_id: customized.id,
+                public_slug: slug,
+                is_active: true,
+              })
+              .select()
+              .single()
+
+            if (newLink) {
+              setPublicResumeSlug(newLink.public_slug)
+            }
+          }
+        } catch (e) {
+          console.error('Failed to create public resume link:', e)
+        } finally {
+          setCreatingPublicLink(false)
+        }
+      }
+      
+      toast.success('Resume customization complete!')
+      setCustomizationComplete(true)
+      setShowOptionsStep(false)
+    } catch (error) {
+      console.error('Customization error:', error)
+      toast.error('Failed to save customization')
+    } finally {
+      setIsCustomizing(false)
+    }
+  }
+
+  const handleCancelOptions = () => {
+    setShowOptionsStep(false)
+    setAiOptions([])
+    setSelectedOptionIndex(null)
   }
 
   const generateCoverLetter = async () => {
@@ -682,6 +846,31 @@ ${name}`
             </div>
           </CardContent>
         </Card>
+      </div>
+    )
+  }
+
+  // Show options selector if multiple options available
+  if (showOptionsStep && aiOptions.length > 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
+            <Sparkles className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Select Your Option</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">
+              Choose and customize one of the AI-generated variations
+            </p>
+          </div>
+        </div>
+        
+        <OptionSelector
+          options={aiOptions}
+          onSelect={handleOptionSelect}
+          onCancel={handleCancelOptions}
+        />
       </div>
     )
   }

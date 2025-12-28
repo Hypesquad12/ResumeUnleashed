@@ -79,7 +79,9 @@ ${JSON.stringify(resume, null, 2)}
 JOB DESCRIPTION:
 ${jobDescription}
 
-Please customize this resume to better match the job description. Focus on:
+Please analyze this job description and provide 2-3 different interpretations/variations of the role, then customize the resume for each variation.
+
+For each variation, focus on:
 1. Tailoring the professional summary to highlight relevant experience
 2. Rewording experience bullet points to emphasize relevant skills and achievements
 3. Adding relevant keywords naturally throughout
@@ -88,19 +90,26 @@ Please customize this resume to better match the job description. Focus on:
 
 Return a JSON object with this exact structure:
 {
-  "customized_resume": {
-    "contact": { ... },
-    "summary": "...",
-    "experience": [ ... ],
-    "education": [ ... ],
-    "skills": [ ... ]
-  },
-  "changes": ["list of specific changes made"],
-  "keywords_added": ["keywords from JD that were incorporated"],
-  "match_score": 85,
-  "ats_tips": ["additional suggestions"],
-  "job_title": "extracted job title from the description"
+  "options": [
+    {
+      "job_title": "Primary job title extracted from description",
+      "job_description_summary": "Brief 2-3 sentence summary of this interpretation",
+      "customized_resume": {
+        "contact": { ... },
+        "summary": "...",
+        "experience": [ ... ],
+        "education": [ ... ],
+        "skills": [ ... ]
+      },
+      "changes": ["list of specific changes made"],
+      "keywords_added": ["keywords from JD that were incorporated"],
+      "match_score": 85,
+      "ats_tips": ["additional suggestions"]
+    }
+  ]
 }
+
+Generate 2-3 options with different emphasis (e.g., technical focus vs leadership focus, or different seniority levels if the JD is ambiguous).
 `
 
     const completion = await openai.chat.completions.create({
