@@ -288,10 +288,7 @@ export default function SalaryNegotiationPage() {
                   <SelectContent className="max-h-[300px]">
                     {filteredCities.map(city => (
                       <SelectItem key={city.value} value={city.value}>
-                        <div className="flex items-center justify-between gap-2">
-                          <span>{city.label}</span>
-                          <span className="text-xs text-slate-500">{city.country}</span>
-                        </div>
+                        {city.label} ({city.country})
                       </SelectItem>
                     ))}
                   </SelectContent>
