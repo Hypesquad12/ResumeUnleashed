@@ -18,8 +18,10 @@ import {
 import { 
   DollarSign, TrendingUp, MapPin, Briefcase, Target,
   Sparkles, Copy, CheckCircle, Lightbulb, ArrowRight,
-  BarChart3, Users, Building2, Loader2, Zap
+  BarChart3, Users, Building2, Loader2, Zap, Globe
 } from 'lucide-react'
+import { metroCities, getRegions, getCitiesByRegion, getCityByValue } from '@/lib/data/metro-cities'
+import { toast } from 'sonner'
 
 interface SalaryData {
   min: number
@@ -27,12 +29,28 @@ interface SalaryData {
   median: number
   percentile25: number
   percentile75: number
+  currency?: string
 }
 
 interface NegotiationTip {
   title: string
   description: string
   script?: string
+}
+
+interface AIResponse {
+  salaryRange: SalaryData
+  marketDemand: 'low' | 'medium' | 'high' | 'very_high'
+  demandReason: string
+  keyFactors: string[]
+  negotiationTips: NegotiationTip[]
+  totalCompensation: {
+    equityRange: string
+    bonusRange: string
+    benefits: string[]
+  }
+  marketInsights: string
+  comparisonToCurrentSalary?: string
 }
 
 const experienceLevels = [
@@ -43,27 +61,6 @@ const experienceLevels = [
   { value: 'executive', label: 'Executive/Director' },
 ]
 
-const locations = [
-  { value: 'sf', label: 'San Francisco Bay Area', multiplier: 1.3 },
-  { value: 'nyc', label: 'New York City', multiplier: 1.25 },
-  { value: 'seattle', label: 'Seattle', multiplier: 1.2 },
-  { value: 'austin', label: 'Austin', multiplier: 1.05 },
-  { value: 'denver', label: 'Denver', multiplier: 1.0 },
-  { value: 'chicago', label: 'Chicago', multiplier: 1.0 },
-  { value: 'remote', label: 'Remote (US)', multiplier: 1.0 },
-  { value: 'other', label: 'Other US City', multiplier: 0.9 },
-]
-
-const baseSalaries: Record<string, Record<string, number>> = {
-  'software engineer': { entry: 85000, mid: 120000, senior: 160000, lead: 200000, executive: 250000 },
-  'product manager': { entry: 90000, mid: 130000, senior: 170000, lead: 210000, executive: 280000 },
-  'data scientist': { entry: 95000, mid: 135000, senior: 175000, lead: 220000, executive: 270000 },
-  'ux designer': { entry: 70000, mid: 100000, senior: 140000, lead: 170000, executive: 200000 },
-  'marketing manager': { entry: 60000, mid: 85000, senior: 120000, lead: 150000, executive: 200000 },
-  'sales representative': { entry: 50000, mid: 75000, senior: 100000, lead: 130000, executive: 180000 },
-  'project manager': { entry: 65000, mid: 90000, senior: 120000, lead: 150000, executive: 190000 },
-  'default': { entry: 60000, mid: 85000, senior: 115000, lead: 145000, executive: 180000 },
-}
 
 const negotiationTips: NegotiationTip[] = [
   {
@@ -117,36 +114,63 @@ export default function SalaryNegotiationPage() {
   const [salaryData, setSalaryData] = useState<SalaryData | null>(null)
   const [copiedScript, setCopiedScript] = useState<number | null>(null)
   const [marketDemand, setMarketDemand] = useState<'low' | 'medium' | 'high' | 'very_high'>('medium')
+  const [aiResponse, setAiResponse] = useState<AIResponse | null>(null)
+  const [selectedRegion, setSelectedRegion] = useState<string>('')
+  const [filteredCities, setFilteredCities] = useState(metroCities)
 
   const calculateSalary = async () => {
     if (!jobTitle || !experience || !location) return
 
     setIsCalculating(true)
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    
+    try {
+      const cityData = getCityByValue(location)
+      const locationMultiplier = cityData?.multiplier || 1
+      const locationLabel = cityData?.label || location
 
-    const normalizedTitle = jobTitle.toLowerCase()
-    const baseSalary = baseSalaries[normalizedTitle] || baseSalaries['default']
-    const base = baseSalary[experience] || baseSalary['mid']
-    const locationData = locations.find(l => l.value === location)
-    const multiplier = locationData?.multiplier || 1
+      const response = await fetch('/api/estimate-salary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobTitle,
+          experience,
+          location: locationLabel,
+          locationMultiplier,
+          currentSalary,
+        }),
+      })
 
-    const median = Math.round(base * multiplier)
-    const min = Math.round(median * 0.8)
-    const max = Math.round(median * 1.25)
-    const percentile25 = Math.round(median * 0.9)
-    const percentile75 = Math.round(median * 1.15)
+      if (!response.ok) {
+        throw new Error('Failed to get salary estimate')
+      }
 
-    setSalaryData({ min, max, median, percentile25, percentile75 })
-
-    // Simulate market demand based on job title
-    const highDemandRoles = ['software engineer', 'data scientist', 'product manager']
-    if (highDemandRoles.some(r => normalizedTitle.includes(r))) {
-      setMarketDemand('high')
-    } else {
-      setMarketDemand('medium')
+      const result = await response.json()
+      
+      if (result.success && result.data) {
+        const data = result.data
+        setAiResponse(data)
+        setSalaryData(data.salaryRange)
+        setMarketDemand(data.marketDemand)
+        toast.success('AI-powered salary estimate generated!')
+      } else {
+        throw new Error(result.error || 'Failed to generate estimate')
+      }
+    } catch (error) {
+      console.error('Salary calculation error:', error)
+      toast.error('Failed to calculate salary. Please try again.')
+    } finally {
+      setIsCalculating(false)
     }
+  }
 
-    setIsCalculating(false)
+  const handleRegionChange = (region: string) => {
+    setSelectedRegion(region)
+    if (region) {
+      setFilteredCities(getCitiesByRegion(region))
+    } else {
+      setFilteredCities(metroCities)
+    }
+    setLocation('') // Reset location when region changes
   }
 
   const copyScript = (index: number, script: string) => {
@@ -233,19 +257,50 @@ export default function SalaryNegotiationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Location</Label>
-                <Select value={location} onValueChange={setLocation}>
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-emerald-500" />
+                  Region (Optional - filter cities)
+                </Label>
+                <Select value={selectedRegion} onValueChange={handleRegionChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select location" />
+                    <SelectValue placeholder="All regions" />
                   </SelectTrigger>
                   <SelectContent>
-                    {locations.map(loc => (
-                      <SelectItem key={loc.value} value={loc.value}>
-                        {loc.label}
+                    <SelectItem value="">All Regions</SelectItem>
+                    {getRegions().map(region => (
+                      <SelectItem key={region} value={region}>
+                        {region}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-emerald-500" />
+                  Location *
+                </Label>
+                <Select value={location} onValueChange={setLocation}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select city" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {filteredCities.map(city => (
+                      <SelectItem key={city.value} value={city.value}>
+                        <div className="flex items-center justify-between gap-2">
+                          <span>{city.label}</span>
+                          <span className="text-xs text-slate-500">{city.country}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedRegion && (
+                  <p className="text-xs text-slate-500">
+                    Showing {filteredCities.length} cities in {selectedRegion}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -320,6 +375,7 @@ export default function SalaryNegotiationPage() {
 
         {/* Results Section - Full Width Below */}
         {salaryData && (
+          <>
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Salary Range Card */}
             <Card className="overflow-hidden">
@@ -451,6 +507,149 @@ export default function SalaryNegotiationPage() {
                   </CardContent>
                 </Card>
           </div>
+
+          {/* AI-Generated Insights */}
+          {aiResponse && (
+            <div className="grid lg:grid-cols-2 gap-6 mt-6">
+              {/* Key Factors */}
+              {aiResponse.keyFactors && aiResponse.keyFactors.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-blue-500" />
+                      Key Factors Affecting Salary
+                    </CardTitle>
+                    <CardDescription>
+                      {aiResponse.demandReason}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {aiResponse.keyFactors.map((factor, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                          <span>{factor}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Total Compensation */}
+              {aiResponse.totalCompensation && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5 text-violet-500" />
+                      Total Compensation Package
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="p-3 bg-violet-50 rounded-lg">
+                      <div className="text-xs text-violet-600 font-medium mb-1">Equity</div>
+                      <div className="text-sm text-slate-700">{aiResponse.totalCompensation.equityRange}</div>
+                    </div>
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <div className="text-xs text-blue-600 font-medium mb-1">Bonus</div>
+                      <div className="text-sm text-slate-700">{aiResponse.totalCompensation.bonusRange}</div>
+                    </div>
+                    {aiResponse.totalCompensation.benefits && aiResponse.totalCompensation.benefits.length > 0 && (
+                      <div className="p-3 bg-emerald-50 rounded-lg">
+                        <div className="text-xs text-emerald-600 font-medium mb-2">Typical Benefits</div>
+                        <div className="flex flex-wrap gap-1">
+                          {aiResponse.totalCompensation.benefits.map((benefit, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {benefit}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Market Insights */}
+              {aiResponse.marketInsights && (
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-amber-500" />
+                      Market Insights & Trends
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-slate-700 leading-relaxed">{aiResponse.marketInsights}</p>
+                    {aiResponse.comparisonToCurrentSalary && (
+                      <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                        <p className="text-sm text-amber-800">{aiResponse.comparisonToCurrentSalary}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* AI-Generated Negotiation Tips */}
+              {aiResponse.negotiationTips && aiResponse.negotiationTips.length > 0 && (
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-violet-500" />
+                      AI-Powered Negotiation Strategies
+                    </CardTitle>
+                    <CardDescription>
+                      Personalized tips based on your role and market conditions
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {aiResponse.negotiationTips.map((tip, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-200"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xs font-bold text-white">{index + 1}</span>
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-slate-800 mb-1">{tip.title}</h4>
+                              <p className="text-sm text-slate-600 mb-2">{tip.description}</p>
+                              {tip.script && (
+                                <div className="mt-2 p-3 bg-white rounded border border-violet-200">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-xs font-medium text-violet-600">Script:</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => copyScript(1000 + index, tip.script!)}
+                                      className="h-6 px-2"
+                                    >
+                                      {copiedScript === 1000 + index ? (
+                                        <CheckCircle className="h-3 w-3 text-emerald-500" />
+                                      ) : (
+                                        <Copy className="h-3 w-3" />
+                                      )}
+                                    </Button>
+                                  </div>
+                                  <p className="text-xs text-slate-600 italic">&ldquo;{tip.script}&rdquo;</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>
