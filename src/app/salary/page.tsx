@@ -117,6 +117,7 @@ export default function SalaryNegotiationPage() {
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null)
   const [selectedRegion, setSelectedRegion] = useState<string>('')
   const [filteredCities, setFilteredCities] = useState(metroCities)
+  const [citySearch, setCitySearch] = useState('')
 
   const calculateSalary = async () => {
     if (!jobTitle || !experience || !location) return
@@ -171,7 +172,15 @@ export default function SalaryNegotiationPage() {
       setFilteredCities(metroCities)
     }
     setLocation('') // Reset location when region changes
+    setCitySearch('') // Reset search
   }
+
+  const displayedCities = citySearch
+    ? filteredCities.filter(city => 
+        city.label.toLowerCase().includes(citySearch.toLowerCase()) ||
+        city.country.toLowerCase().includes(citySearch.toLowerCase())
+      )
+    : filteredCities
 
   const copyScript = (index: number, script: string) => {
     navigator.clipboard.writeText(script)
@@ -281,21 +290,45 @@ export default function SalaryNegotiationPage() {
                   <MapPin className="h-4 w-4 text-emerald-500" />
                   Location *
                 </Label>
-                <Select value={location} onValueChange={setLocation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select city" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {filteredCities.map(city => (
-                      <SelectItem key={city.value} value={city.value}>
-                        {city.label} ({city.country})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Search cities..."
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                    className="w-full"
+                  />
+                  <Select value={location || undefined} onValueChange={setLocation}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select city" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {displayedCities.length > 0 ? (
+                        displayedCities.slice(0, 50).map(city => (
+                          <SelectItem key={city.value} value={city.value}>
+                            {city.label} ({city.country})
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-slate-500 text-center">
+                          No cities found
+                        </div>
+                      )}
+                      {displayedCities.length > 50 && (
+                        <div className="p-2 text-xs text-slate-500 text-center border-t">
+                          Showing 50 of {displayedCities.length} cities. Use search to narrow down.
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
                 {selectedRegion && (
                   <p className="text-xs text-slate-500">
-                    Showing {filteredCities.length} cities in {selectedRegion}
+                    {filteredCities.length} cities in {selectedRegion}
+                  </p>
+                )}
+                {citySearch && (
+                  <p className="text-xs text-slate-500">
+                    Found {displayedCities.length} matching cities
                   </p>
                 )}
               </div>
