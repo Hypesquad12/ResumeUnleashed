@@ -166,7 +166,7 @@ export default function SalaryNegotiationPage() {
 
   const handleRegionChange = (region: string) => {
     setSelectedRegion(region)
-    if (region) {
+    if (region && region !== 'all') {
       setFilteredCities(getCitiesByRegion(region))
     } else {
       setFilteredCities(metroCities)
@@ -270,12 +270,12 @@ export default function SalaryNegotiationPage() {
                   <Globe className="h-4 w-4 text-emerald-500" />
                   Region (Optional - filter cities)
                 </Label>
-                <Select value={selectedRegion} onValueChange={handleRegionChange}>
+                <Select value={selectedRegion || undefined} onValueChange={handleRegionChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="All regions" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Regions</SelectItem>
+                    <SelectItem value="all">All Regions</SelectItem>
                     {getRegions().map(region => (
                       <SelectItem key={region} value={region}>
                         {region}
@@ -321,7 +321,7 @@ export default function SalaryNegotiationPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                {selectedRegion && (
+                {selectedRegion && selectedRegion !== 'all' && (
                   <p className="text-xs text-slate-500">
                     {filteredCities.length} cities in {selectedRegion}
                   </p>
