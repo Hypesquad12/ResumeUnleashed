@@ -966,28 +966,43 @@ ${name}`
               {customizationHistory.slice(0, 5).map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
+                  className="group relative flex items-center justify-between p-4 rounded-lg border hover:border-violet-300 hover:shadow-md transition-all cursor-pointer bg-white"
+                  onClick={() => {
+                    if (item.source_resume_id) {
+                      window.open(`/resumes/${item.source_resume_id}/preview`, '_blank')
+                    }
+                  }}
                 >
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{item.title}</p>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {new Date(item.created_at || Date.now()).toLocaleDateString()}
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="p-2 rounded-lg bg-violet-50 group-hover:bg-violet-100 transition-colors">
+                      <FileText className="h-5 w-5 text-violet-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900 group-hover:text-violet-700 transition-colors">
+                        {item.title}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                          <Clock className="h-3.5 w-3.5" />
+                          {new Date(item.created_at || Date.now()).toLocaleDateString()}
+                        </div>
                         {item.match_score && (
-                          <span className="ml-2 text-green-600 font-medium">
-                            {item.match_score}% match
-                          </span>
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200">
+                            <span className="text-sm font-semibold text-emerald-700">
+                              {item.match_score}% match
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => {
+                      className="hover:bg-violet-50 hover:text-violet-700"
+                      onClick={(e) => {
+                        e.stopPropagation()
                         if (item.source_resume_id) {
                           window.open(`/resumes/${item.source_resume_id}/preview`, '_blank')
                         }
@@ -998,7 +1013,9 @@ ${name}`
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => {
+                      className="hover:bg-violet-50 hover:text-violet-700"
+                      onClick={(e) => {
+                        e.stopPropagation()
                         if (item.source_resume_id) {
                           window.open(`/resumes/${item.source_resume_id}/preview?download=true`, '_blank')
                         }
