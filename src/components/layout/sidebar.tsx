@@ -15,7 +15,6 @@ import {
   Palette,
   Loader2,
   Brain,
-  Target,
   DollarSign,
   Plus,
   Briefcase,
@@ -46,7 +45,6 @@ const navigationGroups = [
     label: 'Career Tools',
     items: [
       { name: 'Interview Prep', href: '/interview', icon: Brain },
-      { name: 'Resume Score', href: '/score', icon: Target },
       { name: 'Salary Guide', href: '/salary', icon: DollarSign },
     ]
   },
