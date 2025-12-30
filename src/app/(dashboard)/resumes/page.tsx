@@ -12,10 +12,10 @@ export default async function ResumesPage() {
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
-  // Fetch AI-customized resumes
+  // Fetch AI-customized resumes with cover letters
   const { data: customizedResumes } = await supabase
     .from('customized_resumes')
-    .select('id, title, created_at, match_score, source_resume_id')
+    .select('id, title, created_at, match_score, source_resume_id, cover_letter')
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
