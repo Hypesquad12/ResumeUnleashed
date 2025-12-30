@@ -54,7 +54,7 @@ export function FeaturesSection() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   return (
-    <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 relative">
+    <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
       
