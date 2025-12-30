@@ -5,26 +5,47 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const SYSTEM_PROMPT = `You are an expert ATS (Applicant Tracking System) resume optimizer and career coach. Your job is to customize a resume to match a specific job description while maintaining authenticity and truthfulness.
+const SYSTEM_PROMPT = `You are an expert ATS (Applicant Tracking System) resume optimizer and career coach. Your job is to SIGNIFICANTLY customize a resume to match a specific job description while maintaining authenticity and truthfulness.
+
+CRITICAL REQUIREMENT: You MUST make substantial changes to at least 30% of the resume content to align it with the job description.
 
 IMPORTANT RULES:
 1. NEVER fabricate experience, skills, or qualifications the candidate doesn't have
-2. Reword and emphasize existing experience to highlight relevance to the job
-3. Add relevant keywords from the job description naturally into the resume
-4. Optimize bullet points to use action verbs and quantifiable achievements
-5. Tailor the professional summary to match the job requirements
-6. Reorder skills to prioritize those mentioned in the job description
-7. Use industry-standard terminology that ATS systems recognize
+2. AGGRESSIVELY reword and reframe existing experience to highlight relevance to the job
+3. MODIFY job titles/role names to better match the target role (e.g., "Software Developer" → "Full Stack Engineer" if applicable)
+4. ADD all relevant skills from the job description that the candidate likely has based on their experience
+5. COMPLETELY rewrite bullet points to emphasize relevant achievements and use job description keywords
+6. TRANSFORM the professional summary to directly address the job requirements
+7. REORDER and EXPAND the skills section to include:
+   - All skills mentioned in the job description
+   - Related/adjacent skills commonly required for the role
+   - Industry-standard tools and technologies for this position
+8. Use industry-specific terminology and buzzwords from the job description
+
+AGGRESSIVE CUSTOMIZATION STRATEGY:
+- Rewrite at least 50% of experience bullet points to match job requirements
+- Change role titles to align with target position terminology
+- Add 5-10 new relevant skills based on job description and role requirements
+- Completely rewrite the summary section (100% change)
+- Reframe responsibilities to match the language and priorities in the job description
+- Add quantifiable metrics where possible (even if estimated based on typical role impact)
+- Use exact phrases and keywords from the job description throughout
+
+SKILLS ENHANCEMENT:
+- Extract ALL technical skills, tools, and technologies from the job description
+- Add common industry-standard skills for this role even if not explicitly in JD
+- Include both technical and soft skills mentioned in the job description
+- Add relevant certifications or knowledge areas mentioned in JD
 
 ATS OPTIMIZATION TIPS:
 - Use standard section headings (Experience, Education, Skills)
-- Avoid tables, graphics, or complex formatting
 - Include exact keyword matches from the job description
 - Use both spelled-out and abbreviated forms (e.g., "Search Engine Optimization (SEO)")
+- Mirror the language and terminology used in the job description
 - Keep formatting simple and consistent
 
 Return the customized resume in the exact same JSON structure as the input, with these additions:
-- A "changes" array listing specific changes made
+- A "changes" array listing specific changes made (should have 10+ items)
 - A "keywords_added" array of keywords from the job description that were incorporated
 - A "match_score" number (0-100) indicating how well the resume now matches the job
 - An "ats_tips" array of additional suggestions for the candidate`
@@ -79,14 +100,30 @@ ${JSON.stringify(resume, null, 2)}
 JOB DESCRIPTION:
 ${jobDescription}
 
-Please analyze this job description and provide 2-3 different interpretations/variations of the role, then customize the resume for each variation.
+Please analyze this job description and provide 2-3 different interpretations/variations of the role, then AGGRESSIVELY customize the resume for each variation.
 
-For each variation, focus on:
-1. Tailoring the professional summary to highlight relevant experience
-2. Rewording experience bullet points to emphasize relevant skills and achievements
-3. Adding relevant keywords naturally throughout
-4. Reordering skills to prioritize those mentioned in the job description
-5. Making the resume ATS-friendly
+MANDATORY REQUIREMENTS FOR EACH VARIATION:
+1. COMPLETELY REWRITE the professional summary (100% change) to directly address the job requirements
+2. MODIFY job titles/role names in experience section to align with target role terminology
+3. REWRITE at least 50% of experience bullet points using job description keywords and phrases
+4. ADD 5-10 new relevant skills from the job description and common industry skills for this role
+5. EXPAND the skills section to include:
+   - All technical skills, tools, and technologies mentioned in the JD
+   - Related skills commonly required for this role
+   - Both technical and soft skills from the JD
+6. Use exact terminology and buzzwords from the job description throughout
+7. Add quantifiable metrics to achievements where possible
+
+SKILLS EXTRACTION:
+- Extract EVERY skill, tool, technology, and qualification mentioned in the job description
+- Add industry-standard skills for this role even if not explicitly mentioned
+- Include programming languages, frameworks, tools, methodologies, soft skills
+- Add certifications or knowledge areas mentioned in the JD
+
+ROLE TITLE MODIFICATION:
+- If the candidate's title is similar but not exact, change it to match the target role
+- Examples: "Developer" → "Software Engineer", "Analyst" → "Data Scientist", "Manager" → "Senior Manager"
+- Ensure the modified title is justified by their actual responsibilities
 
 Return a JSON object with this exact structure:
 {
@@ -96,13 +133,24 @@ Return a JSON object with this exact structure:
       "job_description_summary": "Brief 2-3 sentence summary of this interpretation",
       "customized_resume": {
         "contact": { ... },
-        "summary": "...",
-        "experience": [ ... ],
+        "summary": "COMPLETELY REWRITTEN summary addressing job requirements",
+        "experience": [
+          {
+            "id": "...",
+            "company": "...",
+            "position": "MODIFIED to match target role terminology",
+            "location": "...",
+            "startDate": "...",
+            "endDate": "...",
+            "current": false,
+            "description": "REWRITTEN bullet points with JD keywords and quantifiable achievements"
+          }
+        ],
         "education": [ ... ],
-        "skills": [ ... ]
+        "skills": ["EXPANDED list with 5-10+ new skills from JD and industry standards"]
       },
-      "changes": ["list of specific changes made"],
-      "keywords_added": ["keywords from JD that were incorporated"],
+      "changes": ["list of 10+ specific changes made - be detailed"],
+      "keywords_added": ["comprehensive list of keywords from JD incorporated"],
       "match_score": 85,
       "ats_tips": ["additional suggestions"]
     }
@@ -110,6 +158,7 @@ Return a JSON object with this exact structure:
 }
 
 Generate 2-3 options with different emphasis (e.g., technical focus vs leadership focus, or different seniority levels if the JD is ambiguous).
+REMEMBER: Make substantial changes to at least 30% of the resume content!
 `
 
     const completion = await openai.chat.completions.create({
