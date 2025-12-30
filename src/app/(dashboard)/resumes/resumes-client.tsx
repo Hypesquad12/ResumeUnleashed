@@ -25,23 +25,33 @@ interface Resume {
   skills: string[] | null
 }
 
-interface ResumesClientProps {
-  initialResumes: Resume[]
+interface CustomizedResume {
+  id: string
+  title: string
+  created_at: string | null
+  match_score: number | null
+  source_resume_id: string | null
 }
 
-export function ResumesClient({ initialResumes }: ResumesClientProps) {
+interface ResumesClientProps {
+  initialResumes: Resume[]
+  initialCustomizedResumes: CustomizedResume[]
+}
+
+export function ResumesClient({ initialResumes, initialCustomizedResumes }: ResumesClientProps) {
   const router = useRouter()
   const [resumes, setResumes] = useState<Resume[]>(initialResumes)
+  const [customizedResumes, setCustomizedResumes] = useState<CustomizedResume[]>(initialCustomizedResumes)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, isCustomized: boolean = false) => {
     if (!confirm('Are you sure you want to delete this resume?')) return
     
     setDeletingId(id)
     const supabase = createClient()
     
     const { error } = await supabase
-      .from('resumes')
+      .from(isCustomized ? 'customized_resumes' : 'resumes')
       .delete()
       .eq('id', id)
 
@@ -51,7 +61,11 @@ export function ResumesClient({ initialResumes }: ResumesClientProps) {
       return
     }
 
-    setResumes(resumes.filter(r => r.id !== id))
+    if (isCustomized) {
+      setCustomizedResumes(customizedResumes.filter(r => r.id !== id))
+    } else {
+      setResumes(resumes.filter(r => r.id !== id))
+    }
     toast.success('Resume deleted')
     setDeletingId(null)
   }
@@ -71,7 +85,7 @@ export function ResumesClient({ initialResumes }: ResumesClientProps) {
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">My Resumes</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
-              {resumes.length} resume{resumes.length !== 1 ? 's' : ''} • Manage and customize your documents
+              {resumes.length + customizedResumes.length} resume{resumes.length + customizedResumes.length !== 1 ? 's' : ''} • {resumes.length} original, {customizedResumes.length} AI-customized
             </p>
           </div>
         </div>
@@ -83,7 +97,7 @@ export function ResumesClient({ initialResumes }: ResumesClientProps) {
         </Link>
       </div>
 
-      {resumes && resumes.length > 0 ? (
+      {(resumes && resumes.length > 0) || (customizedResumes && customizedResumes.length > 0) ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {resumes.map((resume, index) => (
             <Card key={resume.id} className="group border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300 overflow-hidden">
@@ -170,6 +184,86 @@ export function ResumesClient({ initialResumes }: ResumesClientProps) {
                       Customize
                     </Button>
                   </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          
+          {/* AI-Customized Resumes */}
+          {customizedResumes.map((resume) => (
+            <Card key={resume.id} className="group border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+              <CardHeader className="flex flex-row items-start justify-between space-y-0 relative">
+                <div className="flex items-start gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-50 dark:from-emerald-900 dark:to-teal-900 flex items-center justify-center border border-emerald-200 dark:border-emerald-700 group-hover:border-emerald-300 dark:group-hover:border-emerald-600 transition-colors">
+                    <Sparkles className="h-5 w-5 text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-500 transition-colors" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                      {resume.title}
+                      <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs">
+                        AI Customized
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-1 text-xs mt-1">
+                      <Clock className="h-3 w-3" />
+                      {new Date(resume.created_at!).toLocaleDateString()}
+                      {resume.match_score && (
+                        <>
+                          <span className="mx-1">•</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-medium">{resume.match_score}% match</span>
+                        </>
+                      )}
+                    </CardDescription>
+                  </div>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/resumes/${resume.id}/preview`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        Preview
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDownload(resume.id)}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-destructive"
+                      onClick={() => handleDelete(resume.id, true)}
+                      disabled={deletingId === resume.id}
+                    >
+                      {deletingId === resume.id ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
+                      )}
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex gap-2">
+                  <Link href={`/resumes/${resume.id}/preview`} className="flex-1">
+                    <Button variant="outline" className="w-full h-9 text-sm border-emerald-200 dark:border-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950">
+                      <Eye className="h-3.5 w-3.5 mr-1.5" />
+                      Preview
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={() => handleDownload(resume.id)}
+                    className="flex-1 h-9 text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                  >
+                    <Download className="h-3.5 w-3.5 mr-1.5" />
+                    Download
+                  </Button>
                 </div>
               </CardContent>
             </Card>
