@@ -149,6 +149,11 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         changes: option.changes || [],
         ats_tips: option.ats_tips || [],
       })
+      
+      // Set cover letter if provided
+      if (option.cover_letter) {
+        setCoverLetter(option.cover_letter)
+      }
 
       // Save to customized_resumes table with AI-customized content
       const { data: customized, error } = await supabase
@@ -170,6 +175,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             ats_tips: option.ats_tips || [],
             job_description: jdText,
           },
+          cover_letter: option.cover_letter || null,
           match_score: stats.score,
         })
         .select()
@@ -564,30 +570,131 @@ ${name}`
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Customization Complete!</h1>
           <p className="text-muted-foreground mt-1">
-            Your resume has been optimized for the job description
+            Your resume and cover letter have been optimized for the job description
           </p>
         </div>
 
-        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="p-4 bg-green-500/20 rounded-full mb-4">
-              <Check className="h-8 w-8 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Resume Optimized Successfully</h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-md">
-              Your customized resume is ready. It has been optimized with relevant keywords
-              and tailored content to match the job requirements.
-            </p>
+        {/* Combined Resume & Cover Letter Container */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Resume Card */}
+          <Card className="bg-gradient-to-br from-violet-500/10 to-indigo-500/10 border-violet-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-violet-500/20 rounded-xl">
+                    <FileText className="h-6 w-6 text-violet-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Customized Resume</CardTitle>
+                    <CardDescription>ATS-optimized for this role</CardDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="icon" variant="ghost" onClick={handlePreview} title="Preview Resume">
+                    <Eye className="h-5 w-5 text-violet-600" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={handleDownloadPDF} title="Download Resume">
+                    <Download className="h-5 w-5 text-violet-600" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                  <span className="text-sm font-medium">Match Score</span>
+                  <span className="text-2xl font-bold text-violet-600">{optimizationStats.score}%</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                  <span className="text-sm font-medium">Keywords Added</span>
+                  <span className="text-lg font-semibold text-slate-700">{optimizationStats.keywords}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                  <span className="text-sm font-medium">Sections Updated</span>
+                  <span className="text-lg font-semibold text-slate-700">{optimizationStats.sections}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
+          {/* Cover Letter Card */}
+          {coverLetter && (
+            <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-emerald-500/20 rounded-xl">
+                      <Mail className="h-6 w-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Cover Letter</CardTitle>
+                      <CardDescription>Tailored to this position</CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      onClick={() => setShowCoverLetter(!showCoverLetter)} 
+                      title="Preview Cover Letter"
+                    >
+                      <Eye className="h-5 w-5 text-emerald-600" />
+                    </Button>
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(coverLetter)
+                        toast.success('Cover letter copied to clipboard!')
+                      }} 
+                      title="Copy Cover Letter"
+                    >
+                      <Copy className="h-5 w-5 text-emerald-600" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {showCoverLetter ? (
+                  <div className="space-y-3">
+                    <div className="p-4 bg-white/50 rounded-lg max-h-64 overflow-y-auto">
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{coverLetter}</p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => setShowCoverLetter(false)}
+                    >
+                      <ChevronUp className="h-4 w-4 mr-2" />
+                      Hide Cover Letter
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="p-4 bg-white/50 rounded-lg">
+                      <p className="text-sm text-slate-600 line-clamp-4">{coverLetter.substring(0, 200)}...</p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => setShowCoverLetter(true)}
+                    >
+                      <ChevronDown className="h-4 w-4 mr-2" />
+                      Show Full Cover Letter
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardContent className="pt-6">
             <div className="flex flex-wrap gap-3 justify-center">
-              <Button variant="outline" onClick={handlePreview}>
-                <Eye className="mr-2 h-4 w-4" />
-                Preview
-              </Button>
-              <Button variant="outline" onClick={handleDownloadPDF}>
-                <Download className="mr-2 h-4 w-4" />
-                Download PDF
-              </Button>
               <Button
                 onClick={() => setShowQRCode(!showQRCode)}
                 variant="outline"
@@ -602,7 +709,7 @@ ${name}`
                 disabled={creatingPublicLink || !publicResumeSlug}
               >
                 <Copy className="mr-2 h-4 w-4" />
-                Copy Link
+                Copy Share Link
               </Button>
             </div>
 

@@ -30,6 +30,7 @@ AGGRESSIVE CUSTOMIZATION STRATEGY:
 - Reframe responsibilities to match the language and priorities in the job description
 - Add quantifiable metrics where possible (even if estimated based on typical role impact)
 - Use exact phrases and keywords from the job description throughout
+- ENSURE the match_score is ALWAYS between 90-98% (never below 90%)
 
 SKILLS ENHANCEMENT:
 - Extract ALL technical skills, tools, and technologies from the job description
@@ -47,8 +48,9 @@ ATS OPTIMIZATION TIPS:
 Return the customized resume in the exact same JSON structure as the input, with these additions:
 - A "changes" array listing specific changes made (should have 10+ items)
 - A "keywords_added" array of keywords from the job description that were incorporated
-- A "match_score" number (0-100) indicating how well the resume now matches the job
-- An "ats_tips" array of additional suggestions for the candidate`
+- A "match_score" number (90-98) indicating how well the resume now matches the job - MUST BE AT LEAST 90%
+- An "ats_tips" array of additional suggestions for the candidate
+- A "cover_letter" string containing a professionally written cover letter tailored to this job (3-4 paragraphs)`
 
 interface ResumeData {
   contact: {
@@ -113,6 +115,8 @@ MANDATORY REQUIREMENTS FOR EACH VARIATION:
    - Both technical and soft skills from the JD
 6. Use exact terminology and buzzwords from the job description throughout
 7. Add quantifiable metrics to achievements where possible
+8. SET match_score between 90-98% (NEVER below 90%)
+9. GENERATE a professional cover letter (3-4 paragraphs) tailored to this specific job and company
 
 SKILLS EXTRACTION:
 - Extract EVERY skill, tool, technology, and qualification mentioned in the job description
@@ -149,13 +153,23 @@ Return a JSON object with this exact structure:
         "education": [ ... ],
         "skills": ["EXPANDED list with 5-10+ new skills from JD and industry standards"]
       },
+      "cover_letter": "Professional 3-4 paragraph cover letter tailored to this job, addressing the company, role, and candidate's qualifications",
       "changes": ["list of 10+ specific changes made - be detailed"],
       "keywords_added": ["comprehensive list of keywords from JD incorporated"],
-      "match_score": 85,
+      "match_score": 92,
       "ats_tips": ["additional suggestions"]
     }
   ]
 }
+
+COVER LETTER REQUIREMENTS:
+- Address the hiring manager professionally
+- Reference the specific company and role
+- Highlight 2-3 key qualifications that match the job requirements
+- Show enthusiasm for the role and company
+- Include a strong call to action
+- Keep it concise (3-4 paragraphs, ~250-300 words)
+- Use professional business letter format
 
 Generate 2-3 options with different emphasis (e.g., technical focus vs leadership focus, or different seniority levels if the JD is ambiguous).
 REMEMBER: Make substantial changes to at least 30% of the resume content!
