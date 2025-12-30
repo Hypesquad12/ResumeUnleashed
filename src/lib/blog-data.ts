@@ -12,6 +12,15 @@ export interface BlogPost {
   authorImage: string
 }
 
+// Import company-specific guides
+import { metaResumeGuide } from './blog-posts/meta-resume-guide'
+import { amazonResumeGuide } from './blog-posts/amazon-resume-guide'
+import { googleResumeGuide } from './blog-posts/google-resume-guide'
+import { appleResumeGuide } from './blog-posts/apple-resume-guide'
+import { netflixResumeGuide } from './blog-posts/netflix-resume-guide'
+import { big4ResumeGuide } from './blog-posts/big4-resume-guide'
+import { mbbResumeGuide } from './blog-posts/mbb-resume-guide'
+
 // Free Unsplash images for blog posts
 const blogImages = {
   resumeWriting: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&q=80',
@@ -875,7 +884,15 @@ Your career starts with a great first impression. **[Sign up for ResumeAI today]
     tags: ['entry level resume', 'how to write a resume', 'job application tips', 'career advice'],
     image: blogImages.entryLevel,
     authorImage: authorImages.emily
-  }
+  },
+  // Company-specific guides
+  metaResumeGuide,
+  amazonResumeGuide,
+  googleResumeGuide,
+  appleResumeGuide,
+  netflixResumeGuide,
+  big4ResumeGuide,
+  mbbResumeGuide
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
