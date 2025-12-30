@@ -16,14 +16,20 @@ export function Footer() {
     <footer className="border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
+          {/* Brand & Company Info */}
           <div>
             <h3 className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent mb-2">
               ResumeAI
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
               AI-powered resume builder and career tools to help you land your dream job.
             </p>
+            <div className="text-xs text-slate-500 dark:text-slate-500 space-y-1">
+              <p className="font-semibold">HYPESQUAD SOLUTIONS PRIVATE LIMITED</p>
+              <p>PLOT NO 20, SHAKTHI SAI NAGAR,</p>
+              <p>Mallapur, Hyderabad,</p>
+              <p>Medchal Malkajgiri, Telangana, 500076</p>
+            </div>
           </div>
 
           {/* Legal Links */}
@@ -81,7 +87,7 @@ export function Footer() {
         <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              © {currentYear} ResumeAI. All rights reserved.
+              © {currentYear} HYPESQUAD SOLUTIONS PRIVATE LIMITED. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <Link href="/terms" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">

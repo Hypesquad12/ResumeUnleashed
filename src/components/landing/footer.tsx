@@ -20,13 +20,14 @@ const footerLinks = {
   company: [
     { label: 'About', href: '#' },
     { label: 'Careers', href: '#' },
-    { label: 'Contact', href: '#' },
+    { label: 'Contact Us', href: '/contact' },
     { label: 'Press', href: '#' },
   ],
   legal: [
-    { label: 'Privacy', href: '#' },
-    { label: 'Terms', href: '#' },
-    { label: 'Cookies', href: '#' },
+    { label: 'Terms and Conditions', href: '/terms' },
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Shipping Policy', href: '/shipping' },
+    { label: 'Cancellation & Refunds', href: '/refunds' },
   ],
 }
 
@@ -55,9 +56,17 @@ export function Footer() {
                 <span className="font-bold text-lg text-slate-800">ResumeAI</span>
               </motion.div>
             </Link>
-            <p className="text-slate-600 text-sm mb-6 max-w-xs">
+            <p className="text-slate-600 text-sm mb-4 max-w-xs">
               Build AI-powered resumes that get you hired. Stand out with professional templates and smart optimization.
             </p>
+            
+            {/* Company Information */}
+            <div className="text-xs text-slate-500 mb-6 max-w-xs space-y-1">
+              <p className="font-semibold text-slate-700">HYPESQUAD SOLUTIONS PRIVATE LIMITED</p>
+              <p>PLOT NO 20, SHAKTHI SAI NAGAR,</p>
+              <p>Mallapur, Hyderabad,</p>
+              <p>Medchal Malkajgiri, Telangana, 500076</p>
+            </div>
             
             {/* Social links */}
             <div className="flex gap-3">
@@ -133,15 +142,18 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} ResumeAI. All rights reserved.
+            © {new Date().getFullYear()} HYPESQUAD SOLUTIONS PRIVATE LIMITED. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
+            <Link href="/privacy" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
+            </Link>
+            <Link href="/terms" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
               Terms of Service
-            </a>
+            </Link>
+            <Link href="/contact" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
+              Contact
+            </Link>
           </div>
         </div>
       </div>
