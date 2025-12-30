@@ -67,13 +67,22 @@ export function FeaturesSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="text-primary font-semibold text-sm uppercase tracking-wider">Features</span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800">
-            Everything You Need to
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-purple-500"> Stand Out</span>
+          <motion.span 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 font-semibold text-sm uppercase tracking-wider mb-4"
+          >
+            ✨ Powerful Features
+          </motion.span>
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
+            Everything You Need to{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
+              Land Interviews
+            </span>
           </h2>
-          <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-            Powerful tools designed to help you create, customize, and share your professional profile
+          <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            From AI-powered resume customization to interview prep and digital networking—all in one platform
           </p>
         </motion.div>
 

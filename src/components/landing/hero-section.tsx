@@ -77,12 +77,15 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight leading-[1.1]"
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 tracking-tight leading-[1.1]"
             >
-              Stop getting rejected.
+              Land Your Dream Job{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 animate-gradient">
+                3x Faster
+              </span>
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">
-                Start getting interviews.
+              <span className="text-slate-700 text-3xl sm:text-4xl lg:text-5xl">
+                with AI-Powered Resumes
               </span>
             </motion.h1>
 
@@ -91,10 +94,10 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-6 text-lg text-slate-600 leading-relaxed max-w-lg"
+              className="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl"
             >
-              Our AI analyzes job descriptions and customizes your resume in seconds. 
-              <span className="font-semibold text-slate-800"> 95% of our users pass ATS screening</span> on their first try.
+              Transform your resume in <span className="font-bold text-violet-600">under 60 seconds</span> with AI that understands what recruiters want. 
+              <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who landed their dream jobs.
             </motion.p>
 
             {/* CTA with friction-reducing microcopy */}
@@ -104,17 +107,17 @@ export function HeroSection() {
               transition={{ delay: 0.3 }}
               className="mt-8 space-y-4"
             >
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/signup">
-                  <Button size="lg" className="w-full sm:w-auto text-base px-8 h-12 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 text-white">
-                    Create Your Resume Free
-                    <ArrowRight className="ml-2 h-4 w-4" />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/signup" className="group">
+                  <Button size="lg" className="w-full sm:w-auto text-base px-10 h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-violet-500/40">
+                    Get Started Free - No Credit Card
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Link href="/login">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-base px-6 h-12 border-slate-300 hover:bg-slate-50">
-                    <Play className="mr-2 h-4 w-4" />
-                    See How It Works
+                <Link href="#demo" className="group">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-base px-8 h-14 border-2 border-slate-300 hover:border-violet-300 hover:bg-violet-50 transition-all duration-300">
+                    <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                    Watch 60s Demo
                   </Button>
                 </Link>
               </div>

@@ -1,5 +1,6 @@
 import { Navbar } from '@/components/landing/navbar'
 import { HeroSection } from '@/components/landing/hero-section'
+import { StatsSection } from '@/components/landing/stats-section'
 import { FeaturesSection } from '@/components/landing/features-section'
 import { PreviewSection } from '@/components/landing/preview-section'
 import { GameSection } from '@/components/landing/game-section'
@@ -21,11 +22,11 @@ export default function Home() {
 
       <Navbar />
       <HeroSection />
+      <StatsSection />
       <FeaturesSection />
       <PreviewSection />
-      <GameSection />
-      <PricingSection />
       <TestimonialsSection />
+      <PricingSection />
       <CTASection />
       <Footer />
     </div>

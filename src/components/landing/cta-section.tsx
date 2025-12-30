@@ -53,12 +53,11 @@ export function CTASection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-6"
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-slate-900 mb-6 leading-tight"
               >
-                Your next interview is
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">
-                  just one resume away
+                Ready to Land Your{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
+                  Dream Job?
                 </span>
               </motion.h2>
 
@@ -68,10 +67,11 @@ export function CTASection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto"
+                className="text-lg sm:text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed"
               >
-                Join <span className="font-semibold text-slate-800">50,000+ professionals</span> who landed interviews at top companies. 
-                Create your ATS-optimized resume in under 5 minutes.
+                Join <span className="font-bold text-violet-600">10,000+ professionals</span> who transformed their job search with AI. 
+                <br className="hidden sm:block" />
+                Create your ATS-optimized resume in <span className="font-semibold text-slate-900">under 60 seconds</span> and start getting interviews.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -82,28 +82,28 @@ export function CTASection() {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="flex flex-col sm:flex-row gap-4 justify-center"
               >
-                <Link href="/signup">
+                <Link href="/signup" className="group">
                   <Button 
                     size="lg" 
-                    className="text-lg px-10 h-14 bg-gradient-to-r from-teal-500 to-cyan-500 text-white hover:from-teal-600 hover:to-cyan-600 shadow-xl shadow-teal-500/25 group"
+                    className="w-full sm:w-auto text-lg px-12 h-16 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-2xl shadow-violet-500/40 font-semibold transition-all duration-300 hover:scale-105"
                   >
-                    Get Started Free
+                    Start Building Your Resume Now
                     <motion.span
                       className="ml-2"
                       animate={{ x: [0, 5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
-                      <ArrowRight className="h-5 w-5" />
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </motion.span>
                   </Button>
                 </Link>
-                <Link href="/templates">
+                <Link href="/login">
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="text-lg px-10 h-14 border-slate-300 text-slate-700 hover:bg-slate-100"
+                    className="w-full sm:w-auto text-lg px-10 h-16 border-2 border-slate-300 text-slate-700 hover:border-violet-300 hover:bg-violet-50 transition-all duration-300"
                   >
-                    Browse Templates
+                    Sign In
                   </Button>
                 </Link>
               </motion.div>
