@@ -21,6 +21,6 @@ export default async function ResumesPage() {
 
   return <ResumesClient 
     initialResumes={resumes || []} 
-    initialCustomizedResumes={customizedResumes || []}
+    initialCustomizedResumes={(customizedResumes as any) || []}
   />
 }
