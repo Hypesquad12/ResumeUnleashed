@@ -148,7 +148,7 @@ export default async function BlogPostPage({ params }: Props) {
           </p>
 
           {/* Article Content */}
-          <div className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-li:text-slate-600 prose-strong:text-slate-900">
+          <div className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-p:text-justify prose-li:text-slate-600 prose-strong:text-slate-900">
             {post.content.split('\n').map((paragraph, index) => {
               // Helper function to parse inline markdown (bold, links)
               const parseInlineMarkdown = (text: string) => {
