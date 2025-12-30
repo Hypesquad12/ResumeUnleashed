@@ -221,6 +221,6 @@ Ready to join one of the world's most innovative companies? **[Sign up for Resum
   readTime: '18 min',
   category: 'Company-Specific',
   tags: ['Meta resume', 'Facebook jobs', 'FAANG resume', 'tech resume', 'software engineer resume'],
-  image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&q=80',
+  image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&q=80',
   authorImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80'
 }
