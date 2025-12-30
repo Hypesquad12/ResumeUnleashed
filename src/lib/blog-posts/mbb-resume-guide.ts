@@ -113,11 +113,7 @@ Use the "Accomplished X by doing Y, resulting in Z" formula:
 
 • Executed 5 M&A transactions totaling $2B+ in enterprise value across technology and healthcare sectors, conducting financial analysis, building valuation models, and managing due diligence processes
 
-• Led team of 3 analysts on $500M acquisition, coordinating workstreams, managing client relationships, and delivering pitch materials that secured mandate in competitive process
-
-• Developed proprietary financial model for IPO valuation, incorporating scenario analysis and sensitivity testing, which was adopted as template for future transactions
-
-• Mentored 4 junior analysts on technical skills and client management, with 100% receiving top performance ratings and promotion consideration
+Your resume should demonstrate leadership, analytical rigor, and measurable business impact through specific examples from your experience.
 
 **Investment Banking Analyst | J.P. Morgan | New York, NY | 2018 - 2020**
 

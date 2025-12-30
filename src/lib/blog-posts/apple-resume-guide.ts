@@ -184,33 +184,7 @@ Your resume leads to:
    - Portfolio presentation (for design roles)
    - Team fit discussions
 
-Prepare stories demonstrating innovation, collaboration, and attention to detail.
-
-## Sample Apple Resume Bullets by Role
-
-### iOS Engineer
-
-"Designed and implemented custom camera interface using AVFoundation, achieving professional-grade photo capture with real-time filters and manual controls, resulting in 40% increase in user engagement and 4.9/5 feature rating"
-
-"Optimized app launch time from 3.2s to 0.8s by profiling with Instruments, lazy-loading resources, and optimizing Core Data queries, improving App Store rating from 4.3 to 4.8"
-
-### Hardware Engineer
-
-"Led design of power management system for wearable device, achieving 7-day battery life in 30% smaller form factor through custom PMIC design and aggressive power optimization"
-
-"Drove product through manufacturing ramp from prototype to 1M units/month, resolving 50+ DFM issues and achieving 99.5% yield while maintaining strict quality standards"
-
-### Product Designer
-
-"Redesigned onboarding flow based on user research with 200+ participants, reducing time-to-value from 5 minutes to 90 seconds and increasing activation rate by 45%"
-
-"Created comprehensive design system with 100+ components, reducing design-to-development handoff time by 60% and ensuring consistent experience across iOS, iPad, and Mac apps"
-
-### Product Manager
-
-"Launched subscription tier generating $10M annual revenue by identifying user willingness to pay through surveys and pricing experiments, achieving 12% conversion rate exceeding industry average by 3x"
-
-"Drove adoption of new API by 50+ partners through developer relations, comprehensive documentation, and sample code, enabling ecosystem growth and platform stickiness"
+Prepare stories demonstrating innovation, collaboration, and attention to detail. Your resume should reflect Apple's commitment to excellence, user-focused design, and technical innovation across all your experiences.
 
 ## Demonstrating Apple Values
 

@@ -204,39 +204,11 @@ Your resume gets you to:
    - 1 Googleyness & Leadership interview
    - Lunch interview (informal, still evaluated)
 
-Prepare stories from your resume that demonstrate problem-solving, leadership, and Googleyness.
-
-## Sample Google Resume Bullets by Role
-
-### Software Engineer
-
-"Optimized image processing pipeline reducing processing time by 85% (from 20s to 3s) by implementing parallel processing and GPU acceleration, enabling real-time feature for 2M users"
-
-"Designed and implemented A/B testing framework used by 20+ teams to run 100+ experiments monthly, increasing feature velocity by 3x and improving data-driven decision making"
-
-### Product Manager
-
-"Identified $50M market opportunity through user research with 500+ customers. Built business case, secured executive approval, and launched product generating $15M revenue in year one with 4.5/5 user rating"
-
-"Increased user retention by 35% by analyzing cohort data, identifying drop-off points, and launching 5 targeted features based on user feedback and A/B testing"
-
-### Data Scientist
-
-"Built recommendation system using collaborative filtering and deep learning, increasing click-through rate by 45% and generating $10M in incremental revenue while serving 50M users"
-
-"Developed causal inference model to measure marketing campaign effectiveness, identifying $5M in wasted spend and optimizing budget allocation for 20% improvement in ROI"
+Prepare stories from your resume that demonstrate problem-solving, leadership, and Googleyness. Your resume should showcase your ability to tackle complex technical challenges, work collaboratively across teams, and deliver measurable impact at scale.
 
 ## Demonstrating "Googleyness"
 
-Googleyness is hard to define but includes:
-
-**Intellectual Humility:** "Proposed solution that was challenged by junior engineer. After discussion, realized their approach was better. Implemented their solution, which improved performance by 40%"
-
-**Comfort with Ambiguity:** "Tasked with building new feature with vague requirements. Conducted user research, prototyped 3 solutions, gathered feedback, and iterated to successful launch"
-
-**Collaborative:** "Organized weekly tech talks bringing together 50+ engineers from different teams, fostering knowledge sharing and cross-team collaboration"
-
-**Conscience:** "Identified privacy concern in data collection process. Raised issue with leadership, proposed alternative approach, and implemented solution protecting user privacy while maintaining functionality"
+Googleyness is hard to define but includes intellectual humility, comfort with ambiguity, collaborative spirit, and conscience. Show these qualities through your resume by highlighting how you've worked with diverse teams, adapted to changing requirements, learned from others, and made ethical decisions. Your experiences should demonstrate that you're not just technically strong, but also someone who embodies Google's values and culture.
 
 ## Final Checklist
 

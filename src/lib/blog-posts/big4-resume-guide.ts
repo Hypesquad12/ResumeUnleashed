@@ -211,45 +211,7 @@ Prepare STAR stories for common questions:
 - Give an example of when you had to analyze complex data
 - Tell me about a time you dealt with a difficult client/stakeholder
 
-## Sample Big 4 Resume Bullets by Service Line
-
-### Audit/Assurance
-
-"Executed audit procedures for Fortune 500 technology client with $2B revenue, testing revenue recognition, inventory valuation, and goodwill impairment, identifying 2 material weaknesses in internal controls"
-
-"Coordinated with client accounting team to resolve 15+ audit issues, demonstrating strong communication and relationship management skills while maintaining professional skepticism"
-
-### Tax
-
-"Prepared federal and state tax returns for 20+ corporate clients with revenues up to $100M, ensuring compliance with tax regulations and identifying $2M in tax savings through credits and deductions"
-
-"Researched complex tax issues including IRC Section 199A deductions and international tax implications, providing technical memos supporting client positions"
-
-### Consulting
-
-"Led process improvement initiative for healthcare client, mapping current state, identifying inefficiencies, and designing future state that reduced cycle time by 40% and saved $5M annually"
-
-"Developed financial model for private equity client evaluating $200M acquisition, incorporating revenue projections, synergies, and risk scenarios to support investment decision"
-
-### Advisory
-
-"Performed quality of earnings analysis for $150M acquisition target, normalizing EBITDA, identifying one-time items, and assessing sustainability of earnings, informing buyer's valuation"
-
-"Conducted operational due diligence for manufacturing company, assessing production capabilities, supply chain risks, and integration challenges, delivering actionable recommendations"
-
-## Demonstrating Big 4 Values
-
-### Integrity
-"Identified potential fraud indicators during audit procedures. Escalated concerns to senior management, conducted additional testing, and documented findings, maintaining professional standards despite client pressure"
-
-### Excellence
-"Consistently exceeded billable hour targets by 15% while maintaining highest quality standards. Received 'Outstanding' performance rating and early promotion consideration"
-
-### Collaboration
-"Partnered with colleagues from tax, audit, and advisory practices to deliver integrated solution for client, demonstrating ability to work across service lines and leverage firm capabilities"
-
-### Innovation
-"Proposed using data analytics tools to automate audit testing procedures, reducing testing time by 50% and improving sample sizes, now adopted as best practice for engagement team"
+Your resume should demonstrate your analytical capabilities, client service orientation, and professional maturity through concrete examples and measurable results.
 
 ## Final Checklist
 

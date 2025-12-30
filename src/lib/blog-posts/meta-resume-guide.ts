@@ -180,38 +180,7 @@ Your resume gets you in the door, but understanding the process helps you tailor
    - 1 Behavioral ("Jedi" round)
    - 1 Domain-specific (product, architecture, etc.)
 
-Tailor your resume to provide talking points for each stage.
-
-## Sample Meta Resume Template
-
-**[Your Name]**
-[Email] | [Phone] | [LinkedIn] | [GitHub] | [Portfolio]
-
-**SUMMARY**
-[3-4 lines highlighting years of experience, technical expertise, quantified impact, and alignment with Meta's mission]
-
-**EXPERIENCE**
-
-**[Title] | [Company] | [Dates]**
-• [Achievement with metrics showing scale and impact]
-• [Technical accomplishment with specific technologies]
-• [Leadership/collaboration example with outcomes]
-• [Innovation or process improvement with results]
-• **Tech:** [Relevant technologies]
-
-**EDUCATION**
-[Degree] in [Field] | [University] | [Year]
-Relevant Coursework: [Courses relevant to role]
-
-**PROJECTS**
-**[Project Name]** | [Technologies]
-• [Description with impact metrics]
-• [Link to GitHub/demo]
-
-**SKILLS**
-**Languages:** [List]
-**Frameworks:** [List]
-**Tools:** [List]
+Tailor your resume to provide talking points for each stage. Focus on demonstrating your technical depth, impact at scale, and alignment with Meta's values throughout the interview process. Your resume should serve as a conversation starter that highlights your most impressive achievements and technical capabilities.
 
 ## Final Checklist
 

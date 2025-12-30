@@ -194,27 +194,9 @@ Your resume sets the stage for:
    - System design (for senior roles)
    - Behavioral questions using STAR method
 
-Prepare STAR stories from your resume for each leadership principle.
+Prepare STAR stories from your resume for each leadership principle. Practice articulating how your experiences demonstrate Amazon's core values and be ready to discuss the context, actions you took, and measurable results you achieved. Your resume should provide concrete examples that align with multiple leadership principles.
 
-## Sample Amazon Resume Bullets by Role
-
-### Software Development Engineer
-
-"**[Invent and Simplify + Deliver Results]** Designed and implemented automated testing framework reducing manual QA time by 80% and enabling 2-week sprint cycles. Framework now used by 50+ engineers across 8 teams, catching 95% of bugs pre-production"
-
-"**[Customer Obsession + Dive Deep]** Analyzed customer feedback and usage data revealing 40% of users struggled with search functionality. Deep-dived into search algorithm, implemented ML-based relevance scoring, improving search success rate from 60% to 92%"
-
-### Product Manager
-
-"**[Think Big + Deliver Results]** Identified $20M market opportunity in underserved customer segment. Developed business case, secured executive buy-in, and launched new product line generating $8M revenue in first year with 40% margins"
-
-"**[Customer Obsession + Bias for Action]** Discovered through customer interviews that 50% of users couldn't find key feature. Rapidly prototyped and A/B tested 3 solutions, shipped winning design in 2 weeks, increasing feature adoption by 200%"
-
-### Operations Manager
-
-"**[Insist on Highest Standards + Deliver Results]** Implemented quality control process reducing defect rate from 5% to 0.5%, saving $500K annually in returns and improving customer satisfaction by 15 points"
-
-"**[Frugality + Ownership]** Took ownership of warehouse efficiency initiative. Optimized layout and workflows, reducing pick time by 30%, increasing throughput by 25%, and saving $300K in labor costs without additional headcount"
+## Common Mistakes to Avoid
 
 ## Final Checklist
 

@@ -151,31 +151,25 @@ Your resume leads to:
    - Peer interviews (would they want you as a colleague?)
    - Executive interview (for senior roles)
 
-Prepare stories demonstrating each of the 9 Netflix behaviors.
+Prepare stories demonstrating each of the 9 Netflix behaviors. Your resume should showcase your ability to work independently, make sound judgments, deliver impact, and embody Netflix's culture of freedom and responsibility.
 
-## Sample Netflix Resume Bullets by Role
+## Common Mistakes to Avoid
 
-### Software Engineer
+### 1. Listing Responsibilities Instead of Impact
+❌ "Responsible for backend services"
+✅ "Built backend services handling 100M requests/day with 99.99% uptime, enabling $500M in annual streaming revenue"
 
-"Reduced video startup time by 50% (from 2s to 1s) by implementing predictive prefetching and optimizing CDN routing, directly improving user experience for 200M subscribers and reducing churn by 5%"
+### 2. Not Showing Judgment
+Netflix values decision-making. Show examples of tough calls you made.
 
-"Identified and resolved memory leak in streaming service that was causing 10% of servers to crash daily. Implemented fix and monitoring, achieving 99.99% uptime and saving $500K in infrastructure costs"
+### 3. Being Too Modest
+Netflix wants to know you're exceptional. State your achievements confidently.
 
-### Data Scientist
+### 4. Focusing on Process Over Results
+Netflix cares about outcomes, not how many meetings you attended.
 
-"Built ML model predicting content success with 85% accuracy, informing $100M+ in content acquisition decisions and improving portfolio ROI by 30%"
-
-"Developed churn prediction model identifying at-risk subscribers 30 days in advance, enabling targeted retention campaigns that saved $50M in annual revenue"
-
-### Product Manager
-
-"Launched personalized homepage redesign based on 6 months of user research and A/B testing with 50M users, increasing engagement by 35% and watch time by 25%"
-
-"Identified opportunity in kids content through data analysis, built business case, and launched kids profile feature used by 40M families, driving 20% increase in family subscriptions"
-
-### Content Strategist
-
-"Analyzed viewing patterns across 190 countries to identify underserved genres, recommending $200M content investment that drove 30% growth in international markets"
+### 5. Not Demonstrating Learning
+Show you're curious and continuously improving.
 
 "Developed data-driven framework for evaluating content performance, now used company-wide for programming decisions affecting $15B annual content budget"
 
