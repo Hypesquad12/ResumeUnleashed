@@ -24,32 +24,16 @@ export default function PrivacyPage() {
           <CardTitle>1. Information We Collect</CardTitle>
         </CardHeader>
         <CardContent className="prose prose-slate max-w-none">
-          <h3>Personal Information</h3>
-          <p>When you register for an account, we collect:</p>
+          <p>We collect information necessary to provide our services, including:</p>
           <ul>
-            <li>Name and email address</li>
-            <li>Account credentials (encrypted)</li>
-            <li>Profile information you choose to provide</li>
+            <li>Account information (name, email, credentials)</li>
+            <li>Resume and career data you provide</li>
+            <li>Usage data for service improvement</li>
           </ul>
-          
-          <h3>Resume and Career Data</h3>
-          <p>To provide our services, we collect:</p>
-          <ul>
-            <li>Resume content (work experience, education, skills)</li>
-            <li>Job descriptions you input for customization</li>
-            <li>Interview practice responses</li>
-            <li>Salary information you provide</li>
-            <li>Career preferences and goals</li>
-          </ul>
-
-          <h3>Usage Data</h3>
-          <p>We automatically collect:</p>
-          <ul>
-            <li>IP address and browser information</li>
-            <li>Pages visited and features used</li>
-            <li>Time spent on the platform</li>
-            <li>Device and operating system information</li>
-          </ul>
+          <p>
+            This information is used for service delivery, personalization, marketing communications, 
+            and training our AI models to improve the platform.
+          </p>
         </CardContent>
       </Card>
 
@@ -78,8 +62,8 @@ export default function PrivacyPage() {
         <CardContent className="prose prose-slate max-w-none">
           <p>We take data security seriously:</p>
           <ul>
-            <li><strong>Encryption:</strong> All data is encrypted in transit (SSL/TLS) and at rest</li>
-            <li><strong>Secure Storage:</strong> Data is stored on secure cloud infrastructure (Supabase)</li>
+            <li><strong>Encryption:</strong> All data is encrypted in transit and at rest</li>
+            <li><strong>Secure Storage:</strong> Data is stored on secure cloud infrastructure</li>
             <li><strong>Access Controls:</strong> Strict access controls limit who can view your data</li>
             <li><strong>Regular Audits:</strong> We conduct regular security audits and updates</li>
             <li><strong>Backup:</strong> Regular backups ensure data availability and recovery</li>
@@ -100,8 +84,8 @@ export default function PrivacyPage() {
           
           <h3>Service Providers</h3>
           <ul>
-            <li>AI service providers (OpenAI) for resume customization</li>
-            <li>Cloud hosting providers (Supabase, Vercel)</li>
+            <li>AI service providers for resume customization</li>
+            <li>Cloud hosting and infrastructure providers</li>
             <li>Analytics services to understand usage patterns</li>
           </ul>
 
@@ -165,15 +149,10 @@ export default function PrivacyPage() {
           <CardTitle>7. Third-Party Services</CardTitle>
         </CardHeader>
         <CardContent className="prose prose-slate max-w-none">
-          <p>Our Service integrates with third-party services:</p>
-          <ul>
-            <li><strong>OpenAI:</strong> For AI-powered resume customization and career advice</li>
-            <li><strong>Supabase:</strong> For authentication and data storage</li>
-            <li><strong>Vercel:</strong> For hosting and deployment</li>
-          </ul>
           <p>
-            These services have their own privacy policies. We encourage you to review them. We are not 
-            responsible for the privacy practices of third-party services.
+            Our Service integrates with third-party services for AI processing, authentication, data storage, 
+            and hosting. These services have their own privacy policies. We encourage you to review them. 
+            We are not responsible for the privacy practices of third-party services.
           </p>
         </CardContent>
       </Card>
