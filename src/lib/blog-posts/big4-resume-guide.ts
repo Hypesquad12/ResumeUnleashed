@@ -239,7 +239,7 @@ Before submitting to Big 4:
 
 Big 4 firms have specific expectations and exceptionally high standards that reflect the caliber of work they deliver to clients. Creating a Big 4-worthy resume requires strategic thinking about how to present your academic achievements, professional experience, and leadership potential in ways that resonate with their values and requirements. The process involves carefully selecting examples that demonstrate analytical rigor, client service orientation, and professional maturity. Your resume should be polished, professional, and conservative in format, reflecting the professional services environment. Many successful Big 4 candidates spend significant time refining their resumes, getting feedback from career services or Big 4 professionals, and ensuring every bullet point demonstrates value and impact. Remember that your resume is competing against applications from top students and professionals, so attention to detail and strategic positioning are critical.
 
-Our **[AI resume builder](/signup)** can help you craft a resume optimized for Big 4 recruiting, ensuring your accomplishments are framed to demonstrate the analytical skills, leadership potential, and professional qualities these firms value.
+Our **[AI-powered resume builder and resume maker](/signup)** can help you craft a resume optimized for Big 4 recruiting, ensuring your accomplishments are framed to demonstrate the analytical skills, leadership potential, and professional qualities these firms value.
 
 **[Create Your Big 4 Resume →](/signup)**
 

@@ -209,9 +209,9 @@ Before submitting your Meta application:
 
 ## Build Your Meta-Ready Resume
 
-Creating a resume that meets Meta's high standards requires careful attention to detail and strategic positioning. Every word, number, and bullet point needs to be optimized to demonstrate your value and alignment with Meta's culture. The process of crafting a Meta-worthy resume involves deep self-reflection on your accomplishments, strategic framing of your experience, and meticulous attention to detail. It's not just about listing what you've done—it's about telling a compelling story of impact, innovation, and growth. Many candidates find it helpful to work backwards from Meta's job descriptions, identifying the key requirements and then finding examples from their experience that demonstrate those capabilities. Remember that your resume is competing against applications from top talent worldwide, so it needs to be exceptional in every way. Take the time to iterate, get feedback, and refine your resume until it truly represents your best work and strongest qualifications.
+Meta's unique culture and high bar require a carefully crafted resume that demonstrates impact, innovation, and alignment with their values. Creating a Meta-worthy resume involves deep reflection on your most impressive accomplishments, strategic framing of your experience to highlight Meta's core values, and meticulous attention to quantification and impact metrics. The process demands honest assessment of your contributions, identification of the most compelling examples that showcase multiple values, and clear articulation using the impact-focused format. Many successful Meta candidates spend significant time refining their resumes, getting feedback from people familiar with Meta's culture, and ensuring every bullet point demonstrates measurable impact and alignment with Meta's mission.
 
-Our **[AI resume builder](/signup)** can analyze Meta job descriptions and optimize your resume automatically, ensuring you highlight the right experiences and use the language Meta recruiters are looking for.
+Our **[AI-powered resume builder and resume maker](/signup)** can analyze Meta job descriptions and optimize your resume automatically, ensuring you highlight the right experiences and use the language Meta recruiters are looking for.
 
 **[Create Your Meta Resume →](/signup)**
 

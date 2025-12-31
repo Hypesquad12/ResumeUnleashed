@@ -210,7 +210,7 @@ Before submitting to Netflix:
 
 Netflix's unique culture requires a resume that demonstrates exceptional performance, sound judgment, and cultural fit. Creating a Netflix-worthy resume involves more than listing accomplishments—it requires framing every achievement to show how you embody Netflix's nine behaviors, demonstrating the judgment and impact that define stunning colleagues. The process demands honest self-assessment about whether you're truly in the top tier of performers, strategic selection of examples that showcase decision-making and ownership, and confident articulation of your exceptional contributions. Netflix's culture of freedom and responsibility means they're looking for people who can thrive with minimal oversight, make sound decisions independently, and deliver extraordinary results. Your resume should make it obvious that you're someone who would pass the Keeper Test—someone any manager would fight to retain.
 
-Our **[AI resume builder](/signup)** can help you craft a resume that showcases your impact and aligns with Netflix's values, ensuring your accomplishments are framed to demonstrate the behaviors and performance level Netflix expects.
+Our **[AI-powered resume builder and resume maker](/signup)** can help you craft a resume that showcases your impact and aligns with Netflix's values, ensuring your accomplishments are framed to demonstrate the behaviors and performance level Netflix expects.
 
 **[Create Your Netflix Resume →](/signup)**
 

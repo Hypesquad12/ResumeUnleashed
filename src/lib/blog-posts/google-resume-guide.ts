@@ -237,7 +237,7 @@ Before submitting to Google:
 
 Google's hiring bar is exceptionally high, and creating a resume that meets their standards requires strategic thinking and meticulous execution. Every element of your resume—from the summary to the final bullet point—needs to demonstrate the four pillars Google looks for: cognitive ability, leadership, role-related knowledge, and Googleyness. The process involves carefully selecting your most impressive accomplishments, framing them using the X-Y-Z formula, and ensuring every statement is backed by concrete metrics. Many successful Google candidates spend weeks refining their resumes, getting feedback from Googlers, and iterating on their messaging. Consider each bullet point as an opportunity to tell a story about your impact, your approach to problem-solving, and your fit with Google's culture. Remember that your resume is competing against applications from some of the brightest minds in tech, so every word needs to count. Take the time to make it exceptional.
 
-Our **[AI resume builder](/signup)** can help you structure your experience using Google's X-Y-Z formula and optimize for their specific requirements, ensuring your resume highlights the experiences and achievements that matter most to Google recruiters.
+Our **[AI-powered resume builder and resume maker](/signup)** can help you structure your experience using Google's X-Y-Z formula and optimize for their specific requirements, ensuring your resume highlights the experiences and achievements that matter most to Google recruiters.
 
 **[Create Your Google Resume →](/signup)**
 

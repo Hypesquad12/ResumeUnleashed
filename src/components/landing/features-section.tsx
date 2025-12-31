@@ -7,8 +7,8 @@ import { useState } from 'react'
 const features = [
   {
     icon: FileText,
-    title: 'Smart Resume Builder',
-    description: 'Create professional resumes with our intuitive drag-and-drop builder. Choose from dozens of ATS-friendly templates.',
+    title: 'Smart Resume Builder & Resume Maker',
+    description: 'Create professional resumes with our intuitive resume builder and resume maker. Choose from dozens of ATS-friendly templates.',
     gradient: 'from-violet-500 to-indigo-500',
   },
   {

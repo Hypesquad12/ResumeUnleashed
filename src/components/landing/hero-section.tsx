@@ -96,7 +96,7 @@ export function HeroSection() {
               transition={{ delay: 0.2 }}
               className="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl"
             >
-              Transform your resume in <span className="font-bold text-violet-600">under 60 seconds</span> with AI that understands what recruiters want. 
+              Our AI-powered resume builder and resume maker transforms your resume in <span className="font-bold text-violet-600">under 60 seconds</span> with AI that understands what recruiters want. 
               <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who landed their dream jobs.
             </motion.p>
 

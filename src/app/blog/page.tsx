@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { BlogClient } from './blog-client'
 
 export const metadata = {
-  title: 'Blog | ResumeAI - Resume Building Tips & Career Advice',
-  description: 'Expert tips on resume writing, job search strategies, interview preparation, and career advice. Learn how to write a resume that gets noticed.',
-  keywords: 'resume builder, how to write a resume, resume templates, job application tips, career advice, ATS resume, interview tips',
+  title: 'Blog | ResumeAI - Resume Builder & Resume Maker Tips',
+  description: 'Expert tips on using our resume builder and resume maker, job search strategies, interview preparation, and career advice. Learn how to write a resume that gets noticed.',
+  keywords: 'resume builder, resume maker, how to write a resume, resume templates, job application tips, career advice, ATS resume, interview tips',
 }
 
 export default function BlogPage() {

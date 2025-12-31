@@ -316,7 +316,7 @@ Fitting your experience on one page requires ruthless prioritization:
 
 MBB firms have the highest standards in consulting, and creating a resume that meets these standards requires exceptional strategic thinking and ruthless prioritization. Your one-page resume must be perfect—demonstrating analytical ability, leadership, and impact in a concise, compelling format. Every word must be carefully chosen, every metric must be impressive, and every bullet must pass the "so what?" test. The process of crafting an MBB-worthy resume involves deep reflection on your most impressive accomplishments, strategic framing of your experience to highlight consulting-relevant skills, and meticulous attention to formatting and presentation. Many successful MBB candidates spend weeks refining their resumes, getting feedback from consultants, and iterating on their messaging. Remember that your resume is competing against applications from the best and brightest globally, so it needs to be exceptional in every way.
 
-Our **[AI resume builder](/signup)** understands MBB requirements and can help you craft a resume that meets their exacting standards, ensuring your accomplishments are framed to demonstrate the analytical rigor, leadership, and impact these elite firms demand.
+Our **[AI-powered resume builder and resume maker](/signup)** understands MBB requirements and can help you craft a resume that meets their exacting standards, ensuring your accomplishments are framed to demonstrate the analytical rigor, leadership, and impact these elite firms demand.
 
 **[Create Your MBB Resume →](/signup)**
 

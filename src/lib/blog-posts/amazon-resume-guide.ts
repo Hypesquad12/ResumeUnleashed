@@ -222,7 +222,7 @@ Before submitting to Amazon:
 
 Amazon's unique culture and high bar require a carefully crafted resume that speaks their language. Creating an Amazon-worthy resume involves more than just listing your experiences—it requires strategic framing of every accomplishment through the lens of Leadership Principles, meticulous quantification of your impact, and clear demonstration of ownership and results. The process demands deep reflection on your career, identifying the most compelling examples that showcase multiple principles, and articulating them using the STAR method. Many candidates find it helpful to create a matrix mapping their experiences to different Leadership Principles, ensuring comprehensive coverage. Remember that Amazon's bar is exceptionally high, and your resume is competing against applications from top talent worldwide. Take the time to iterate on your resume, get feedback from people familiar with Amazon's culture, and refine each bullet point until it clearly demonstrates principle alignment, quantifiable impact, and customer obsession. Your resume should tell a compelling story of someone who already thinks and acts like an Amazonian.
 
-Our **[AI resume builder](/signup)** understands Amazon's Leadership Principles and can help you structure your experience in STAR format, ensuring every accomplishment is framed to resonate with Amazon's unique culture.
+Our **[AI-powered resume builder and resume maker](/signup)** understands Amazon's Leadership Principles and can help you structure your experience in STAR format, ensuring every accomplishment is framed to resonate with Amazon's unique culture.
 
 **[Create Your Amazon Resume →](/signup)**
 

@@ -224,7 +224,7 @@ Before submitting to Apple:
 
 Apple's hiring standards are among the highest in tech, and creating a resume that meets these standards requires exceptional attention to detail and strategic thinking. Every element of your resume—from the visual presentation to the content to the specific words you choose—should reflect Apple's values of excellence, innovation, and design thinking. The process of crafting an Apple-worthy resume involves deep reflection on your most impressive accomplishments, careful consideration of how they align with Apple's values, and meticulous attention to formatting and presentation. Your resume should be polished to perfection, with zero errors and elegant visual design. Many successful Apple candidates spend significant time refining their resumes, getting feedback from people familiar with Apple's culture, and ensuring every detail is perfect. Remember that your resume is competing against applications from exceptional talent worldwide, so it needs to be outstanding in every way.
 
-Our **[AI resume builder](/signup)** can help you craft a resume that reflects Apple's values and standards, ensuring your accomplishments are framed to resonate with Apple's focus on innovation, design excellence, and user impact.
+Our **[AI-powered resume builder and resume maker](/signup)** can help you craft a resume that reflects Apple's values and standards, ensuring your accomplishments are framed to resonate with Apple's focus on innovation, design excellence, and user impact.
 
 **[Create Your Apple Resume →](/signup)**
 
