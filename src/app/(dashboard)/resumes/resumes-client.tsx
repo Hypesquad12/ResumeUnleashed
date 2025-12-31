@@ -83,8 +83,10 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
     setDeletingId(null)
   }
 
-  const handleDownload = (id: string) => {
-    window.open(`/resumes/${id}/preview?download=true`, '_blank')
+  const handleDownload = (id: string, format: 'pdf' | 'docx' | 'txt' = 'pdf') => {
+    // For PDF, use the preview page with download parameter
+    // For other formats, the preview page will handle them
+    window.open(`/resumes/${id}/preview?download=true&format=${format}`, '_blank')
   }
 
   return (
@@ -166,9 +168,17 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                         Preview
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDownload(resume.id)}>
+                    <DropdownMenuItem onClick={() => handleDownload(resume.id, 'pdf')}>
                       <Download className="mr-2 h-4 w-4" />
                       Download PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDownload(resume.id, 'docx')}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download DOCX
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDownload(resume.id, 'txt')}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download TXT
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-destructive"
@@ -257,9 +267,17 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                         Preview
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDownload(resume.id)}>
+                    <DropdownMenuItem onClick={() => resume.source_resume_id && handleDownload(resume.source_resume_id, 'pdf')}>
                       <Download className="mr-2 h-4 w-4" />
                       Download PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => resume.source_resume_id && handleDownload(resume.source_resume_id, 'docx')}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download DOCX
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => resume.source_resume_id && handleDownload(resume.source_resume_id, 'txt')}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download TXT
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-destructive"
@@ -304,13 +322,31 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                       Preview
                     </Button>
                   </Link>
-                  <Button 
-                    onClick={() => handleDownload(resume.id)}
-                    className="flex-1 h-9 text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-                  >
-                    <Download className="h-3.5 w-3.5 mr-1.5" />
-                    Download
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="hover:bg-slate-100 dark:hover:bg-slate-800"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDownload(resume.id, 'pdf')}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        PDF
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload(resume.id, 'docx')}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        DOCX
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload(resume.id, 'txt')}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        TXT
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardContent>
             </Card>

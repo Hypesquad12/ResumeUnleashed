@@ -5,7 +5,7 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { 
-  ArrowLeft, Download, Share2, Loader2, Palette, ChevronLeft, ChevronRight
+  ArrowLeft, Download, Share2, Loader2, Palette, ChevronLeft, ChevronRight, FileText
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -18,6 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { exportResumeAsDocx, exportResumeAsTxt, downloadFile, downloadTextFile, type ExportFormat } from '@/lib/export-utils'
 
 export default function ResumePreviewPage() {
   const router = useRouter()
@@ -30,6 +37,7 @@ export default function ResumePreviewPage() {
   const [loading, setLoading] = useState(true)
   const [resume, setResume] = useState<ResumeData | null>(null)
   const [selectedTemplate, setSelectedTemplate] = useState('classic')
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     loadResume()
@@ -96,10 +104,37 @@ export default function ResumePreviewPage() {
     setSelectedTemplate(TEMPLATES[newIndex].id)
   }
 
-  const handleDownload = () => {
-    // Use browser's native print functionality directly
-    // This preserves all styles correctly
-    window.print()
+  const handleDownload = async (format: ExportFormat = 'pdf') => {
+    if (!resume) return
+    
+    setIsExporting(true)
+    try {
+      const fileName = `${resume.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}`
+      
+      switch (format) {
+        case 'pdf':
+          // Use browser's native print functionality for PDF
+          window.print()
+          break
+          
+        case 'docx':
+          const docxBlob = await exportResumeAsDocx(resume)
+          downloadFile(docxBlob, `${fileName}.docx`)
+          toast.success('Resume exported as DOCX')
+          break
+          
+        case 'txt':
+          const txtContent = exportResumeAsTxt(resume)
+          downloadTextFile(txtContent, `${fileName}.txt`)
+          toast.success('Resume exported as TXT')
+          break
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      toast.error('Failed to export resume')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   const handleShare = async () => {
@@ -181,10 +216,32 @@ export default function ResumePreviewPage() {
             <Share2 className="mr-2 h-4 w-4" />
             Share
           </Button>
-          <Button onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button disabled={isExporting}>
+                {isExporting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {isExporting ? 'Exporting...' : 'Download'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDownload('pdf')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Download as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownload('docx')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Download as DOCX
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownload('txt')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Download as TXT
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

@@ -15,6 +15,12 @@ import {
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { QRCodeSVG } from 'qrcode.react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
 import { OptionSelector } from './components/option-selector'
 
@@ -251,7 +257,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
     }
   }
 
-  const handleDownloadPDF = async () => {
+  const handleDownload = async (format: 'pdf' | 'docx' | 'txt' = 'pdf') => {
     // Use the source resume for preview since customized_resumes doesn't have a preview page yet
     const resumeId = selectedResume || customizedResumeId
     if (!resumeId) {
@@ -259,8 +265,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       return
     }
     
-    toast.info('Opening print dialog...')
-    window.open(`/resumes/${resumeId}/preview?download=true`, '_blank')
+    window.open(`/resumes/${resumeId}/preview?download=true&format=${format}`, '_blank')
   }
 
   const handlePreview = () => {
@@ -593,9 +598,27 @@ ${name}`
                   <Button size="icon" variant="ghost" onClick={handlePreview} title="Preview Resume">
                     <Eye className="h-5 w-5 text-violet-600" />
                   </Button>
-                  <Button size="icon" variant="ghost" onClick={handleDownloadPDF} title="Download Resume">
-                    <Download className="h-5 w-5 text-violet-600" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="ghost" title="Download Resume">
+                        <Download className="h-5 w-5 text-violet-600" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDownload('pdf')}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        Download PDF
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload('docx')}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        Download DOCX
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload('txt')}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        Download TXT
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </CardHeader>
