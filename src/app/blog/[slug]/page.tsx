@@ -87,7 +87,7 @@ export default async function BlogPostPage({ params }: Props) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-          <div className="container mx-auto max-w-4xl">
+          <div className="container mx-auto max-w-5xl">
             <Link href="/blog" className="inline-flex items-center text-white/80 hover:text-white mb-4 transition-colors">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Blog
@@ -101,7 +101,7 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
 
       <main className="container mx-auto px-4 py-12">
-        <article className="max-w-4xl mx-auto">
+        <article className="max-w-5xl mx-auto">
           {/* Author & Meta */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pb-8 border-b border-slate-200">
             <div className="flex items-center gap-4">
