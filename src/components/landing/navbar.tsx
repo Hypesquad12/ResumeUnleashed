@@ -22,7 +22,7 @@ export function Navbar() {
   const navItems = [
     { label: 'Features', href: '#features' },
     { label: 'Testimonials', href: '#testimonials' },
-    { label: 'Pricing', href: '#pricing' },
+    { label: 'Pricing', href: '/pricing' },
   ]
 
   return (

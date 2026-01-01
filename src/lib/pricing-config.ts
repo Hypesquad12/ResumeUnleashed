@@ -150,7 +150,8 @@ export const indiaPricing: PricingPlan[] = [
   },
 ]
 
-// Rest of World Pricing (USD)
+// Rest of World Pricing (displayed as USD, charged in INR)
+// Exchange rate: ₹83 ≈ $1
 export const rowPricing: PricingPlan[] = [
   {
     id: 'row-free',
@@ -183,8 +184,8 @@ export const rowPricing: PricingPlan[] = [
     tier: 'professional',
     region: 'row',
     currency: 'USD',
-    priceMonthly: 9.99,
-    priceAnnual: 95.90,
+    priceMonthly: 10,
+    priceAnnual: 96,
     features: {
       templates: 10,
       aiCustomization: true,
@@ -208,8 +209,8 @@ export const rowPricing: PricingPlan[] = [
     tier: 'premium',
     region: 'row',
     currency: 'USD',
-    priceMonthly: 16.99,
-    priceAnnual: 163.10,
+    priceMonthly: 17,
+    priceAnnual: 163,
     popular: true,
     badge: 'BEST VALUE',
     features: {
@@ -239,8 +240,8 @@ export const rowPricing: PricingPlan[] = [
     tier: 'ultimate',
     region: 'row',
     currency: 'USD',
-    priceMonthly: 19.99,
-    priceAnnual: 191.90,
+    priceMonthly: 20,
+    priceAnnual: 192,
     features: {
       templates: 'all',
       aiCustomization: true,
