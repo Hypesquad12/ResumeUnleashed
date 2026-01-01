@@ -54,22 +54,25 @@ export function verifyWebhookSignature(
   )
 }
 
-// Razorpay Plan IDs (to be filled after creating plans in Razorpay Dashboard)
+// Razorpay Plan IDs
+// Note: Razorpay only supports INR currency, so ROW plans are also in INR
+// The frontend will display USD equivalent prices for international users
 export const RAZORPAY_PLAN_IDS = {
   india: {
-    professional_monthly: 'plan_xxxxx',
-    professional_annual: 'plan_xxxxx',
-    premium_monthly: 'plan_xxxxx',
-    premium_annual: 'plan_xxxxx',
-    ultimate_monthly: 'plan_xxxxx',
-    ultimate_annual: 'plan_xxxxx',
+    professional_monthly: 'plan_RyecePvMXf1Uhr',
+    professional_annual: 'plan_RyecezQGguMJKV',
+    premium_monthly: 'plan_RyecfdilZvSwQR',
+    premium_annual: 'plan_RyecgHuskKvivp',
+    ultimate_monthly: 'plan_Ryech70IbCoVES',
+    ultimate_annual: 'plan_RyechtDpt6uWcu',
   },
   row: {
-    professional_monthly: 'plan_xxxxx',
-    professional_annual: 'plan_xxxxx',
-    premium_monthly: 'plan_xxxxx',
-    premium_annual: 'plan_xxxxx',
-    ultimate_monthly: 'plan_xxxxx',
-    ultimate_annual: 'plan_xxxxx',
+    // ROW plans in INR (₹830 ≈ $10, ₹1410 ≈ $17, ₹1660 ≈ $20)
+    professional_monthly: 'plan_RyeciXNJ0by01K', // ₹830
+    professional_annual: 'plan_RyecjJrhRaOC2C',   // ₹7,970
+    premium_monthly: 'plan_Ryecjsb29rR3AA',       // ₹1,410
+    premium_annual: 'plan_Ryecka1EcRkGXF',        // ₹13,540
+    ultimate_monthly: 'plan_Ryecl9puJyk5Jt',      // ₹1,660
+    ultimate_annual: 'plan_Ryeclh4JoPMp6T',       // ₹15,920
   },
 }
