@@ -3,6 +3,13 @@ import { getRazorpayInstance, RAZORPAY_PLAN_IDS } from '@/lib/razorpay'
 import { createClient } from '@/lib/supabase/server'
 import { Region, BillingCycle, SubscriptionTier } from '@/lib/pricing-config'
 
+// Razorpay subscription response type
+interface RazorpaySubscriptionResponse {
+  id: string
+  short_url: string
+  status: string
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -62,17 +69,17 @@ export async function POST(request: NextRequest) {
       const customer = await razorpay.customers.create({
         name: profile?.full_name || user.email?.split('@')[0] || 'User',
         email: user.email || '',
-        fail_existing: '0', // Don't fail if customer already exists
-      })
+        fail_existing: 0,
+      }) as { id: string }
 
       customerId = customer.id
     }
 
-    // Create subscription
-    const subscription = await razorpay.subscriptions.create({
+    // Create subscription using Razorpay API
+    const subscriptionParams = {
       plan_id: razorpayPlanId,
       customer_id: customerId,
-      total_count: billingCycle === 'annual' ? 1 : 12, // 1 year for annual, 12 months for monthly
+      total_count: billingCycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
       notes: {
@@ -82,7 +89,11 @@ export async function POST(request: NextRequest) {
         tier,
         billing_cycle: billingCycle,
       },
-    })
+    }
+
+    const subscription = await razorpay.subscriptions.create(
+      subscriptionParams as any
+    ) as unknown as RazorpaySubscriptionResponse
 
     // Store subscription in database (pending status until payment)
     const periodStart = new Date()

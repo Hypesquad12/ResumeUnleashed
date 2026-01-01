@@ -78,16 +78,17 @@ export default function CardDetailPage() {
       return
     }
 
-    setCard(data)
+    const cardData = data as any
+    setCard(cardData)
     setEditForm({
-      name: data.name || '',
-      title: data.title || '',
-      company: data.company || '',
-      email: data.email || '',
-      phone: data.phone || '',
-      website: data.website || '',
-      linkedin: data.linkedin || '',
-      github: data.github || '',
+      name: cardData.name || '',
+      title: cardData.title || '',
+      company: cardData.company || '',
+      email: cardData.email || '',
+      phone: cardData.phone || '',
+      website: cardData.website || '',
+      linkedin: cardData.linkedin || '',
+      github: cardData.github || '',
     })
     setLoading(false)
   }

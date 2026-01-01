@@ -371,6 +371,180 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          id: string
+          name: string
+          tier: string
+          region: string
+          currency: string
+          price_monthly: number
+          price_annual: number
+          features: Json
+          limits: Json
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          tier: string
+          region: string
+          currency: string
+          price_monthly: number
+          price_annual: number
+          features?: Json
+          limits?: Json
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          tier?: string
+          region?: string
+          currency?: string
+          price_monthly?: number
+          price_annual?: number
+          features?: Json
+          limits?: Json
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          plan_id: string
+          razorpay_subscription_id: string | null
+          razorpay_customer_id: string | null
+          status: string
+          billing_cycle: string
+          current_period_start: string
+          current_period_end: string
+          cancel_at_period_end: boolean | null
+          cancelled_at: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          plan_id: string
+          razorpay_subscription_id?: string | null
+          razorpay_customer_id?: string | null
+          status?: string
+          billing_cycle: string
+          current_period_start: string
+          current_period_end: string
+          cancel_at_period_end?: boolean | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          plan_id?: string
+          razorpay_subscription_id?: string | null
+          razorpay_customer_id?: string | null
+          status?: string
+          billing_cycle?: string
+          current_period_start?: string
+          current_period_end?: string
+          cancel_at_period_end?: boolean | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          id: string
+          user_id: string
+          subscription_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_order_id: string | null
+          amount: number
+          currency: string
+          status: string
+          payment_method: string | null
+          metadata: Json | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          subscription_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_order_id?: string | null
+          amount: number
+          currency: string
+          status: string
+          payment_method?: string | null
+          metadata?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          subscription_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_order_id?: string | null
+          amount?: number
+          currency?: string
+          status?: string
+          payment_method?: string | null
+          metadata?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      usage_tracking: {
+        Row: {
+          id: string
+          user_id: string
+          subscription_id: string | null
+          feature_type: string
+          usage_count: number | null
+          period_start: string
+          period_end: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          subscription_id?: string | null
+          feature_type: string
+          usage_count?: number | null
+          period_start: string
+          period_end: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          subscription_id?: string | null
+          feature_type?: string
+          usage_count?: number | null
+          period_start?: string
+          period_end?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

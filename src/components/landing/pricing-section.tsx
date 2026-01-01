@@ -8,7 +8,7 @@ import { useState } from 'react'
 
 const plans = [
   {
-    name: 'Free',
+    name: 'Starter',
     price: 0,
     period: '',
     description: 'Try it out, no credit card required',
@@ -17,59 +17,60 @@ const plans = [
     savings: null,
     isFree: true,
     freeFeatures: [
-      '1 resume creation',
-      '1 AI customization',
-      '1 cover letter',
-      '3 basic templates',
-      'ATS score check',
-      'PDF export',
+      '1 professional template',
+      'No AI customization',
+      'PDF with watermark',
+      'Email support (72hr)',
     ],
   },
   {
-    name: 'Monthly',
-    price: 20,
+    name: 'Professional',
+    price: 499,
     period: '/month',
-    description: 'Perfect for job seekers actively applying',
+    description: 'Perfect for active job seekers',
     icon: Zap,
     popular: false,
     savings: null,
     isFree: false,
+    currency: '₹',
   },
   {
-    name: 'Quarterly',
-    price: 49.99,
-    period: '/3 months',
-    description: 'Best for extended job searches',
+    name: 'Premium',
+    price: 899,
+    period: '/month',
+    description: 'Best value for serious professionals',
     icon: Sparkles,
     popular: true,
-    savings: 'Save 17%',
+    savings: 'BEST VALUE',
     isFree: false,
+    currency: '₹',
   },
   {
-    name: 'Annual',
-    price: 149.99,
-    period: '/year',
-    description: 'Maximum value for career growth',
+    name: 'Ultimate',
+    price: 1199,
+    period: '/month',
+    description: 'Maximum features for career growth',
     icon: Crown,
     popular: false,
-    savings: 'Save 38%',
+    savings: 'Save 25% annually',
     isFree: false,
+    currency: '₹',
   },
 ]
 
 const paidFeatures = [
-  'Unlimited resume creations',
-  'Unlimited AI customizations',
-  'Unlimited cover letters',
+  'AI-powered customization',
+  'Multiple resume versions',
   'All premium templates',
-  'ATS optimization & scoring',
-  'AI-powered keyword matching',
+  'ATS optimization',
+  'Job matching',
+  'Interview preparation',
   'Digital business cards',
   'QR code generation',
   'Shareable resume links',
-  'Real-time preview',
-  'PDF, DOCX, TXT exports',
-  'AI interview prep',
+  'Analytics dashboard',
+  'LinkedIn optimization',
+  'Cover letter generation',
   'Priority support',
 ]
 
@@ -97,11 +98,11 @@ export function PricingSection() {
           </div>
           
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800">
-            Start free,
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600"> upgrade anytime</span>
+            Simple, transparent
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600"> pricing</span>
           </h2>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-            Try our free plan with no credit card required. Upgrade for unlimited access.
+            Choose the perfect plan for your career journey. Start free, upgrade anytime.
           </p>
         </motion.div>
 
@@ -163,7 +164,7 @@ export function PricingSection() {
                       <span className="text-4xl font-bold text-slate-900">Free</span>
                     ) : (
                       <>
-                        <span className="text-4xl font-bold text-slate-900">${plan.price}</span>
+                        <span className="text-4xl font-bold text-slate-900">{plan.currency}{plan.price}</span>
                         <span className="text-slate-500">{plan.period}</span>
                       </>
                     )}
@@ -172,7 +173,7 @@ export function PricingSection() {
                 </div>
                 
                 {/* CTA Button */}
-                <Link href="/signup" className="block mb-6">
+                <Link href="/pricing" className="block mb-6">
                   <Button 
                     className={`w-full ${
                       plan.popular 
@@ -183,7 +184,7 @@ export function PricingSection() {
                     }`}
                     size="lg"
                   >
-                    {plan.isFree ? 'Start Free' : 'Get Started'}
+                    {plan.isFree ? 'Start Free' : 'View Plans'}
                   </Button>
                 </Link>
                 
@@ -273,7 +274,7 @@ export function PricingSection() {
           className="mt-12 text-center"
         >
           <p className="text-slate-500 text-sm">
-            🛡️ <span className="font-medium">30-day money-back guarantee</span> • Cancel anytime • No questions asked
+            🛡️ <span className="font-medium">14-day money-back guarantee</span> • Cancel anytime • <Link href="/pricing" className="text-violet-600 hover:underline">View detailed pricing</Link>
           </p>
         </motion.div>
       </div>

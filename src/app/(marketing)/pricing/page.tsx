@@ -21,11 +21,6 @@ import {
 } from '@/lib/geo-detection'
 import { createClient } from '@/lib/supabase/client'
 
-export const metadata = {
-  title: 'Pricing - ResumeAI | Affordable AI Resume Builder Plans',
-  description: 'Choose the perfect plan for your career. AI-powered resume customization, interview prep, and job matching starting at ₹499/month or $10/month.',
-}
-
 export default function PricingPage() {
   const router = useRouter()
   const [region, setRegion] = useState<Region>('row')
