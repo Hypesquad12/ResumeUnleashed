@@ -55,9 +55,14 @@ export function detectRegionFromTimezone(): Region {
 
 /**
  * Get region from localStorage (user preference)
+ * Only returns stored value if user explicitly set it
  */
 export function getStoredRegion(): Region | null {
   if (typeof window === 'undefined') return null
+  
+  // Check if user explicitly set the region (not auto-detected)
+  const userSet = localStorage.getItem('pricing_region_user_set')
+  if (userSet !== 'true') return null
   
   const stored = localStorage.getItem('pricing_region')
   if (stored === 'india' || stored === 'row') {
@@ -68,9 +73,21 @@ export function getStoredRegion(): Region | null {
 }
 
 /**
- * Store user's region preference
+ * Store user's region preference (when user manually toggles)
  */
-export function storeRegion(region: Region): void {
+export function storeRegion(region: Region, userSet: boolean = false): void {
   if (typeof window === 'undefined') return
   localStorage.setItem('pricing_region', region)
+  if (userSet) {
+    localStorage.setItem('pricing_region_user_set', 'true')
+  }
+}
+
+/**
+ * Clear stored region to force re-detection
+ */
+export function clearStoredRegion(): void {
+  if (typeof window === 'undefined') return
+  localStorage.removeItem('pricing_region')
+  localStorage.removeItem('pricing_region_user_set')
 }

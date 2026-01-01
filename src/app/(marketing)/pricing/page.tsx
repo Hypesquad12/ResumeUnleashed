@@ -42,16 +42,16 @@ export default function PricingPage() {
         return
       }
 
-      // Try server-side detection
+      // Try IP-based detection
       try {
         const detected = await detectUserRegion()
         setRegion(detected)
-        storeRegion(detected)
+        // Don't store auto-detected region
       } catch (error) {
         // Fallback to timezone detection
         const fallback = detectRegionFromTimezone()
         setRegion(fallback)
-        storeRegion(fallback)
+        // Don't store auto-detected region
       } finally {
         setIsDetecting(false)
       }
@@ -119,7 +119,7 @@ export default function PricingPage() {
   const toggleRegion = () => {
     const newRegion = region === 'india' ? 'row' : 'india'
     setRegion(newRegion)
-    storeRegion(newRegion)
+    storeRegion(newRegion, true) // User manually set, so persist
   }
 
   if (isDetecting) {
