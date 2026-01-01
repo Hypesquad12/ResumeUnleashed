@@ -124,11 +124,28 @@ export default function TermsPage() {
             If you purchase any premium features or services:
           </p>
           <ul>
-            <li>All fees are in USD unless otherwise stated</li>
+            <li>All fees are in INR (Indian Rupees) unless otherwise stated</li>
             <li>Payment is required upfront for subscription services</li>
             <li>Subscriptions automatically renew unless cancelled</li>
             <li>Refunds are subject to our Cancellation and Refunds policy</li>
           </ul>
+          
+          <h3>Payment Gateway</h3>
+          <p>
+            We use <strong>Razorpay</strong> as our payment gateway provider. By making a payment through our Service:
+          </p>
+          <ul>
+            <li>You agree to Razorpay's Terms and Conditions</li>
+            <li>Your payment information is processed securely by Razorpay</li>
+            <li>We do not store your complete card details on our servers</li>
+            <li>Payment disputes and chargebacks are handled in accordance with Razorpay's policies and card network rules</li>
+            <li>You authorize us to share your transaction data with Razorpay for payment processing</li>
+          </ul>
+          
+          <h3>Transaction Records</h3>
+          <p>
+            We maintain transaction records for 10 years as required by financial regulations and payment gateway compliance requirements.
+          </p>
         </CardContent>
       </Card>
 

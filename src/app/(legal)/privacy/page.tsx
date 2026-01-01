@@ -87,6 +87,7 @@ export default function PrivacyPage() {
             <li>AI service providers for resume customization</li>
             <li>Cloud hosting and infrastructure providers</li>
             <li>Analytics services to understand usage patterns</li>
+            <li><strong>Payment Processors:</strong> We use Razorpay as our payment gateway. When you make a payment, your payment information (card details, billing address, transaction data) is shared with Razorpay for processing. By using our payment services, you consent to sharing this information with Razorpay in accordance with their privacy policy.</li>
           </ul>
 
           <h3>Legal Requirements</h3>
@@ -194,10 +195,12 @@ export default function PrivacyPage() {
             <li>As necessary to provide services</li>
             <li>To comply with legal obligations</li>
             <li>To resolve disputes and enforce agreements</li>
+            <li><strong>Transaction Records:</strong> Payment and transaction records are retained for 10 years from the transaction date to comply with financial regulations and payment gateway requirements</li>
           </ul>
           <p>
             When you delete your account, we will delete or anonymize your personal data within 30 days, 
-            except where we are required to retain it for legal purposes.
+            except where we are required to retain it for legal purposes. Transaction records will be retained 
+            for the full 10-year period as required by law and our payment processor's terms.
           </p>
         </CardContent>
       </Card>

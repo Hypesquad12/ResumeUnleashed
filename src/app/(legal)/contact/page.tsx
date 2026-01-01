@@ -148,11 +148,15 @@ export default function ContactPage() {
                   <MapPin className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-800">Address</h3>
+                  <h3 className="font-semibold text-slate-800">Registered Office</h3>
                   <p className="text-slate-600">
-                    123 Career Street<br />
-                    San Francisco, CA 94102<br />
-                    United States
+                    ResumeAI Technologies Private Limited<br />
+                    Bangalore, Karnataka<br />
+                    India
+                  </p>
+                  <p className="text-sm text-slate-500 mt-2">
+                    <strong>CIN:</strong> [Company Registration Number]<br />
+                    <strong>GST:</strong> [GST Number if applicable]
                   </p>
                 </div>
               </div>

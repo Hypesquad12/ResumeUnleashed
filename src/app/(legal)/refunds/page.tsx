@@ -212,14 +212,36 @@ export default function RefundsPage() {
             <strong>Please contact us before initiating a chargeback.</strong> We're committed to resolving 
             any issues directly with you.
           </p>
+          
+          <h3>Chargeback Process</h3>
           <p>If you initiate a chargeback:</p>
           <ul>
             <li>Your account will be immediately suspended pending investigation</li>
-            <li>We will provide evidence to your bank/card issuer</li>
+            <li>We will provide evidence to your bank/card issuer through Razorpay</li>
             <li>If chargeback is ruled in your favor, your account will be closed</li>
-            <li>If ruled in our favor, you will be responsible for chargeback fees</li>
+            <li>If ruled in our favor, you will be responsible for chargeback fees (typically ₹500-₹1000)</li>
             <li>Fraudulent chargebacks may result in legal action</li>
           </ul>
+          
+          <h3>Payment Gateway Disputes</h3>
+          <p>All payment disputes are handled through Razorpay in accordance with:</p>
+          <ul>
+            <li>Card Network Rules (Visa, Mastercard, RuPay, etc.)</li>
+            <li>Reserve Bank of India (RBI) guidelines</li>
+            <li>Payment and Settlement Systems Act, 2007</li>
+          </ul>
+          
+          <h3>Dispute Resolution Timeline</h3>
+          <ul>
+            <li><strong>Initial Review:</strong> 3-5 business days</li>
+            <li><strong>Evidence Submission:</strong> 7-10 business days</li>
+            <li><strong>Card Network Decision:</strong> 30-90 days</li>
+          </ul>
+          
+          <p>
+            We maintain all transaction records for 10 years to facilitate dispute resolution and comply 
+            with regulatory requirements.
+          </p>
         </CardContent>
       </Card>
 
