@@ -2,9 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Check, Sparkles, Zap, Crown, ChevronDown, ChevronUp, Gift } from 'lucide-react'
+import { Check, Sparkles, Zap, Crown, Gift } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
 
 const plans = [
   {
@@ -33,6 +32,13 @@ const plans = [
     savings: null,
     isFree: false,
     currency: '₹',
+    tierFeatures: [
+      '10 professional templates',
+      '10 AI customizations/month',
+      '2 interview prep sessions',
+      '1 digital visiting card',
+      'Email support (48hr)',
+    ],
   },
   {
     name: 'Premium',
@@ -44,6 +50,15 @@ const plans = [
     savings: 'BEST VALUE',
     isFree: false,
     currency: '₹',
+    tierFeatures: [
+      'All 25+ templates',
+      '50 AI customizations/month',
+      '10 interview prep sessions',
+      'Unlimited job matching',
+      '10 digital visiting cards',
+      'AI cover letters',
+      'Priority support',
+    ],
   },
   {
     name: 'Ultimate',
@@ -55,6 +70,16 @@ const plans = [
     savings: 'Save 25% annually',
     isFree: false,
     currency: '₹',
+    tierFeatures: [
+      'Everything in Premium',
+      'Unlimited AI customizations',
+      'Unlimited interview prep',
+      'Unlimited visiting cards',
+      'LinkedIn optimization',
+      'Analytics dashboard',
+      'Resume distribution',
+      'Dedicated support',
+    ],
   },
 ]
 
@@ -75,9 +100,6 @@ const paidFeatures = [
 ]
 
 export function PricingSection() {
-  const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
-  const [expandedPlan, setExpandedPlan] = useState<number | null>(null)
-
   return (
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background */}
@@ -115,8 +137,6 @@ export function PricingSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              onMouseEnter={() => setHoveredPlan(index)}
-              onMouseLeave={() => setHoveredPlan(null)}
               className="relative"
             >
               {/* Popular badge */}
@@ -194,40 +214,13 @@ export function PricingSection() {
                     {plan.isFree ? 'Includes:' : 'Everything included:'}
                   </p>
                   <ul className="space-y-2">
-                    {plan.isFree ? (
-                      plan.freeFeatures?.map((feature: string) => (
-                        <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
-                          <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                          {feature}
-                        </li>
-                      ))
-                    ) : (
-                      (expandedPlan === index ? paidFeatures : paidFeatures.slice(0, 5)).map((feature: string) => (
-                        <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
-                          <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                          {feature}
-                        </li>
-                      ))
-                    )}
+                    {(plan.isFree ? plan.freeFeatures : plan.tierFeatures)?.map((feature: string) => (
+                      <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
+                        <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
                   </ul>
-                  {!plan.isFree && (
-                    <button
-                      onClick={() => setExpandedPlan(expandedPlan === index ? null : index)}
-                      className="flex items-center gap-1 text-sm text-violet-600 font-medium mt-3 hover:text-violet-700 transition-colors"
-                    >
-                      {expandedPlan === index ? (
-                        <>
-                          <ChevronUp className="h-4 w-4" />
-                          Show less
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="h-4 w-4" />
-                          + {paidFeatures.length - 5} more features
-                        </>
-                      )}
-                    </button>
-                  )}
                 </div>
               </div>
             </motion.div>
