@@ -184,8 +184,8 @@ export const rowPricing: PricingPlan[] = [
     tier: 'professional',
     region: 'row',
     currency: 'USD',
-    priceMonthly: 10,
-    priceAnnual: 96,
+    priceMonthly: 9.99,
+    priceAnnual: 95.99,
     features: {
       templates: 10,
       aiCustomization: true,
@@ -209,8 +209,8 @@ export const rowPricing: PricingPlan[] = [
     tier: 'premium',
     region: 'row',
     currency: 'USD',
-    priceMonthly: 17,
-    priceAnnual: 163,
+    priceMonthly: 16.99,
+    priceAnnual: 162.99,
     popular: true,
     badge: 'BEST VALUE',
     features: {
@@ -240,8 +240,8 @@ export const rowPricing: PricingPlan[] = [
     tier: 'ultimate',
     region: 'row',
     currency: 'USD',
-    priceMonthly: 20,
-    priceAnnual: 192,
+    priceMonthly: 19.99,
+    priceAnnual: 191.99,
     features: {
       templates: 'all',
       aiCustomization: true,

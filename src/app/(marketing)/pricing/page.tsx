@@ -145,23 +145,6 @@ export default function PricingPage() {
             Get started with AI-powered resume building today
           </p>
 
-          {/* Region Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <span className={region === 'india' ? 'font-semibold' : 'text-muted-foreground'}>
-              🇮🇳 India (INR)
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleRegion}
-            >
-              Switch
-            </Button>
-            <span className={region === 'row' ? 'font-semibold' : 'text-muted-foreground'}>
-              🌍 International (USD)
-            </span>
-          </div>
-
           {/* Billing Cycle Toggle */}
           <div className="flex items-center justify-center gap-4">
             <Label htmlFor="billing-cycle" className={billingCycle === 'monthly' ? 'font-semibold' : 'text-muted-foreground'}>
