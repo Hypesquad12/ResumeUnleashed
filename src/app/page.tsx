@@ -1,23 +1,39 @@
+import dynamic from 'next/dynamic'
 import { Navbar } from '@/components/landing/navbar'
 import { HeroSection } from '@/components/landing/hero-section'
-import { StatsSection } from '@/components/landing/stats-section'
-import { FeaturesSection } from '@/components/landing/features-section'
-import { PreviewSection } from '@/components/landing/preview-section'
-import { GameSection } from '@/components/landing/game-section'
-import { PricingSection } from '@/components/landing/pricing-section'
-import { TestimonialsSection } from '@/components/landing/testimonials-section'
-import { CTASection } from '@/components/landing/cta-section'
-import { Footer } from '@/components/landing/footer'
+
+// Lazy load below-the-fold sections to reduce initial JS bundle
+const StatsSection = dynamic(() => import('@/components/landing/stats-section').then(mod => mod.StatsSection), {
+  loading: () => <div className="h-32" />,
+})
+const FeaturesSection = dynamic(() => import('@/components/landing/features-section').then(mod => mod.FeaturesSection), {
+  loading: () => <div className="h-96" />,
+})
+const PreviewSection = dynamic(() => import('@/components/landing/preview-section').then(mod => mod.PreviewSection), {
+  loading: () => <div className="h-96" />,
+})
+const TestimonialsSection = dynamic(() => import('@/components/landing/testimonials-section').then(mod => mod.TestimonialsSection), {
+  loading: () => <div className="h-64" />,
+})
+const PricingSection = dynamic(() => import('@/components/landing/pricing-section').then(mod => mod.PricingSection), {
+  loading: () => <div className="h-96" />,
+})
+const CTASection = dynamic(() => import('@/components/landing/cta-section').then(mod => mod.CTASection), {
+  loading: () => <div className="h-48" />,
+})
+const Footer = dynamic(() => import('@/components/landing/footer').then(mod => mod.Footer), {
+  loading: () => <div className="h-64" />,
+})
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 overflow-hidden">
-      {/* Animated background - Soft light gradient orbs */}
+      {/* Static background - removed animate-pulse for performance */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute w-[700px] h-[700px] bg-teal-200/40 rounded-full blur-3xl -top-40 -left-40 animate-pulse" />
-        <div className="absolute w-[600px] h-[600px] bg-purple-200/30 rounded-full blur-3xl top-1/3 -right-60 animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute w-[500px] h-[500px] bg-cyan-200/30 rounded-full blur-3xl bottom-20 left-1/4 animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute w-[400px] h-[400px] bg-rose-200/25 rounded-full blur-3xl top-2/3 right-1/4 animate-pulse" style={{ animationDelay: '3s' }} />
+        <div className="absolute w-[700px] h-[700px] bg-teal-200/40 rounded-full blur-3xl -top-40 -left-40" />
+        <div className="absolute w-[600px] h-[600px] bg-purple-200/30 rounded-full blur-3xl top-1/3 -right-60" />
+        <div className="absolute w-[500px] h-[500px] bg-cyan-200/30 rounded-full blur-3xl bottom-20 left-1/4" />
+        <div className="absolute w-[400px] h-[400px] bg-rose-200/25 rounded-full blur-3xl top-2/3 right-1/4" />
       </div>
 
       <Navbar />
