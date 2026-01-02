@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FileText, Github, Twitter, Linkedin, Mail } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import Link from 'next/link'
 
 const footerLinks = {
@@ -12,10 +12,10 @@ const footerLinks = {
     { label: 'Changelog', href: '#' },
   ],
   resources: [
-    { label: 'Blog', href: '#' },
-    { label: 'Help Center', href: '#' },
-    { label: 'Resume Tips', href: '#' },
-    { label: 'Career Guide', href: '#' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Help Center', href: '/contact' },
+    { label: 'Resume Tips', href: '/blog' },
+    { label: 'Career Guide', href: '/blog' },
   ],
   company: [
     { label: 'About', href: '#' },
@@ -31,12 +31,6 @@ const footerLinks = {
   ],
 }
 
-const socialLinks = [
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Linkedin, href: '#', label: 'LinkedIn' },
-  { icon: Github, href: '#', label: 'GitHub' },
-  { icon: Mail, href: '#', label: 'Email' },
-]
 
 export function Footer() {
   return (
@@ -66,22 +60,6 @@ export function Footer() {
               <p>PLOT NO 20, SHAKTHI SAI NAGAR,</p>
               <p>Mallapur, Hyderabad,</p>
               <p>Medchal Malkajgiri, Telangana, 500076</p>
-            </div>
-            
-            {/* Social links */}
-            <div className="flex gap-3">
-              {socialLinks.map((social) => (
-                <motion.a
-                  key={social.label}
-                  href={social.href}
-                  className="p-2 rounded-lg bg-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-300 transition-colors"
-                  whileHover={{ y: -3 }}
-                  whileTap={{ scale: 0.95 }}
-                  aria-label={social.label}
-                >
-                  <social.icon className="h-4 w-4" />
-                </motion.a>
-              ))}
             </div>
           </div>
 
