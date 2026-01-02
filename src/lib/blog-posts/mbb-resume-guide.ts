@@ -320,7 +320,7 @@ Our **[AI-powered resume builder and resume maker](/signup)** understands MBB re
 
 **[Create Your MBB Resume →](/signup)**
 
-Ready to join the world's most prestigious consulting firms? **[Sign up for ResumeAI](/signup)** and build a resume that showcases your qualifications for McKinsey, BCG, or Bain. Remember: one page, maximum impact.`,
+Ready to join the world's most prestigious consulting firms? **[Sign up for Resume Unleashed](/signup)** and build a resume that showcases your qualifications for McKinsey, BCG, or Bain. Remember: one page, maximum impact.`,
   author: 'Thomas Wright',
   publishedAt: '2024-12-09',
   readTime: '22 min',

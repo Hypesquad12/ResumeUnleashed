@@ -214,7 +214,7 @@ Our **[AI-powered resume builder and resume maker](/signup)** can help you craft
 
 **[Create Your Netflix Resume →](/signup)**
 
-Ready to join a company that values freedom and responsibility? **[Sign up for ResumeAI](/signup)** and build a resume that proves you're a stunning colleague who delivers amazing impact.`,
+Ready to join a company that values freedom and responsibility? **[Sign up for Resume Unleashed](/signup)** and build a resume that proves you're a stunning colleague who delivers amazing impact.`,
   author: 'Robert Kim',
   publishedAt: '2024-12-11',
   readTime: '18 min',

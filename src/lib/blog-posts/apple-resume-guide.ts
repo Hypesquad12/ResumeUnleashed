@@ -228,7 +228,7 @@ Our **[AI-powered resume builder and resume maker](/signup)** can help you craft
 
 **[Create Your Apple Resume →](/signup)**
 
-Ready to do the best work of your life? **[Sign up for ResumeAI](/signup)** and build a resume that showcases your innovation, design thinking, and commitment to excellence—values that align perfectly with Apple's mission.`,
+Ready to do the best work of your life? **[Sign up for Resume Unleashed](/signup)** and build a resume that showcases your innovation, design thinking, and commitment to excellence—values that align perfectly with Apple's mission.`,
   author: 'Jennifer Walsh',
   publishedAt: '2024-12-12',
   readTime: '19 min',

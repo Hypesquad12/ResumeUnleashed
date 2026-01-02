@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText } from 'lucide-react'
 
 export const metadata = {
-  title: 'Terms and Conditions | ResumeAI',
-  description: 'Terms and Conditions for using ResumeAI services',
+  title: 'Terms and Conditions | Resume Unleashed',
+  description: 'Terms and Conditions for using Resume Unleashed services',
 }
 
 export default function TermsPage() {
@@ -25,7 +25,7 @@ export default function TermsPage() {
         </CardHeader>
         <CardContent className="prose prose-slate max-w-none">
           <p>
-            By accessing and using ResumeAI ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. 
+            By accessing and using Resume Unleashed ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. 
             If you do not agree to these Terms and Conditions, please do not use our Service.
           </p>
         </CardContent>
@@ -84,7 +84,7 @@ export default function TermsPage() {
         </CardHeader>
         <CardContent className="prose prose-slate max-w-none">
           <p>
-            The Service and its original content, features, and functionality are owned by ResumeAI and are protected by international copyright, 
+            The Service and its original content, features, and functionality are owned by Resume Unleashed and are protected by international copyright, 
             trademark, patent, trade secret, and other intellectual property laws.
           </p>
           <p>Your resume content remains your property. By using our Service, you grant us a license to:</p>
@@ -168,7 +168,7 @@ export default function TermsPage() {
         </CardHeader>
         <CardContent className="prose prose-slate max-w-none">
           <p>
-            In no event shall ResumeAI, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, 
+            In no event shall Resume Unleashed, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, 
             incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or 
             other intangible losses, resulting from your access to or use of or inability to access or use the Service.
           </p>

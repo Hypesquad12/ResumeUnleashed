@@ -92,10 +92,12 @@ export function Sidebar() {
       <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200 dark:border-slate-800">
         {!collapsed && (
           <Link href="/dashboard" className="flex items-center gap-2 group">
-            <div className="p-1.5 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg shadow-md shadow-violet-500/20 group-hover:shadow-lg group-hover:shadow-violet-500/30 transition-all duration-300">
-              <Zap className="h-5 w-5 text-white" />
-            </div>
-            <span className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">ResumeAI</span>
+            <img 
+              src="/images/logo.png" 
+              alt="Resume Unleashed Logo" 
+              className="h-8 w-auto"
+            />
+            <span className="font-bold text-lg text-slate-900">Resume Unleashed</span>
           </Link>
         )}
         <Button

@@ -18,12 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ResumeAI - AI-Powered Resume Builder | Create ATS-Optimized Resumes",
-  description: "Build professional, ATS-optimized resumes with AI. Get personalized resume customization, interview prep, and job matching. Start free today!",
-  keywords: "resume builder, AI resume, ATS resume, resume maker, job application, career",
+  title: "Best AI-Powered Resume Customization | Resume Unleashed",
+  description: "Transform your resume with the best AI-powered customization. Create ATS-optimized resumes tailored to any job. Get hired faster with Resume Unleashed.",
+  keywords: "AI resume customization, best resume builder, ATS resume, AI-powered resume, resume maker, job application, career",
   openGraph: {
-    title: "ResumeAI - AI-Powered Resume Builder",
-    description: "Build professional, ATS-optimized resumes with AI assistance.",
+    title: "Best AI-Powered Resume Customization | Resume Unleashed",
+    description: "Transform your resume with the best AI-powered customization. Create ATS-optimized resumes tailored to any job.",
     type: "website",
   },
 };

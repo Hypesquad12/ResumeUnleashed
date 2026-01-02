@@ -215,7 +215,7 @@ Our **[AI-powered resume builder and resume maker](/signup)** can analyze Meta j
 
 **[Create Your Meta Resume →](/signup)**
 
-Ready to join one of the world's most innovative companies? **[Sign up for ResumeAI](/signup)** and craft a resume that showcases your impact, technical excellence, and alignment with Meta's mission to bring the world closer together.`,
+Ready to join one of the world's most innovative companies? **[Sign up for Resume Unleashed](/signup)** and craft a resume that showcases your impact, technical excellence, and alignment with Meta's mission to bring the world closer together.`,
   author: 'Sarah Chen',
   publishedAt: '2024-12-15',
   readTime: '18 min',

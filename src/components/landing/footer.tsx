@@ -41,10 +41,12 @@ export function Footer() {
                 className="flex items-center gap-2 mb-4"
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg">
-                  <FileText className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-bold text-lg text-slate-800">ResumeAI</span>
+                <img 
+                  src="/images/logo.png" 
+                  alt="Resume Unleashed Logo" 
+                  className="h-8 w-auto"
+                />
+                <span className="font-bold text-lg text-slate-800">Resume Unleashed</span>
               </motion.div>
             </Link>
             <p className="text-slate-600 text-sm mb-4 max-w-xs">

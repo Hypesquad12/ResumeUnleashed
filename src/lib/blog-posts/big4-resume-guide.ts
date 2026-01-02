@@ -243,7 +243,7 @@ Our **[AI-powered resume builder and resume maker](/signup)** can help you craft
 
 **[Create Your Big 4 Resume →](/signup)**
 
-Ready to launch your consulting career at a prestigious Big 4 firm? **[Sign up for ResumeAI](/signup)** and build a resume that showcases your qualifications and aligns with Deloitte, PwC, EY, or KPMG's values and expectations.`,
+Ready to launch your consulting career at a prestigious Big 4 firm? **[Sign up for Resume Unleashed](/signup)** and build a resume that showcases your qualifications and aligns with Deloitte, PwC, EY, or KPMG's values and expectations.`,
   author: 'Amanda Foster',
   publishedAt: '2024-12-10',
   readTime: '21 min',

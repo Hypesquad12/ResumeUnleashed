@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Shield } from 'lucide-react'
 
 export const metadata = {
-  title: 'Privacy Policy | ResumeAI',
-  description: 'Privacy Policy for ResumeAI services',
+  title: 'Privacy Policy | Resume Unleashed',
+  description: 'Privacy Policy for Resume Unleashed services',
 }
 
 export default function PrivacyPage() {

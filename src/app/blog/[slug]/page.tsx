@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${post.title} | ResumeAI Blog`,
+    title: `${post.title} | Resume Unleashed Blog`,
     description: post.excerpt,
     keywords: post.tags.join(', '),
     openGraph: {
@@ -61,7 +61,7 @@ export default async function BlogPostPage({ params }: Props) {
             <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg shadow-lg shadow-teal-500/20">
               <FileText className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-slate-800">ResumeAI</span>
+            <span className="font-bold text-lg text-slate-800">Resume Unleashed</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/">
@@ -278,9 +278,9 @@ export default async function BlogPostPage({ params }: Props) {
               <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg">
                 <FileText className="h-4 w-4 text-white" />
               </div>
-              <span className="font-semibold text-slate-800">ResumeAI</span>
+              <span className="font-semibold text-slate-800">Resume Unleashed</span>
             </div>
-            <p className="text-slate-500 text-sm">© 2024 ResumeAI. All rights reserved.</p>
+            <p className="text-slate-500 text-sm">© 2024 Resume Unleashed. All rights reserved.</p>
             <div className="flex items-center gap-6 text-sm text-slate-600">
               <Link href="/blog" className="hover:text-teal-600 transition-colors">Blog</Link>
               <Link href="/templates" className="hover:text-teal-600 transition-colors">Templates</Link>

@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RefreshCw } from 'lucide-react'
 
 export const metadata = {
-  title: 'Cancellation and Refunds | ResumeAI',
-  description: 'Cancellation and Refunds Policy for ResumeAI services',
+  title: 'Cancellation and Refunds | Resume Unleashed',
+  description: 'Cancellation and Refunds Policy for Resume Unleashed services',
 }
 
 export default function RefundsPage() {
@@ -104,7 +104,7 @@ export default function RefundsPage() {
         <CardContent className="prose prose-slate max-w-none">
           <p>To request a refund:</p>
           <ol>
-            <li>Contact us through the Contact Us page or email billing@resumeai.com</li>
+            <li>Contact us through the Contact Us page or email billing@resumeunleashed.com</li>
             <li>Include your account email and order/transaction ID</li>
             <li>Provide a reason for the refund request</li>
             <li>Allow 3-5 business days for review</li>
@@ -262,7 +262,7 @@ export default function RefundsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>9. Account Termination by ResumeAI</CardTitle>
+          <CardTitle>9. Account Termination by Resume Unleashed</CardTitle>
         </CardHeader>
         <CardContent className="prose prose-slate max-w-none">
           <p>We reserve the right to terminate accounts for:</p>
@@ -318,7 +318,7 @@ export default function RefundsPage() {
         <CardContent className="prose prose-slate max-w-none">
           <p>For cancellation or refund requests:</p>
           <ul>
-            <li><strong>Email:</strong> billing@resumeai.com</li>
+            <li><strong>Email:</strong> billing@resumeunleashed.com</li>
             <li><strong>Contact Form:</strong> Use our Contact Us page</li>
             <li><strong>Response Time:</strong> Within 3-5 business days</li>
           </ul>

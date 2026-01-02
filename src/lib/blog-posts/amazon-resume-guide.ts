@@ -226,7 +226,7 @@ Our **[AI-powered resume builder and resume maker](/signup)** understands Amazon
 
 **[Create Your Amazon Resume →](/signup)**
 
-Ready to join Earth's most customer-centric company? **[Sign up for ResumeAI](/signup)** and build a resume that demonstrates ownership, delivers results, and showcases your leadership principles in action.`,
+Ready to join Earth's most customer-centric company? **[Sign up for Resume Unleashed](/signup)** and build a resume that demonstrates ownership, delivers results, and showcases your leadership principles in action.`,
   author: 'Michael Torres',
   publishedAt: '2024-12-14',
   readTime: '19 min',

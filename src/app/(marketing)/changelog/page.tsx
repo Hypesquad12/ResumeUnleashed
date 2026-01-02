@@ -4,8 +4,8 @@ import type { Metadata } from 'next'
 import { Calendar, CheckCircle2, Sparkles, Zap, Bug, ArrowUpCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Changelog - Product Updates | ResumeAI',
-  description: 'Stay updated with the latest features, improvements, and bug fixes in ResumeAI.',
+  title: 'Changelog - Product Updates | Resume Unleashed',
+  description: 'Stay updated with the latest features, improvements, and bug fixes in Resume Unleashed.',
   keywords: 'changelog, updates, new features, product updates',
 }
 

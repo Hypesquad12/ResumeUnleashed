@@ -19,7 +19,7 @@ export function Footer() {
           {/* Brand & Company Info */}
           <div>
             <h3 className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              ResumeAI
+              Resume Unleashed
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
               AI-powered resume builder and career tools to help you land your dream job.

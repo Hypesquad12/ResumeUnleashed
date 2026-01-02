@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Truck } from 'lucide-react'
 
 export const metadata = {
-  title: 'Shipping Policy | ResumeAI',
-  description: 'Shipping Policy for ResumeAI services',
+  title: 'Shipping Policy | Resume Unleashed',
+  description: 'Shipping Policy for Resume Unleashed services',
 }
 
 export default function ShippingPage() {
@@ -25,7 +25,7 @@ export default function ShippingPage() {
         </CardHeader>
         <CardContent className="prose prose-slate max-w-none">
           <p>
-            ResumeAI is a <strong>digital service platform</strong> that provides AI-powered resume building, 
+            Resume Unleashed is a <strong>digital service platform</strong> that provides AI-powered resume building, 
             career tools, and professional services entirely online. We do not ship physical products.
           </p>
         </CardContent>

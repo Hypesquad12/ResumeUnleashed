@@ -122,7 +122,7 @@ Even qualified candidates sabotage their applications with these errors:
 
 ## Take Action Today
 
-Ready to create a resume that gets noticed? **[Sign up for ResumeAI](/signup)** and use our AI-powered resume builder to optimize your resume automatically. Our platform analyzes job descriptions, suggests improvements, and ensures ATS compatibility—all in minutes.
+Ready to create a resume that gets noticed? **[Sign up for Resume Unleashed](/signup)** and use our AI-powered resume builder to optimize your resume automatically. Our platform analyzes job descriptions, suggests improvements, and ensures ATS compatibility—all in minutes.
 
 **[Start Building Your Resume Now →](/signup)**`,
     author: 'Sarah Chen',
@@ -301,7 +301,7 @@ Remember: passing ATS is just step one. Your resume still needs to impress the h
 
 ## Let AI Handle the Optimization
 
-An **[AI resume builder](/signup)** can analyze job descriptions and optimize your content automatically. Our platform at ResumeAI:
+An **[AI resume builder](/signup)** can analyze job descriptions and optimize your content automatically. Our platform at Resume Unleashed:
 
 - Scans job postings for critical keywords
 - Suggests improvements for ATS compatibility
@@ -310,7 +310,7 @@ An **[AI resume builder](/signup)** can analyze job descriptions and optimize yo
 
 **[Create Your ATS-Optimized Resume →](/signup)**
 
-Stop losing opportunities to poor formatting. **[Sign up for ResumeAI today](/signup)** and ensure your resume reaches human eyes.`,
+Stop losing opportunities to poor formatting. **[Sign up for Resume Unleashed today](/signup)** and ensure your resume reaches human eyes.`,
     author: 'David Park',
     publishedAt: '2024-11-05',
     readTime: '10 min',
@@ -401,7 +401,7 @@ Our **[AI resume builder](/signup)** generates customized summaries based on you
 
 **[Generate Your Resume Summary →](/signup)**
 
-Don't spend hours struggling with writer's block. **[Sign up for ResumeAI](/signup)** and get a professional summary in seconds.`,
+Don't spend hours struggling with writer's block. **[Sign up for Resume Unleashed](/signup)** and get a professional summary in seconds.`,
     author: 'Jennifer Walsh',
     publishedAt: '2024-10-28',
     readTime: '12 min',
@@ -489,7 +489,7 @@ Track applications and follow up appropriately. Use a spreadsheet or job trackin
 
 A successful job search requires the right tools. Start with a **[professional resume](/signup)** that passes ATS systems and impresses recruiters.
 
-**[Build Your Resume with ResumeAI →](/signup)**
+**[Build Your Resume with Resume Unleashed →](/signup)**
 
 Our AI-powered platform helps you create tailored resumes for each application, increasing your chances of landing interviews.
 
@@ -555,11 +555,11 @@ Transform past roles to highlight relevant aspects.
 
 ## Make Your Career Change Easier
 
-An **[AI resume builder](/signup)** can identify transferable skills and suggest relevant keywords for your target industry. ResumeAI analyzes your background and helps you present your experience in the most compelling way for your new career path.
+An **[AI resume builder](/signup)** can identify transferable skills and suggest relevant keywords for your target industry. Resume Unleashed analyzes your background and helps you present your experience in the most compelling way for your new career path.
 
 **[Create Your Career Change Resume →](/signup)**
 
-Ready to make the leap? **[Sign up for ResumeAI](/signup)** and get a professionally crafted resume that positions you for success in your new field.`,
+Ready to make the leap? **[Sign up for Resume Unleashed](/signup)** and get a professionally crafted resume that positions you for success in your new field.`,
     author: 'Amanda Foster',
     publishedAt: '2024-10-12',
     readTime: '13 min',
@@ -632,7 +632,7 @@ Wait the specified timeframe, then send polite follow-up.
 
 ## Prepare for Success
 
-Your interview starts with a great resume. Make sure yours showcases your achievements and passes ATS screening with **[ResumeAI](/signup)**.
+Your interview starts with a great resume. Make sure yours showcases your achievements and passes ATS screening with **[Resume Unleashed](/signup)**.
 
 **[Build Your Interview-Ready Resume →](/signup)**
 
@@ -705,7 +705,7 @@ Transform duties into achievements with metrics.
 
 ## Complete Your Professional Presence
 
-Your LinkedIn profile works best when paired with a strong resume. Create a consistent personal brand across both with **[ResumeAI](/signup)**.
+Your LinkedIn profile works best when paired with a strong resume. Create a consistent personal brand across both with **[Resume Unleashed](/signup)**.
 
 **[Build Your Professional Resume →](/signup)**
 
@@ -786,11 +786,11 @@ Financial modeling, Excel, ERP systems
 
 ## Let AI Optimize Your Skills Section
 
-An **[AI resume builder](/signup)** extracts **resume keywords** from job descriptions automatically. ResumeAI analyzes job postings and suggests the exact skills to include for maximum ATS compatibility.
+An **[AI resume builder](/signup)** extracts **resume keywords** from job descriptions automatically. Resume Unleashed analyzes job postings and suggests the exact skills to include for maximum ATS compatibility.
 
 **[Optimize Your Skills Section →](/signup)**
 
-Don't guess which skills to include. **[Sign up for ResumeAI](/signup)** and let our AI match your abilities to job requirements.`,
+Don't guess which skills to include. **[Sign up for Resume Unleashed](/signup)** and let our AI match your abilities to job requirements.`,
     author: 'Kevin Martinez',
     publishedAt: '2024-09-20',
     readTime: '11 min',
@@ -872,11 +872,11 @@ Clinical rotations, certifications, volunteer work
 
 ## Start Your Career with the Right Resume
 
-Use an **[AI resume builder](/signup)** to optimize your entry-level resume for each application. ResumeAI helps new graduates and career starters create professional resumes that compete with experienced candidates.
+Use an **[AI resume builder](/signup)** to optimize your entry-level resume for each application. Resume Unleashed helps new graduates and career starters create professional resumes that compete with experienced candidates.
 
 **[Build Your Entry-Level Resume →](/signup)**
 
-Your career starts with a great first impression. **[Sign up for ResumeAI today](/signup)** and create a resume that showcases your potential.`,
+Your career starts with a great first impression. **[Sign up for Resume Unleashed today](/signup)** and create a resume that showcases your potential.`,
     author: 'Emily Rodriguez',
     publishedAt: '2024-09-12',
     readTime: '10 min',

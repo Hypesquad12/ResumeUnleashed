@@ -241,7 +241,7 @@ Our **[AI-powered resume builder and resume maker](/signup)** can help you struc
 
 **[Create Your Google Resume →](/signup)**
 
-Ready to join one of the world's most innovative companies? **[Sign up for ResumeAI](/signup)** and craft a resume that showcases your technical prowess, impact at scale, and Googleyness.`,
+Ready to join one of the world's most innovative companies? **[Sign up for Resume Unleashed](/signup)** and craft a resume that showcases your technical prowess, impact at scale, and Googleyness.`,
   author: 'David Park',
   publishedAt: '2024-12-13',
   readTime: '20 min',

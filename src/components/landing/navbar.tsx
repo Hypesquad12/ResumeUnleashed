@@ -46,10 +46,12 @@ export function Navbar() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="p-1.5 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg shadow-lg shadow-violet-500/20">
-                  <Zap className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">ResumeAI</span>
+                <img 
+                  src="/images/logo.png" 
+                  alt="Resume Unleashed Logo" 
+                  className="h-8 w-auto"
+                />
+                <span className="font-bold text-lg text-slate-900">Resume Unleashed</span>
               </motion.div>
             </Link>
 

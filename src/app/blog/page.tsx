@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { BlogClient } from './blog-client'
 
 export const metadata = {
-  title: 'Blog | ResumeAI - Resume Builder & Resume Maker Tips',
+  title: 'Blog | Resume Unleashed - Resume Builder & Resume Maker Tips',
   description: 'Expert tips on using our resume builder and resume maker, job search strategies, interview preparation, and career advice. Learn how to write a resume that gets noticed.',
   keywords: 'resume builder, resume maker, how to write a resume, resume templates, job application tips, career advice, ATS resume, interview tips',
 }
@@ -22,7 +22,7 @@ export default function BlogPage() {
             <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg shadow-lg shadow-teal-500/20">
               <FileText className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-slate-800">ResumeAI</span>
+            <span className="font-bold text-lg text-slate-800">Resume Unleashed</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/">
@@ -47,9 +47,9 @@ export default function BlogPage() {
               <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg">
                 <FileText className="h-4 w-4 text-white" />
               </div>
-              <span className="font-semibold text-slate-800">ResumeAI</span>
+              <span className="font-semibold text-slate-800">Resume Unleashed</span>
             </div>
-            <p className="text-slate-500 text-sm">© 2024 ResumeAI. All rights reserved.</p>
+            <p className="text-slate-500 text-sm">© 2024 Resume Unleashed. All rights reserved.</p>
             <div className="flex items-center gap-6 text-sm text-slate-600">
               <Link href="/blog" className="hover:text-teal-600 transition-colors">Blog</Link>
               <Link href="/templates" className="hover:text-teal-600 transition-colors">Templates</Link>
