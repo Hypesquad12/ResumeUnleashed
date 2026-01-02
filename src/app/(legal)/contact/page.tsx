@@ -127,19 +127,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-800">Email</h3>
-                  <p className="text-slate-600">support@resumeai.com</p>
+                  <p className="text-slate-600">info@hypesquad.ai</p>
                   <p className="text-sm text-slate-500">We'll respond within 24 hours</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-800">Phone</h3>
-                  <p className="text-slate-600">+1 (555) 123-4567</p>
-                  <p className="text-sm text-slate-500">Mon-Fri, 9am-6pm EST</p>
                 </div>
               </div>
 
@@ -150,13 +139,10 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold text-slate-800">Registered Office</h3>
                   <p className="text-slate-600">
-                    ResumeAI Technologies Private Limited<br />
-                    Bangalore, Karnataka<br />
-                    India
-                  </p>
-                  <p className="text-sm text-slate-500 mt-2">
-                    <strong>CIN:</strong> [Company Registration Number]<br />
-                    <strong>GST:</strong> [GST Number if applicable]
+                    HYPESQUAD SOLUTIONS PRIVATE LIMITED<br />
+                    PLOT NO 20, SHAKTHI SAI NAGAR<br />
+                    Mallapur, Hyderabad<br />
+                    Medchal Malkajgiri, Telangana, 500076
                   </p>
                 </div>
               </div>
@@ -200,19 +186,19 @@ export default function ContactPage() {
             <div>
               <h3 className="text-lg font-semibold mb-2">Technical Support</h3>
               <p className="text-sm text-slate-600">
-                For technical issues, bugs, or platform errors, email us at <strong>tech@resumeai.com</strong>
+                For technical issues, bugs, or platform errors, email us at <strong>info@hypesquad.ai</strong>
               </p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">Business Inquiries</h3>
               <p className="text-sm text-slate-600">
-                For partnerships, enterprise plans, or business opportunities, contact <strong>business@resumeai.com</strong>
+                For partnerships, enterprise plans, or business opportunities, contact <strong>info@hypesquad.ai</strong>
               </p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">Billing & Refunds</h3>
               <p className="text-sm text-slate-600">
-                For payment issues or refund requests, reach out to <strong>billing@resumeai.com</strong>
+                For payment issues or refund requests, reach out to <strong>info@hypesquad.ai</strong>
               </p>
             </div>
           </div>
