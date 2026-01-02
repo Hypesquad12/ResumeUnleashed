@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,11 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  const redirectAfterSignup = searchParams.get('redirect')
+  const planId = searchParams.get('plan')
+  const cycle = searchParams.get('cycle')
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +36,13 @@ export default function SignupPage() {
     }
 
     const supabase = createClient()
+    
+    // Build redirect URL with plan info if present
+    let redirectTo = `${window.location.origin}/auth/callback`
+    if (redirectAfterSignup === 'pricing' && planId && cycle) {
+      redirectTo += `?redirect=pricing&plan=${planId}&cycle=${cycle}`
+    }
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -38,7 +50,7 @@ export default function SignupPage() {
         data: {
           full_name: fullName,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: redirectTo,
       },
     })
 
@@ -57,10 +69,16 @@ export default function SignupPage() {
     setError(null)
     const supabase = createClient()
     
+    // Build redirect URL with plan info if present
+    let redirectTo = `${window.location.origin}/auth/callback`
+    if (redirectAfterSignup === 'pricing' && planId && cycle) {
+      redirectTo += `?redirect=pricing&plan=${planId}&cycle=${cycle}`
+    }
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo,
       },
     })
 

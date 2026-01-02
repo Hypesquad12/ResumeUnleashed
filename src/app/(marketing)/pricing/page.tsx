@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -21,8 +21,9 @@ import {
 } from '@/lib/geo-detection'
 import { createClient } from '@/lib/supabase/client'
 
-export default function PricingPage() {
+function PricingPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [region, setRegion] = useState<Region>('row')
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly')
   const [isDetecting, setIsDetecting] = useState(true)
@@ -30,6 +31,11 @@ export default function PricingPage() {
   const [user, setUser] = useState<any>(null)
 
   const plans = getPricingByRegion(region)
+  
+  // Check if user just signed up and should auto-select a plan
+  const autoSelectPlanId = searchParams.get('plan')
+  const autoSelectCycle = searchParams.get('cycle') as BillingCycle | null
+  const shouldAutoSelect = searchParams.get('autoselect') === 'true'
 
   // Detect user region on mount
   useEffect(() => {
@@ -66,15 +72,41 @@ export default function PricingPage() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      
+      // Auto-select plan after signup
+      if (user && shouldAutoSelect && autoSelectPlanId && autoSelectCycle) {
+        const selectedPlan = plans.find(p => p.id === autoSelectPlanId)
+        if (selectedPlan) {
+          // Set billing cycle
+          setBillingCycle(autoSelectCycle)
+          // Trigger plan selection after a short delay
+          setTimeout(() => {
+            handlePlanSelect(selectedPlan, autoSelectCycle)
+          }, 1000)
+        }
+      }
     }
     checkAuth()
-  }, [])
+  }, [shouldAutoSelect, autoSelectPlanId, autoSelectCycle, plans])
 
   const handlePlanSelect = async (plan: PricingPlan, cycle: BillingCycle) => {
+    // Skip free plan
+    if (plan.tier === 'free') {
+      if (!user) {
+        router.push('/signup')
+      } else {
+        router.push('/dashboard')
+      }
+      return
+    }
+
     // Check if user is authenticated
     if (!user) {
-      // Redirect to signup with plan info
-      router.push(`/signup?plan=${plan.id}&cycle=${cycle}`)
+      // Store plan selection and redirect to signup
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('selectedPlan', JSON.stringify({ planId: plan.id, cycle }))
+      }
+      router.push(`/signup?redirect=pricing&plan=${plan.id}&cycle=${cycle}`)
       return
     }
 
@@ -97,6 +129,7 @@ export default function PricingPage() {
 
       if (!response.ok) {
         const error = await response.json()
+        console.error('API Error:', error)
         throw new Error(error.error || 'Failed to create subscription')
       }
 
@@ -108,9 +141,14 @@ export default function PricingPage() {
       } else {
         throw new Error('No payment URL received')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Subscription error:', error)
-      alert('Failed to create subscription. Please try again.')
+      const errorMessage = error.message || 'Failed to create subscription. Please try again.'
+      
+      // Show user-friendly error
+      if (typeof window !== 'undefined') {
+        alert(errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -197,5 +235,17 @@ export default function PricingPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+      </div>
+    }>
+      <PricingPageContent />
+    </Suspense>
   )
 }
