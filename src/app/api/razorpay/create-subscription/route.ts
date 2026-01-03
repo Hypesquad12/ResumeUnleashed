@@ -100,12 +100,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Create subscription using Razorpay API
+    // For hosted checkout, subscription must be in 'created' status (not authenticated)
+    // Set start_at to future time to prevent auto-charge before authentication
+    const futureStart = Math.floor(Date.now() / 1000) + (24 * 60 * 60) // Start 24 hours from now
+    
     const subscriptionParams = {
       plan_id: razorpayPlanId,
       customer_id: customerId,
       total_count: billingCycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
+      start_at: futureStart, // Required for hosted authentication
+      addons: [], // Explicitly set empty addons
       notes: {
         user_id: user.id,
         plan_id: planId,
