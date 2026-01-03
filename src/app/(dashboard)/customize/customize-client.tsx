@@ -108,19 +108,17 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         return
       }
 
-      const sourceContent = sourceResume.content as any
-
       // Call Supabase Edge Function for AI customization
       const jdText = jobDescription || jobUrl
       
       const { data: edgeFnResult, error: edgeFnError } = await supabase.functions.invoke('customize-resume', {
         body: {
           resume: {
-            contact: sourceContent?.contact,
-            summary: sourceContent?.summary,
-            experience: sourceContent?.experience,
-            education: sourceContent?.education,
-            skills: sourceContent?.skills,
+            contact: sourceResume.contact,
+            summary: sourceResume.summary,
+            experience: sourceResume.experience,
+            education: sourceResume.education,
+            skills: sourceResume.skills,
           },
           jobDescription: jdText,
         },
@@ -171,11 +169,11 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           source_resume_id: selectedResume,
           title: `${sourceResume.title} - ${jobTitle}`,
           customized_content: option.customized_resume || {
-            contact: sourceContent?.contact,
-            summary: sourceContent?.summary,
-            experience: sourceContent?.experience,
-            education: sourceContent?.education,
-            skills: sourceContent?.skills,
+            contact: sourceResume.contact,
+            summary: sourceResume.summary,
+            experience: sourceResume.experience,
+            education: sourceResume.education,
+            skills: sourceResume.skills,
           },
           ai_suggestions: {
             keywords_added: option.keywords_added || [],
@@ -471,19 +469,17 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         return
       }
 
-      const sourceContent = sourceResume.content as any
-
       const jdText = jobDescription || jobUrl
       
       // Call edge function for cover letter generation
       const { data: result, error } = await supabase.functions.invoke('generate-cover-letter', {
         body: {
           resume: {
-            contact: sourceContent?.contact,
-            summary: sourceContent?.summary,
-            experience: sourceContent?.experience,
-            education: sourceContent?.education,
-            skills: sourceContent?.skills,
+            contact: sourceResume.contact,
+            summary: sourceResume.summary,
+            experience: sourceResume.experience,
+            education: sourceResume.education,
+            skills: sourceResume.skills,
           },
           jobDescription: jdText,
         },
@@ -491,10 +487,10 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
 
       if (error || !result?.success) {
         // Fallback to local generation if edge function fails
-        const contact = (sourceContent?.contact as any) || {}
+        const contact = (sourceResume.contact as any) || {}
         const name = contact.name || 'Your Name'
-        const experience = (sourceContent?.experience as any[]) || []
-        const skills = (sourceContent?.skills as any[]) || []
+        const experience = (sourceResume.experience as any[]) || []
+        const skills = (sourceResume.skills as any[]) || []
         
         // Extract company name from JD if possible
         const companyMatch = jdText.match(/(?:at|for|join)\s+([A-Z][a-zA-Z\s&]+?)(?:\s+as|\s+is|\.|,)/i)
@@ -516,7 +512,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
 
 I am writing to express my strong interest in ${jobTitle} at ${companyName}. With my background as a ${recentTitle}${recentCompany ? ` at ${recentCompany}` : ''}, I am confident in my ability to contribute meaningfully to your team.
 
-${sourceContent?.summary || `Throughout my career, I have developed expertise in ${topSkills.join(', ') || 'various technical and professional skills'}. I am passionate about delivering high-quality results and continuously improving my craft.`}
+${sourceResume.summary || `Throughout my career, I have developed expertise in ${topSkills.join(', ') || 'various technical and professional skills'}. I am passionate about delivering high-quality results and continuously improving my craft.`}
 
 My experience has equipped me with ${topSkills.length > 0 ? `strong skills in ${topSkills.join(', ')}` : 'a diverse skill set'}, which I believe align well with the requirements outlined in your job description. I am particularly drawn to this opportunity because it would allow me to leverage my expertise while continuing to grow professionally.
 

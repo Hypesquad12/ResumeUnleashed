@@ -52,7 +52,7 @@ export default function NewCardPage() {
       // Get the most recent resume
       const { data: resume } = await supabase
         .from('resumes')
-        .select('content')
+        .select('contact, experience')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -60,9 +60,8 @@ export default function NewCardPage() {
 
       if (resume) {
         setHasResume(true)
-        const content = resume.content as any
-        const contact = (content?.contact ?? null) as Record<string, string> | null
-        const experience = (content?.experience ?? null) as Array<{ company?: string; position?: string }> | null
+        const contact = resume.contact as Record<string, string> | null
+        const experience = resume.experience as Array<{ company?: string; position?: string }> | null
         
         // Get most recent job for title and company
         const latestJob = experience?.[0]

@@ -246,6 +246,51 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          status: string
+          subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency: string
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          status: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -285,37 +330,40 @@ export type Database = {
       public_resume_links: {
         Row: {
           created_at: string | null
+          customized_resume_id: string | null
           expires_at: string | null
           id: string
           is_active: boolean | null
+          password_hash: string | null
+          public_slug: string
           qr_code_url: string | null
           resume_id: string | null
-          slug: string
-          updated_at: string | null
           user_id: string
           view_count: number | null
         }
         Insert: {
           created_at?: string | null
+          customized_resume_id?: string | null
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
+          password_hash?: string | null
+          public_slug: string
           qr_code_url?: string | null
           resume_id?: string | null
-          slug: string
-          updated_at?: string | null
           user_id: string
           view_count?: number | null
         }
         Update: {
           created_at?: string | null
+          customized_resume_id?: string | null
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
+          password_hash?: string | null
+          public_slug?: string
           qr_code_url?: string | null
           resume_id?: string | null
-          slug?: string
-          updated_at?: string | null
           user_id?: string
           view_count?: number | null
         }
@@ -365,28 +413,58 @@ export type Database = {
       }
       resumes: {
         Row: {
-          content: Json
+          certifications: Json | null
+          contact: Json | null
           created_at: string | null
+          education: Json | null
+          experience: Json | null
           id: string
-          pdf_url: string | null
+          is_primary: boolean | null
+          languages: Json | null
+          photo_url: string | null
+          projects: Json | null
+          raw_file_url: string | null
+          skills: string[] | null
+          summary: string | null
+          template: string | null
           title: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
-          content?: Json
+          certifications?: Json | null
+          contact?: Json | null
           created_at?: string | null
+          education?: Json | null
+          experience?: Json | null
           id?: string
-          pdf_url?: string | null
-          title: string
+          is_primary?: boolean | null
+          languages?: Json | null
+          photo_url?: string | null
+          projects?: Json | null
+          raw_file_url?: string | null
+          skills?: string[] | null
+          summary?: string | null
+          template?: string | null
+          title?: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
-          content?: Json
+          certifications?: Json | null
+          contact?: Json | null
           created_at?: string | null
+          education?: Json | null
+          experience?: Json | null
           id?: string
-          pdf_url?: string | null
+          is_primary?: boolean | null
+          languages?: Json | null
+          photo_url?: string | null
+          projects?: Json | null
+          raw_file_url?: string | null
+          skills?: string[] | null
+          summary?: string | null
+          template?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
@@ -592,18 +670,10 @@ export type Database = {
         Relationships: []
       }
     }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+    Views: {}
+    Functions: {}
+    Enums: {}
+    CompositeTypes: {}
   }
 }
 
