@@ -59,8 +59,8 @@ export function verifyWebhookSignature(
 // The frontend will display USD equivalent prices for international users
 export const RAZORPAY_PLAN_IDS = {
   india: {
-    professional_monthly: 'plan_RyecePvMXf1Uhr', // ₹499 (missing from API response - needs to be created)
-    professional_annual: 'plan_RyecezQGguMJKV',   // ₹4,491 (missing from API response - needs to be created)
+    professional_monthly: 'plan_RyebhKyadxFPUY', // ₹499
+    professional_annual: 'plan_Ryebi5wDrJgrsE',   // ₹4,491
     premium_monthly: 'plan_RyecfdilZvSwQR',       // ₹899
     premium_annual: 'plan_RyecgHuskKvivp',        // ₹8,091
     ultimate_monthly: 'plan_Ryech70IbCoVES',      // ₹1,199
