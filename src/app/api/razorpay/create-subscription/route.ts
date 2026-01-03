@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       .from('subscriptions')
       .upsert({
         user_id: user.id,
-        plan_id: planId,
+        plan_id: razorpayPlanId, // Use Razorpay plan ID, not frontend plan ID
         razorpay_subscription_id: subscription.id,
         razorpay_customer_id: customerId,
         status: 'pending',
