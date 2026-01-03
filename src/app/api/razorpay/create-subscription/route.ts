@@ -99,6 +99,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Get app URL for callbacks
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.resumeunleashed.com'
+    
     // Create subscription using Razorpay API
     const subscriptionParams = {
       plan_id: razorpayPlanId,
@@ -112,6 +115,14 @@ export async function POST(request: NextRequest) {
         region,
         tier,
         billing_cycle: billingCycle,
+      },
+      notify_info: {
+        notify_email: user.email || '',
+      },
+      // Razorpay hosted checkout callback URLs
+      options: {
+        callback_url: `${appUrl}/checkout`,
+        cancel_url: `${appUrl}/checkout?status=cancelled`,
       },
     }
 
