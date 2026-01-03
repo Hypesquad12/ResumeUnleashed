@@ -71,13 +71,29 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      const customer = await razorpay.customers.create({
-        name: profile?.full_name || user.email?.split('@')[0] || 'User',
-        email: user.email || '',
-        fail_existing: 0,
-      }) as { id: string }
+      try {
+        const customer = await razorpay.customers.create({
+          name: profile?.full_name || user.email?.split('@')[0] || 'User',
+          email: user.email || '',
+          fail_existing: '0',
+        }) as { id: string }
 
-      customerId = customer.id
+        customerId = customer.id
+      } catch (customerError: any) {
+        // If customer already exists, fetch existing customer by email
+        if (customerError.error?.code === 'BAD_REQUEST_ERROR') {
+          console.log('Customer exists, fetching existing customer...')
+          const customers = await razorpay.customers.all({ email: user.email }) as { items: Array<{ id: string }> }
+          if (customers.items && customers.items.length > 0) {
+            customerId = customers.items[0].id
+            console.log('Using existing customer:', customerId)
+          } else {
+            throw new Error('Failed to create or fetch customer')
+          }
+        } else {
+          throw customerError
+        }
+      }
     }
 
     // Create subscription using Razorpay API
