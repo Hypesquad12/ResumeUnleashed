@@ -37,7 +37,12 @@ export async function POST(request: NextRequest) {
     const razorpayPlanKey = `${tier}_${billingCycle}` as keyof typeof RAZORPAY_PLAN_IDS.india
     const razorpayPlanId = RAZORPAY_PLAN_IDS[region][razorpayPlanKey]
 
+    console.log('Subscription request:', { planId, billingCycle, region, tier })
+    console.log('Razorpay plan key:', razorpayPlanKey)
+    console.log('Razorpay plan ID:', razorpayPlanId)
+
     if (!razorpayPlanId || razorpayPlanId === 'plan_xxxxx') {
+      console.error('Razorpay plan not found:', { region, tier, billingCycle })
       return NextResponse.json(
         { error: 'Razorpay plan not configured. Please set up plans in Razorpay Dashboard first.' },
         { status: 500 }
@@ -91,9 +96,13 @@ export async function POST(request: NextRequest) {
       },
     }
 
+    console.log('Creating Razorpay subscription with params:', subscriptionParams)
+
     const subscription = await razorpay.subscriptions.create(
       subscriptionParams as any
     ) as unknown as RazorpaySubscriptionResponse
+
+    console.log('Razorpay subscription created:', subscription.id)
 
     // Store subscription in database (pending status until payment)
     const periodStart = new Date()
@@ -127,10 +136,19 @@ export async function POST(request: NextRequest) {
       customerId,
       shortUrl: subscription.short_url,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Subscription creation error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      description: error.description,
+      statusCode: error.statusCode,
+      error: error.error,
+    })
+    
+    // Return more detailed error message
+    const errorMessage = error.description || error.message || 'Failed to create subscription'
     return NextResponse.json(
-      { error: 'Failed to create subscription' },
+      { error: errorMessage, details: error.error },
       { status: 500 }
     )
   }
