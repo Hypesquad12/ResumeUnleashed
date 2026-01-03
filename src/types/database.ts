@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   public: {
     Tables: {
       customized_resumes: {
@@ -60,36 +55,196 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "customized_resumes_job_description_id_fkey"
-            columns: ["job_description_id"]
-            isOneToOne: false
-            referencedRelation: "job_descriptions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customized_resumes_source_resume_id_fkey"
-            columns: ["source_resume_id"]
-            isOneToOne: false
-            referencedRelation: "resumes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customized_resumes_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "resume_templates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customized_resumes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      interview_sessions: {
+        Row: {
+          answers: Json | null
+          company_name: string | null
+          created_at: string | null
+          feedback: Json | null
+          id: string
+          job_description: string | null
+          job_title: string | null
+          overall_score: number | null
+          questions: Json | null
+          resume_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          company_name?: string | null
+          created_at?: string | null
+          feedback?: Json | null
+          id?: string
+          job_description?: string | null
+          job_title?: string | null
+          overall_score?: number | null
+          questions?: Json | null
+          resume_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          company_name?: string | null
+          created_at?: string | null
+          feedback?: Json | null
+          id?: string
+          job_description?: string | null
+          job_title?: string | null
+          overall_score?: number | null
+          questions?: Json | null
+          resume_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          applied_at: string | null
+          company_name: string
+          created_at: string | null
+          customized_resume_id: string | null
+          id: string
+          job_description: string | null
+          job_title: string
+          job_url: string | null
+          location: string | null
+          next_step: string | null
+          next_step_date: string | null
+          notes: string | null
+          remote_type: string | null
+          response_at: string | null
+          resume_id: string | null
+          salary_max: number | null
+          salary_min: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string | null
+          company_name: string
+          created_at?: string | null
+          customized_resume_id?: string | null
+          id?: string
+          job_description?: string | null
+          job_title: string
+          job_url?: string | null
+          location?: string | null
+          next_step?: string | null
+          next_step_date?: string | null
+          notes?: string | null
+          remote_type?: string | null
+          response_at?: string | null
+          resume_id?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          applied_at?: string | null
+          company_name?: string
+          created_at?: string | null
+          customized_resume_id?: string | null
+          id?: string
+          job_description?: string | null
+          job_title?: string
+          job_url?: string | null
+          location?: string | null
+          next_step?: string | null
+          next_step_date?: string | null
+          notes?: string | null
+          remote_type?: string | null
+          response_at?: string | null
+          resume_id?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_descriptions: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          description: string
+          extracted_keywords: string[] | null
+          id: string
+          requirements: string[] | null
+          title: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          description: string
+          extracted_keywords?: string[] | null
+          id?: string
+          requirements?: string[] | null
+          title: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          description?: string
+          extracted_keywords?: string[] | null
+          id?: string
+          requirements?: string[] | null
+          title?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      link_analytics: {
+        Row: {
+          card_id: string | null
+          city: string | null
+          country: string | null
+          id: string
+          ip_address: string | null
+          link_id: string | null
+          referrer: string | null
+          user_agent: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          card_id?: string | null
+          city?: string | null
+          country?: string | null
+          id?: string
+          ip_address?: string | null
+          link_id?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          card_id?: string | null
+          city?: string | null
+          country?: string | null
+          id?: string
+          ip_address?: string | null
+          link_id?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -123,6 +278,162 @@ export type Database = {
           id?: string
           phone?: string | null
           role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      public_resume_links: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          qr_code_url: string | null
+          resume_id: string | null
+          slug: string
+          updated_at: string | null
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          qr_code_url?: string | null
+          resume_id?: string | null
+          slug: string
+          updated_at?: string | null
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          qr_code_url?: string | null
+          resume_id?: string | null
+          slug?: string
+          updated_at?: string | null
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      resume_templates: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_premium: boolean | null
+          name: string
+          preview_image_url: string | null
+          template_data: Json
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name: string
+          preview_image_url?: string | null
+          template_data?: Json
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name?: string
+          preview_image_url?: string | null
+          template_data?: Json
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      resumes: {
+        Row: {
+          content: Json
+          created_at: string | null
+          id: string
+          pdf_url: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          pdf_url?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          pdf_url?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string | null
+          currency: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          limits: Json | null
+          name: string
+          price_annual: string
+          price_monthly: string
+          region: string
+          tier: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          limits?: Json | null
+          name: string
+          price_annual: string
+          price_monthly: string
+          region: string
+          tier: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          limits?: Json | null
+          name?: string
+          price_annual?: string
+          price_monthly?: string
+          region?: string
+          tier?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -175,6 +486,111 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_tracking: {
+        Row: {
+          created_at: string | null
+          feature_type: string
+          id: string
+          period_end: string
+          period_start: string
+          subscription_id: string | null
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feature_type: string
+          id?: string
+          period_end: string
+          period_start: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feature_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      visiting_cards: {
+        Row: {
+          card_image_url: string | null
+          company: string | null
+          created_at: string | null
+          custom_fields: Json | null
+          email: string | null
+          github: string | null
+          id: string
+          is_active: boolean | null
+          linkedin: string | null
+          name: string
+          phone: string | null
+          public_slug: string | null
+          qr_code_url: string | null
+          template_id: string | null
+          theme_color: string | null
+          title: string | null
+          twitter: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          card_image_url?: string | null
+          company?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          email?: string | null
+          github?: string | null
+          id?: string
+          is_active?: boolean | null
+          linkedin?: string | null
+          name: string
+          phone?: string | null
+          public_slug?: string | null
+          qr_code_url?: string | null
+          template_id?: string | null
+          theme_color?: string | null
+          title?: string | null
+          twitter?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          card_image_url?: string | null
+          company?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          email?: string | null
+          github?: string | null
+          id?: string
+          is_active?: boolean | null
+          linkedin?: string | null
+          name?: string
+          phone?: string | null
+          public_slug?: string | null
+          qr_code_url?: string | null
+          template_id?: string | null
+          theme_color?: string | null
+          title?: string | null
+          twitter?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -191,85 +607,5 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
