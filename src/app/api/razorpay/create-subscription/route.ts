@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       .from('subscriptions')
       .select('razorpay_customer_id')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle() // Use maybeSingle() instead of single() to handle no results gracefully
 
     if (existingSubscription?.razorpay_customer_id) {
       customerId = existingSubscription.razorpay_customer_id
