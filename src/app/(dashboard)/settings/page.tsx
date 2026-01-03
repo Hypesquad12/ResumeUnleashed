@@ -8,36 +8,54 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Loader2, User } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Loader2, User, Crown, CreditCard, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 import type { Database } from '@/types/database'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
+type Subscription = Database['public']['Tables']['subscriptions']['Row']
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [fullName, setFullName] = useState('')
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        const { data } = await supabase
+        // Fetch profile
+        const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single()
         
-        if (data) {
-          setProfile(data)
-          setFullName(data.full_name || '')
+        if (profileData) {
+          setProfile(profileData)
+          setFullName(profileData.full_name || '')
+        }
+
+        // Fetch subscription
+        const { data: subscriptionData } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .single()
+        
+        if (subscriptionData) {
+          setSubscription(subscriptionData)
         }
       }
     }
-    fetchProfile()
+    fetchData()
   }, [])
 
   const handleUpdateProfile = async () => {
@@ -129,6 +147,78 @@ export default function SettingsPage() {
               'Save Changes'
             )}
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Subscription</CardTitle>
+              <CardDescription>Manage your subscription plan</CardDescription>
+            </div>
+            {subscription && (
+              <Badge variant="default" className="bg-gradient-to-r from-violet-600 to-indigo-600">
+                <Crown className="h-3 w-3 mr-1" />
+                {subscription.plan_id.split('-')[1]?.toUpperCase() || 'PREMIUM'}
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {subscription ? (
+            <>
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                <div className="space-y-1">
+                  <p className="font-medium">Current Plan</p>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {subscription.plan_id.split('-')[1] || 'Premium'} - {subscription.billing_cycle}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Status: <span className="text-emerald-600 font-medium">{subscription.status}</span>
+                  </p>
+                  {subscription.current_period_end && (
+                    <p className="text-xs text-muted-foreground">
+                      Renews: {new Date(subscription.current_period_end).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+                <CreditCard className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => router.push('/pricing')}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Change Plan
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => toast.info('Cancellation feature coming soon')}
+                >
+                  Cancel Subscription
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-6">
+              <Crown className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+              <p className="font-medium mb-2">No Active Subscription</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Upgrade to unlock premium features
+              </p>
+              <Button 
+                onClick={() => router.push('/pricing')}
+                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+              >
+                <Crown className="h-4 w-4 mr-2" />
+                View Plans
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
