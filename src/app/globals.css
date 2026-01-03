@@ -344,3 +344,13 @@ html {
   animation: progress 1.5s ease-out 0.8s forwards;
   width: 0;
 }
+
+/* Scrolling animation for company logos */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}

@@ -4,13 +4,20 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, CheckCircle2, Shield, Clock, Star, Play, FileText, Sparkles, Target } from 'lucide-react'
 import Link from 'next/link'
 
-// Company logos for social proof
+// Company logos for social proof - using actual logos
 const companyLogos = [
-  { name: 'Google', initial: 'G' },
-  { name: 'Microsoft', initial: 'M' },
-  { name: 'Amazon', initial: 'A' },
-  { name: 'Meta', initial: 'F' },
-  { name: 'Apple', initial: 'A' },
+  { name: 'Google', logo: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png' },
+  { name: 'Microsoft', logo: 'https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31' },
+  { name: 'Amazon', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg' },
+  { name: 'Meta', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg' },
+  { name: 'Apple', logo: 'https://www.apple.com/ac/structured-data/images/knowledge_graph_logo.png' },
+  { name: 'Deloitte', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Deloitte.svg' },
+  { name: 'PwC', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/PwC_Logo.svg' },
+  { name: 'EY', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/07/EY_logo_2019.svg' },
+  { name: 'KPMG', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/KPMG_logo.svg' },
+  { name: 'McKinsey', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/9e/McKinsey_and_Company_Logo.svg' },
+  { name: 'BCG', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d8/Boston_Consulting_Group_2020_logo.svg' },
+  { name: 'Bain', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Bain_and_Company_logo.svg' },
 ]
 
 export function HeroSection() {
@@ -97,16 +104,36 @@ export function HeroSection() {
               <p className="text-xs text-slate-500 uppercase tracking-wide font-medium mb-4">
                 Our users landed jobs at
               </p>
-              <div className="flex items-center gap-6">
-                {companyLogos.map((company) => (
-                  <div
-                    key={company.name}
-                    className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-lg hover:bg-slate-200 transition-colors"
-                    title={company.name}
-                  >
-                    {company.initial}
-                  </div>
-                ))}
+              <div className="flex items-center gap-6 overflow-hidden">
+                <div className="flex items-center gap-6 animate-scroll">
+                  {companyLogos.map((company) => (
+                    <div
+                      key={company.name}
+                      className="flex-shrink-0 h-8 w-auto grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
+                      title={company.name}
+                    >
+                      <img 
+                        src={company.logo} 
+                        alt={`${company.name} logo`}
+                        className="h-8 w-auto object-contain"
+                      />
+                    </div>
+                  ))}
+                  {/* Duplicate for seamless scroll */}
+                  {companyLogos.map((company) => (
+                    <div
+                      key={`${company.name}-duplicate`}
+                      className="flex-shrink-0 h-8 w-auto grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
+                      title={company.name}
+                    >
+                      <img 
+                        src={company.logo} 
+                        alt={`${company.name} logo`}
+                        className="h-8 w-auto object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
