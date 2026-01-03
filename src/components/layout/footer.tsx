@@ -24,12 +24,6 @@ export function Footer() {
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
               AI-powered resume builder and career tools to help you land your dream job.
             </p>
-            <div className="text-xs text-slate-500 dark:text-slate-500 space-y-1">
-              <p className="font-semibold">HYPESQUAD SOLUTIONS PRIVATE LIMITED</p>
-              <p>PLOT NO 20, SHAKTHI SAI NAGAR,</p>
-              <p>Mallapur, Hyderabad,</p>
-              <p>Medchal Malkajgiri, Telangana, 500076</p>
-            </div>
           </div>
 
           {/* Legal Links */}
@@ -87,7 +81,7 @@ export function Footer() {
         <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              © {currentYear} HYPESQUAD SOLUTIONS PRIVATE LIMITED. All rights reserved.
+              © {currentYear} Resume Unleashed. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <Link href="/terms" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">

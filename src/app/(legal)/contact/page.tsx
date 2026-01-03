@@ -132,20 +132,6 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-800">Registered Office</h3>
-                  <p className="text-slate-600">
-                    HYPESQUAD SOLUTIONS PRIVATE LIMITED<br />
-                    PLOT NO 20, SHAKTHI SAI NAGAR<br />
-                    Mallapur, Hyderabad<br />
-                    Medchal Malkajgiri, Telangana, 500076
-                  </p>
-                </div>
-              </div>
             </CardContent>
           </Card>
 
