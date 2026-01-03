@@ -49,9 +49,9 @@ export function Navbar() {
                 <img 
                   src="/images/logo.png" 
                   alt="Resume Unleashed Logo" 
-                  className="h-8 w-auto"
+                  className="h-12 w-auto"
                 />
-                <span className="font-bold text-lg text-slate-900">Resume Unleashed</span>
+                <span className="font-bold text-base text-slate-900">Resume Unleashed</span>
               </motion.div>
             </Link>
 

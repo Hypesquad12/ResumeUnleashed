@@ -296,7 +296,7 @@ export function PricingSection() {
                   </div>
 
                   {/* CTA Button */}
-                  <Link href="/pricing" className="block mb-6">
+                  <Link href={plan.isFree ? '/signup' : '/pricing'} className="block mb-6">
                     <Button 
                       className={`w-full ${
                         plan.popular
@@ -307,7 +307,7 @@ export function PricingSection() {
                       }`}
                       size="lg"
                     >
-                      {plan.isFree ? 'Start Free' : 'View Plans'}
+                      {plan.isFree ? 'Start Free' : 'Get Started'}
                     </Button>
                   </Link>
                   
