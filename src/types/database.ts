@@ -17,6 +17,7 @@ export type Database = {
       customized_resumes: {
         Row: {
           ai_suggestions: Json | null
+          cover_letter: string | null
           created_at: string | null
           customized_content: Json
           id: string
@@ -31,6 +32,7 @@ export type Database = {
         }
         Insert: {
           ai_suggestions?: Json | null
+          cover_letter?: string | null
           created_at?: string | null
           customized_content?: Json
           id?: string
@@ -45,6 +47,7 @@ export type Database = {
         }
         Update: {
           ai_suggestions?: Json | null
+          cover_letter?: string | null
           created_at?: string | null
           customized_content?: Json
           id?: string
@@ -57,79 +60,36 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
-      }
-      job_descriptions: {
-        Row: {
-          company: string | null
-          created_at: string | null
-          description: string
-          extracted_keywords: string[] | null
-          id: string
-          requirements: string[] | null
-          title: string
-          url: string | null
-          user_id: string
-        }
-        Insert: {
-          company?: string | null
-          created_at?: string | null
-          description: string
-          extracted_keywords?: string[] | null
-          id?: string
-          requirements?: string[] | null
-          title: string
-          url?: string | null
-          user_id: string
-        }
-        Update: {
-          company?: string | null
-          created_at?: string | null
-          description?: string
-          extracted_keywords?: string[] | null
-          id?: string
-          requirements?: string[] | null
-          title?: string
-          url?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      link_analytics: {
-        Row: {
-          card_id: string | null
-          city: string | null
-          country: string | null
-          id: string
-          ip_address: string | null
-          link_id: string | null
-          referrer: string | null
-          user_agent: string | null
-          viewed_at: string | null
-        }
-        Insert: {
-          card_id?: string | null
-          city?: string | null
-          country?: string | null
-          id?: string
-          ip_address?: string | null
-          link_id?: string | null
-          referrer?: string | null
-          user_agent?: string | null
-          viewed_at?: string | null
-        }
-        Update: {
-          card_id?: string | null
-          city?: string | null
-          country?: string | null
-          id?: string
-          ip_address?: string | null
-          link_id?: string | null
-          referrer?: string | null
-          user_agent?: string | null
-          viewed_at?: string | null
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customized_resumes_job_description_id_fkey"
+            columns: ["job_description_id"]
+            isOneToOne: false
+            referencedRelation: "job_descriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customized_resumes_source_resume_id_fkey"
+            columns: ["source_resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customized_resumes_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "resume_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customized_resumes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -139,6 +99,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          phone: string | null
           role: string | null
           updated_at: string | null
         }
@@ -149,6 +110,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          phone?: string | null
           role?: string | null
           updated_at?: string | null
         }
@@ -159,389 +121,57 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          phone?: string | null
           role?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      public_resume_links: {
-        Row: {
-          created_at: string | null
-          customized_resume_id: string | null
-          expires_at: string | null
-          id: string
-          is_active: boolean | null
-          password_hash: string | null
-          public_slug: string
-          qr_code_url: string | null
-          user_id: string
-          view_count: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          customized_resume_id?: string | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          password_hash?: string | null
-          public_slug: string
-          qr_code_url?: string | null
-          user_id: string
-          view_count?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          customized_resume_id?: string | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          password_hash?: string | null
-          public_slug?: string
-          qr_code_url?: string | null
-          user_id?: string
-          view_count?: number | null
-        }
-        Relationships: []
-      }
-      resume_templates: {
-        Row: {
-          created_at: string | null
-          css_styles: string | null
-          description: string | null
-          html_template: string | null
-          id: string
-          is_active: boolean | null
-          is_premium: boolean | null
-          name: string
-          slug: string
-          template_type: string | null
-          thumbnail_url: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          css_styles?: string | null
-          description?: string | null
-          html_template?: string | null
-          id?: string
-          is_active?: boolean | null
-          is_premium?: boolean | null
-          name: string
-          slug: string
-          template_type?: string | null
-          thumbnail_url?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          css_styles?: string | null
-          description?: string | null
-          html_template?: string | null
-          id?: string
-          is_active?: boolean | null
-          is_premium?: boolean | null
-          name?: string
-          slug?: string
-          template_type?: string | null
-          thumbnail_url?: string | null
-        }
-        Relationships: []
-      }
-      resumes: {
-        Row: {
-          certifications: Json | null
-          contact: Json | null
-          created_at: string | null
-          education: Json | null
-          experience: Json | null
-          id: string
-          is_primary: boolean | null
-          languages: Json | null
-          projects: Json | null
-          raw_file_url: string | null
-          skills: string[] | null
-          summary: string | null
-          template: string | null
-          title: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          certifications?: Json | null
-          contact?: Json | null
-          created_at?: string | null
-          education?: Json | null
-          experience?: Json | null
-          id?: string
-          is_primary?: boolean | null
-          languages?: Json | null
-          projects?: Json | null
-          raw_file_url?: string | null
-          skills?: string[] | null
-          summary?: string | null
-          template?: string | null
-          title?: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          certifications?: Json | null
-          contact?: Json | null
-          created_at?: string | null
-          education?: Json | null
-          experience?: Json | null
-          id?: string
-          is_primary?: boolean | null
-          languages?: Json | null
-          projects?: Json | null
-          raw_file_url?: string | null
-          skills?: string[] | null
-          summary?: string | null
-          template?: string | null
-          title?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      visiting_cards: {
-        Row: {
-          card_image_url: string | null
-          company: string | null
-          created_at: string | null
-          custom_fields: Json | null
-          email: string | null
-          github: string | null
-          id: string
-          is_active: boolean | null
-          linkedin: string | null
-          name: string
-          phone: string | null
-          public_slug: string | null
-          qr_code_url: string | null
-          template_id: string | null
-          theme_color: string | null
-          title: string | null
-          twitter: string | null
-          updated_at: string | null
-          user_id: string
-          website: string | null
-        }
-        Insert: {
-          card_image_url?: string | null
-          company?: string | null
-          created_at?: string | null
-          custom_fields?: Json | null
-          email?: string | null
-          github?: string | null
-          id?: string
-          is_active?: boolean | null
-          linkedin?: string | null
-          name: string
-          phone?: string | null
-          public_slug?: string | null
-          qr_code_url?: string | null
-          template_id?: string | null
-          theme_color?: string | null
-          title?: string | null
-          twitter?: string | null
-          updated_at?: string | null
-          user_id: string
-          website?: string | null
-        }
-        Update: {
-          card_image_url?: string | null
-          company?: string | null
-          created_at?: string | null
-          custom_fields?: Json | null
-          email?: string | null
-          github?: string | null
-          id?: string
-          is_active?: boolean | null
-          linkedin?: string | null
-          name?: string
-          phone?: string | null
-          public_slug?: string | null
-          qr_code_url?: string | null
-          template_id?: string | null
-          theme_color?: string | null
-          title?: string | null
-          twitter?: string | null
-          updated_at?: string | null
-          user_id?: string
-          website?: string | null
-        }
-        Relationships: []
-      }
-      subscription_plans: {
-        Row: {
-          id: string
-          name: string
-          tier: string
-          region: string
-          currency: string
-          price_monthly: number
-          price_annual: number
-          features: Json
-          limits: Json
-          is_active: boolean | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          name: string
-          tier: string
-          region: string
-          currency: string
-          price_monthly: number
-          price_annual: number
-          features?: Json
-          limits?: Json
-          is_active?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          name?: string
-          tier?: string
-          region?: string
-          currency?: string
-          price_monthly?: number
-          price_annual?: number
-          features?: Json
-          limits?: Json
-          is_active?: boolean | null
-          created_at?: string | null
           updated_at?: string | null
         }
         Relationships: []
       }
       subscriptions: {
         Row: {
-          id: string
-          user_id: string
-          plan_id: string
-          razorpay_subscription_id: string | null
-          razorpay_customer_id: string | null
-          status: string
           billing_cycle: string
-          current_period_start: string
-          current_period_end: string
           cancel_at_period_end: boolean | null
           cancelled_at: string | null
           created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          plan_id: string
-          razorpay_subscription_id?: string | null
-          razorpay_customer_id?: string | null
-          status?: string
-          billing_cycle: string
-          current_period_start: string
           current_period_end: string
+          current_period_start: string
+          id: string
+          plan_id: string
+          razorpay_customer_id: string | null
+          razorpay_subscription_id: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          billing_cycle: string
           cancel_at_period_end?: boolean | null
           cancelled_at?: string | null
           created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
+          current_period_end: string
+          current_period_start: string
           id?: string
-          user_id?: string
-          plan_id?: string
-          razorpay_subscription_id?: string | null
+          plan_id: string
           razorpay_customer_id?: string | null
-          status?: string
+          razorpay_subscription_id?: string | null
+          status: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
           billing_cycle?: string
-          current_period_start?: string
-          current_period_end?: string
           cancel_at_period_end?: boolean | null
           cancelled_at?: string | null
           created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      payment_transactions: {
-        Row: {
-          id: string
-          user_id: string
-          subscription_id: string | null
-          razorpay_payment_id: string | null
-          razorpay_order_id: string | null
-          amount: number
-          currency: string
-          status: string
-          payment_method: string | null
-          metadata: Json | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
+          current_period_end?: string
+          current_period_start?: string
           id?: string
-          user_id: string
-          subscription_id?: string | null
-          razorpay_payment_id?: string | null
-          razorpay_order_id?: string | null
-          amount: number
-          currency: string
-          status: string
-          payment_method?: string | null
-          metadata?: Json | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          subscription_id?: string | null
-          razorpay_payment_id?: string | null
-          razorpay_order_id?: string | null
-          amount?: number
-          currency?: string
+          plan_id?: string
+          razorpay_customer_id?: string | null
+          razorpay_subscription_id?: string | null
           status?: string
-          payment_method?: string | null
-          metadata?: Json | null
-          created_at?: string | null
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      usage_tracking: {
-        Row: {
-          id: string
-          user_id: string
-          subscription_id: string | null
-          feature_type: string
-          usage_count: number | null
-          period_start: string
-          period_end: string
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          subscription_id?: string | null
-          feature_type: string
-          usage_count?: number | null
-          period_start: string
-          period_end: string
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
           user_id?: string
-          subscription_id?: string | null
-          feature_type?: string
-          usage_count?: number | null
-          period_start?: string
-          period_end?: string
-          created_at?: string | null
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -560,3 +190,86 @@ export type Database = {
     }
   }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
