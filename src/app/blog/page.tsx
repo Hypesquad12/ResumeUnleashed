@@ -8,6 +8,10 @@ export const metadata = {
   title: 'Blog | Resume Unleashed - Resume Builder & Resume Maker Tips',
   description: 'Expert tips on using our resume builder and resume maker, job search strategies, interview preparation, and career advice. Learn how to write a resume that gets noticed.',
   keywords: 'resume builder, resume maker, how to write a resume, resume templates, job application tips, career advice, ATS resume, interview tips',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function BlogPage() {

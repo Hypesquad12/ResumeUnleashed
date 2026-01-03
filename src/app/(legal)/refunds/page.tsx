@@ -4,6 +4,10 @@ import { RefreshCw } from 'lucide-react'
 export const metadata = {
   title: 'Cancellation and Refunds | Resume Unleashed',
   description: 'Cancellation and Refunds Policy for Resume Unleashed services',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RefundsPage() {

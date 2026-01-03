@@ -23,6 +23,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${post.title} | Resume Unleashed Blog`,
     description: post.excerpt,
     keywords: post.tags.join(', '),
+    robots: {
+      index: true,
+      follow: true,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,

@@ -4,6 +4,10 @@ import { Truck } from 'lucide-react'
 export const metadata = {
   title: 'Shipping Policy | Resume Unleashed',
   description: 'Shipping Policy for Resume Unleashed services',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function ShippingPage() {

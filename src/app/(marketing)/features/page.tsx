@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: 'Features - AI-Powered Resume Builder | Resume Unleashed',
   description: 'Discover powerful features including AI customization, ATS optimization, multiple templates, and more to help you land your dream job.',
   keywords: 'resume features, AI resume, ATS optimization, resume templates, job matching',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function FeaturesPage() {

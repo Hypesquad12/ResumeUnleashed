@@ -1,0 +1,186 @@
+# Resume Unleashed - AI-Powered Resume Builder
+
+## Overview
+Resume Unleashed is a comprehensive AI-powered resume builder and career tools platform that helps job seekers create ATS-optimized resumes, customize them for specific job descriptions, and manage their professional brand.
+
+## Core Features
+
+### Resume Management
+- **AI Resume Customization**: Automatically tailor resumes to match specific job descriptions using AI
+- **ATS Optimization**: Ensure resumes pass Applicant Tracking Systems
+- **Multiple Templates**: Professional resume templates for various industries
+- **Resume Parser**: Upload and parse existing resumes
+- **Version Control**: Track different versions of customized resumes
+
+### Career Tools
+- **Interview Preparation**: AI-powered interview prep based on job descriptions
+- **Salary Estimation**: Get salary insights for different roles and locations
+- **Job Matching**: Match your skills with job requirements
+
+### Professional Branding
+- **Digital Visiting Cards**: Create professional digital business cards
+- **Public Resume Links**: Share resumes via unique URLs with QR codes
+- **Analytics Dashboard**: Track resume views and engagement
+
+## Technology Stack
+- **Frontend**: Next.js 16 (App Router), React, TypeScript
+- **Styling**: TailwindCSS, shadcn/ui components
+- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **AI**: OpenAI API for resume customization and analysis
+- **Payments**: Razorpay for subscription management
+- **Analytics**: Vercel Analytics, Google Analytics
+
+## Database Schema
+
+### Tables
+1. **profiles**: User profiles with role and company_id for RLS
+2. **resumes**: Source resume data and metadata
+3. **job_descriptions**: Job postings for AI matching
+4. **resume_templates**: Resume and card templates
+5. **customized_resumes**: AI-generated resume versions
+6. **visiting_cards**: Digital business card data
+7. **public_resume_links**: Shareable resume links with QR codes
+8. **link_analytics**: View tracking and engagement metrics
+9. **subscriptions**: User subscription and payment data
+
+### Security
+- Row Level Security (RLS) enabled on all tables
+- JWT metadata includes role and company_id
+- Authentication via Supabase Auth (email/password, OAuth)
+
+## Subscription Plans
+
+### India Pricing (INR)
+- **Professional**: ₹799/month, ₹7,670/year
+- **Premium**: ₹1,349/month, ₹12,950/year
+- **Ultimate**: ₹1,599/month, ₹15,350/year
+
+### International Pricing (USD equivalent, charged in INR)
+- **Professional**: $9.99/month, $95.99/year
+- **Premium**: $16.99/month, $163.99/year
+- **Ultimate**: $19.99/month, $191.99/year
+
+## Key Pages
+
+### Marketing
+- `/` - Landing page with hero, features, testimonials, pricing
+- `/pricing` - Detailed pricing plans with region detection
+- `/features` - Feature showcase
+- `/changelog` - Product updates and version history
+- `/blog` - Career advice and resume tips
+- `/contact` - Contact form and support
+
+### Authentication
+- `/signup` - User registration (email/password, OAuth)
+- `/login` - User login
+- `/auth/callback` - OAuth callback handler
+
+### Dashboard (Protected)
+- `/dashboard` - Main dashboard overview
+- `/resumes` - Resume management
+- `/resumes/new` - Upload new resume
+- `/resumes/[id]` - Edit resume
+- `/customize` - AI resume customization
+- `/templates` - Browse templates
+- `/cards` - Visiting card management
+- `/interview` - Interview preparation
+- `/salary` - Salary estimation tool
+- `/settings` - User settings and subscription
+
+### Legal
+- `/terms` - Terms of Service
+- `/privacy` - Privacy Policy
+- `/refunds` - Refund Policy
+- `/shipping` - Shipping Policy (digital products)
+
+## API Endpoints
+
+### Resume Operations
+- `POST /api/parse-resume` - Parse uploaded resume
+- `POST /api/customize-resume` - AI customize resume for job
+
+### Career Tools
+- `POST /api/estimate-salary` - Estimate salary for role/location
+
+### Payments
+- `POST /api/razorpay/create-subscription` - Create Razorpay subscription
+- `POST /api/razorpay/webhook` - Handle payment webhooks
+
+## Environment Variables Required
+```
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# OpenAI
+OPENAI_API_KEY=
+
+# Razorpay
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
+NEXT_PUBLIC_RAZORPAY_KEY_ID=
+
+# Analytics
+NEXT_PUBLIC_GA_MEASUREMENT_ID=
+```
+
+## SEO & Metadata
+- Primary keyword: "AI-powered resume customization"
+- Title: "Best AI-Powered Resume Customization | Resume Unleashed"
+- Focus: ATS optimization, job matching, professional branding
+- Target audience: Job seekers, career changers, professionals
+
+## Contact Information
+- Email: info@hypesquad.ai
+- Website: resumeunleashed.com
+
+## Development
+- Built with Next.js 16 App Router
+- TypeScript for type safety
+- Server and client components architecture
+- Edge functions for server-side operations
+- Responsive design with mobile-first approach
+
+## Recent Updates
+- Rebranded from "ResumeAI" to "Resume Unleashed"
+- Fixed subscription flow with authentication checks
+- Added checkout page for payment status
+- Removed company address from public pages
+- Implemented region-based pricing detection
+- Created dedicated pages for features and changelog
+
+## User Flow
+
+### New User Journey
+1. Visit landing page
+2. Browse features and pricing
+3. Sign up for account
+4. Upload resume or create new
+5. Customize for job description
+6. Download or share via link
+7. Track engagement via analytics
+
+### Subscription Flow
+1. Select plan on pricing page
+2. Redirect to signup if not authenticated
+3. Complete authentication
+4. Auto-redirect back to pricing
+5. Create Razorpay subscription
+6. Complete payment
+7. View status on checkout page
+8. Access premium features
+
+## Best Practices
+- All user data protected with RLS
+- JWT metadata used for authorization
+- Edge functions for sensitive operations
+- Client-side components for interactivity
+- Server components for data fetching
+- Optimistic UI updates where appropriate
+- Error boundaries for graceful failures
+- Loading states for better UX
+
+## Support
+For technical issues or feature requests, contact: info@hypesquad.ai

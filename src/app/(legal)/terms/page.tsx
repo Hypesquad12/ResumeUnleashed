@@ -4,6 +4,10 @@ import { FileText } from 'lucide-react'
 export const metadata = {
   title: 'Terms and Conditions | Resume Unleashed',
   description: 'Terms and Conditions for using Resume Unleashed services',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function TermsPage() {

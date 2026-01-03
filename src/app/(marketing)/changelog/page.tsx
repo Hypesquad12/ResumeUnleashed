@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: 'Changelog - Product Updates | Resume Unleashed',
   description: 'Stay updated with the latest features, improvements, and bug fixes in Resume Unleashed.',
   keywords: 'changelog, updates, new features, product updates',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 const changelogEntries = [

@@ -21,10 +21,29 @@ export const metadata: Metadata = {
   title: "Best AI-Powered Resume Customization | Resume Unleashed",
   description: "Transform your resume with the best AI-powered customization. Create ATS-optimized resumes tailored to any job. Get hired faster with Resume Unleashed.",
   keywords: "AI resume customization, best resume builder, ATS resume, AI-powered resume, resume maker, job application, career",
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/images/logo.png', type: 'image/png' },
+    ],
+    apple: '/images/logo.png',
+  },
   openGraph: {
     title: "Best AI-Powered Resume Customization | Resume Unleashed",
     description: "Transform your resume with the best AI-powered customization. Create ATS-optimized resumes tailored to any job.",
     type: "website",
+    images: ['/images/logo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 

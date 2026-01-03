@@ -4,6 +4,10 @@ import { Shield } from 'lucide-react'
 export const metadata = {
   title: 'Privacy Policy | Resume Unleashed',
   description: 'Privacy Policy for Resume Unleashed services',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function PrivacyPage() {
