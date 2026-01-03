@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
     ) as unknown as RazorpaySubscriptionResponse
 
     console.log('Razorpay subscription created:', subscription.id)
+    console.log('Razorpay subscription response:', JSON.stringify(subscription, null, 2))
 
     // Store subscription in database (pending status until payment)
     const periodStart = new Date()
@@ -148,6 +149,12 @@ export async function POST(request: NextRequest) {
       console.error('Database error:', dbError)
       return NextResponse.json({ error: 'Failed to save subscription' }, { status: 500 })
     }
+
+    console.log('Returning response:', {
+      subscriptionId: subscription.id,
+      customerId,
+      shortUrl: subscription.short_url,
+    })
 
     return NextResponse.json({
       subscriptionId: subscription.id,
