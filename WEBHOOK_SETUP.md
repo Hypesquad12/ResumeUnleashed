@@ -19,13 +19,18 @@ http://localhost:3000/api/razorpay/webhook
 ---
 
 ## **Secret**
-Leave this field **empty** for now. After creating the webhook, Razorpay will generate a secret for you. Then:
+**Leave this field EMPTY** - Razorpay does not automatically generate webhook secrets.
 
-1. Copy the generated secret
-2. Add it to your `.env.local` file:
+**Note**: Webhook secrets are **optional** in Razorpay. The webhook will work without a secret, but for production security, you can manually create one:
+
+1. Generate a random secret (e.g., using: `openssl rand -hex 32`)
+2. Enter it in the Razorpay webhook form
+3. Add the same secret to your `.env.local` file:
    ```bash
-   RAZORPAY_WEBHOOK_SECRET=whsec_your_generated_secret_here
+   RAZORPAY_WEBHOOK_SECRET=your_manually_created_secret_here
    ```
+
+**For now, you can skip the secret** - the webhook handler will work without signature verification.
 
 ---
 

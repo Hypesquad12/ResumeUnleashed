@@ -8,15 +8,15 @@ export async function POST(request: NextRequest) {
     const body = await request.text()
     const signature = request.headers.get('x-razorpay-signature')
 
-    if (!signature) {
-      return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
-    }
-
-    // Verify webhook signature
-    const isValid = verifyWebhookSignature(body, signature)
-    if (!isValid) {
-      console.error('Invalid webhook signature')
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    // Only verify signature if webhook secret is configured
+    if (signature && process.env.RAZORPAY_WEBHOOK_SECRET) {
+      const isValid = verifyWebhookSignature(body, signature)
+      if (!isValid) {
+        console.error('Invalid webhook signature')
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+      }
+    } else if (!signature) {
+      console.warn('Webhook received without signature - proceeding without verification')
     }
 
     const event = JSON.parse(body)
