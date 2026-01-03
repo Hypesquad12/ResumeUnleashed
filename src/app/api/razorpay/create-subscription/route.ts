@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       // Create new customer
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, email')
+        .select('full_name, email, phone')
         .eq('id', user.id)
         .single()
 
@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
         const customer = (await razorpay.customers.create({
           name: profile?.full_name || user.email?.split('@')[0] || 'User',
           email: user.email || '',
+          contact: profile?.phone || '', // Add phone number for hosted checkout
           fail_existing: 0,
         })) as any
 
