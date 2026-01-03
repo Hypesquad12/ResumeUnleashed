@@ -134,11 +134,15 @@ function PricingPageContent() {
       }
 
       const data = await response.json()
+      console.log('API Response:', data)
+      console.log('Short URL:', data.shortUrl)
 
       // Redirect to Razorpay payment page
       if (data.shortUrl) {
+        console.log('Redirecting to:', data.shortUrl)
         window.location.href = data.shortUrl
       } else {
+        console.error('No shortUrl in response:', data)
         throw new Error('No payment URL received')
       }
     } catch (error: any) {
