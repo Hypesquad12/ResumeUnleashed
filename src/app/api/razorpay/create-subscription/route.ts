@@ -72,20 +72,22 @@ export async function POST(request: NextRequest) {
         .single()
 
       try {
-        const customer = await razorpay.customers.create({
+        const customer = (await razorpay.customers.create({
           name: profile?.full_name || user.email?.split('@')[0] || 'User',
           email: user.email || '',
-          fail_existing: '0',
-        }) as { id: string }
+          fail_existing: 0,
+        })) as any
 
         customerId = customer.id
       } catch (customerError: any) {
         // If customer already exists, fetch existing customer by email
         if (customerError.error?.code === 'BAD_REQUEST_ERROR') {
           console.log('Customer exists, fetching existing customer...')
-          const customers = await razorpay.customers.all({ email: user.email }) as { items: Array<{ id: string }> }
-          if (customers.items && customers.items.length > 0) {
-            customerId = customers.items[0].id
+          const customers = (await razorpay.customers.all({})) as any
+          // Find customer by email
+          const existingCustomer = customers.items?.find((c: any) => c.email === user.email)
+          if (existingCustomer) {
+            customerId = existingCustomer.id
             console.log('Using existing customer:', customerId)
           } else {
             throw new Error('Failed to create or fetch customer')
