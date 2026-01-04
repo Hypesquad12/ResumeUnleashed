@@ -119,9 +119,6 @@ export async function POST(request: NextRequest) {
         tier,
         billing_cycle: billingCycle,
       },
-      notify_info: {
-        notify_email: user.email || '',
-      },
     }
 
     console.log('Creating Razorpay subscription with params:', subscriptionParams)
