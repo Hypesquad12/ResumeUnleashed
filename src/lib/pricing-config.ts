@@ -151,7 +151,7 @@ export const indiaPricing: PricingPlan[] = [
 ]
 
 // Rest of World Pricing (displayed as USD, charged in INR)
-// Exchange rate: ₹83 ≈ $1
+// Exchange rate: ₹89 = $1
 export const rowPricing: PricingPlan[] = [
   {
     id: 'row-free',
