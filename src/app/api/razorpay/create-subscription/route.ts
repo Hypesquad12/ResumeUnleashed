@@ -51,62 +51,14 @@ export async function POST(request: NextRequest) {
 
     const razorpay = getRazorpayInstance()
 
-    // Get or create Razorpay customer
-    let customerId: string | undefined
-
-    // Check if user already has a Razorpay customer ID
-    const { data: existingSubscription } = await supabase
-      .from('subscriptions')
-      .select('razorpay_customer_id')
-      .eq('user_id', user.id)
-      .maybeSingle() // Use maybeSingle() instead of single() to handle no results gracefully
-
-    if (existingSubscription?.razorpay_customer_id) {
-      customerId = existingSubscription.razorpay_customer_id
-    } else {
-      // Create new customer
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, email, phone')
-        .eq('id', user.id)
-        .single()
-
-      try {
-        const customer = (await razorpay.customers.create({
-          name: profile?.full_name || user.email?.split('@')[0] || 'User',
-          email: user.email || '',
-          contact: profile?.phone || '', // Add phone number for hosted checkout
-          fail_existing: 0,
-        })) as any
-
-        customerId = customer.id
-      } catch (customerError: any) {
-        // If customer already exists, fetch existing customer by email
-        if (customerError.error?.code === 'BAD_REQUEST_ERROR') {
-          console.log('Customer exists, fetching existing customer...')
-          const customers = (await razorpay.customers.all({})) as any
-          // Find customer by email
-          const existingCustomer = customers.items?.find((c: any) => c.email === user.email)
-          if (existingCustomer) {
-            customerId = existingCustomer.id
-            console.log('Using existing customer:', customerId)
-          } else {
-            throw new Error('Failed to create or fetch customer')
-          }
-        } else {
-          throw customerError
-        }
-      }
-    }
-
     // Create subscription using Razorpay API
-    // For hosted checkout, subscription must be in 'created' status (not authenticated)
+    // IMPORTANT: Do NOT pass customer_id - it breaks hosted checkout link generation
+    // Razorpay will create customer automatically during payment authentication
     // Set start_at to future time to prevent auto-charge before authentication
     const futureStart = Math.floor(Date.now() / 1000) + (24 * 60 * 60) // Start 24 hours from now
     
     const subscriptionParams = {
       plan_id: razorpayPlanId,
-      customer_id: customerId,
       total_count: billingCycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
@@ -114,6 +66,7 @@ export async function POST(request: NextRequest) {
       addons: [], // Explicitly set empty addons
       notes: {
         user_id: user.id,
+        user_email: user.email || '',
         plan_id: planId,
         region,
         tier,
@@ -145,7 +98,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         plan_id: razorpayPlanId, // Use Razorpay plan ID, not frontend plan ID
         razorpay_subscription_id: subscription.id,
-        razorpay_customer_id: customerId,
+        razorpay_customer_id: null, // Will be updated by webhook after authentication
         status: 'pending',
         billing_cycle: billingCycle,
         current_period_start: periodStart.toISOString(),
@@ -161,13 +114,11 @@ export async function POST(request: NextRequest) {
 
     console.log('Returning response:', {
       subscriptionId: subscription.id,
-      customerId,
       shortUrl: subscription.short_url,
     })
 
     return NextResponse.json({
       subscriptionId: subscription.id,
-      customerId,
       shortUrl: subscription.short_url,
     })
   } catch (error: any) {
