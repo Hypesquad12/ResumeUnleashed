@@ -121,15 +121,15 @@ export async function POST(request: NextRequest) {
     // Create subscription using Razorpay API
     // IMPORTANT: Do NOT pass customer_id - it breaks hosted checkout link generation
     // Razorpay will create customer automatically during payment authentication
-    // Set start_at to future time to prevent auto-charge before authentication
-    const futureStart = Math.floor(Date.now() / 1000) + (24 * 60 * 60) // Start 24 hours from now
+    // Start immediately after authentication (5 minutes buffer for payment processing)
+    const immediateStart = Math.floor(Date.now() / 1000) + (5 * 60) // Start 5 minutes from now
     
     const subscriptionParams = {
       plan_id: razorpayPlanId,
       total_count: billingCycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
-      start_at: futureStart, // Required for hosted authentication
+      start_at: immediateStart, // Start immediately after authentication
       addons: [], // Explicitly set empty addons
       notes: {
         user_id: user.id,
