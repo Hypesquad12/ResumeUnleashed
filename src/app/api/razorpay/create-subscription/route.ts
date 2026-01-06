@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRazorpayInstance, RAZORPAY_PLAN_IDS } from '@/lib/razorpay'
 import { createClient } from '@/lib/supabase/server'
-import { Region, BillingCycle, SubscriptionTier } from '@/lib/pricing-config'
+import { Region, BillingCycle, SubscriptionTier, rowPricing } from '@/lib/pricing-config'
+import { convertUsdToInr, getUsdToInrRate } from '@/lib/currency'
 
 // Razorpay subscription response type
 interface RazorpaySubscriptionResponse {
@@ -33,23 +34,89 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Get Razorpay plan ID
-    const razorpayPlanKey = `${tier}_${billingCycle}` as keyof typeof RAZORPAY_PLAN_IDS.india
-    const razorpayPlanId = RAZORPAY_PLAN_IDS[region][razorpayPlanKey]
-
-    console.log('Subscription request:', { planId, billingCycle, region, tier })
-    console.log('Razorpay plan key:', razorpayPlanKey)
-    console.log('Razorpay plan ID:', razorpayPlanId)
-
-    if (!razorpayPlanId || razorpayPlanId === 'plan_xxxxx') {
-      console.error('Razorpay plan not found:', { region, tier, billingCycle })
-      return NextResponse.json(
-        { error: 'Razorpay plan not configured. Please set up plans in Razorpay Dashboard first.' },
-        { status: 500 }
-      )
-    }
-
     const razorpay = getRazorpayInstance()
+
+    // For ROW region, calculate amount using live exchange rate
+    let planAmount = 0
+    let exchangeRate = 0
+    let razorpayPlanId = ''
+
+    if (region === 'india') {
+      // India: Use predefined plan IDs with fixed INR amounts
+      const razorpayPlanKey = `${tier}_${billingCycle}` as keyof typeof RAZORPAY_PLAN_IDS.india
+      razorpayPlanId = RAZORPAY_PLAN_IDS.india[razorpayPlanKey]
+
+      if (!razorpayPlanId) {
+        console.error('Razorpay plan not found:', { region, tier, billingCycle })
+        return NextResponse.json(
+          { error: 'Razorpay plan not configured' },
+          { status: 500 }
+        )
+      }
+    } else {
+      // ROW: Create plan dynamically with live exchange rate
+      // Find the USD price for this plan
+      const rowPlan = rowPricing.find(p => 
+        p.tier === tier && 
+        (billingCycle === 'monthly' ? p.priceMonthly > 0 : p.priceAnnual > 0)
+      )
+
+      if (!rowPlan) {
+        return NextResponse.json(
+          { error: 'Plan not found' },
+          { status: 400 }
+        )
+      }
+
+      const usdPrice = billingCycle === 'monthly' ? rowPlan.priceMonthly : rowPlan.priceAnnual
+      
+      // Get live exchange rate and convert to INR
+      exchangeRate = await getUsdToInrRate()
+      planAmount = Math.round(usdPrice * exchangeRate * 100) // Convert to paise
+
+      console.log('ROW subscription:', {
+        usdPrice,
+        exchangeRate,
+        inrAmount: planAmount / 100,
+        tier,
+        billingCycle
+      })
+
+      // Create a Razorpay plan with the calculated amount
+      const planName = `${tier.charAt(0).toUpperCase() + tier.slice(1)} ${billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)} (Global)`
+      const period = billingCycle === 'monthly' ? 'monthly' : 'yearly'
+      const interval = 1
+
+      try {
+        const plan = await razorpay.plans.create({
+          period,
+          interval,
+          item: {
+            name: planName,
+            amount: planAmount,
+            currency: 'INR',
+            description: `${rowPlan.limits.resumes === -1 ? 'Unlimited' : rowPlan.limits.resumes} resumes, ${rowPlan.limits.customizations} customizations`,
+          },
+          notes: {
+            tier,
+            billing_cycle: billingCycle,
+            region,
+            usd_price: usdPrice.toString(),
+            exchange_rate: exchangeRate.toString(),
+            created_at: new Date().toISOString(),
+          },
+        }) as any
+
+        razorpayPlanId = plan.id
+        console.log('Created dynamic Razorpay plan:', razorpayPlanId)
+      } catch (planError: any) {
+        console.error('Failed to create Razorpay plan:', planError)
+        return NextResponse.json(
+          { error: 'Failed to create subscription plan' },
+          { status: 500 }
+        )
+      }
+    }
 
     // Create subscription using Razorpay API
     // IMPORTANT: Do NOT pass customer_id - it breaks hosted checkout link generation
@@ -71,6 +138,10 @@ export async function POST(request: NextRequest) {
         region,
         tier,
         billing_cycle: billingCycle,
+        ...(region === 'row' && {
+          exchange_rate: exchangeRate.toString(),
+          plan_amount_inr: (planAmount / 100).toString(),
+        }),
       },
     }
 
