@@ -641,45 +641,47 @@ ${name}`
             </CardContent>
           </Card>
 
-          {/* Cover Letter Card */}
-          {coverLetter && (
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-emerald-500/20 rounded-xl">
-                      <Mail className="h-6 w-6 text-emerald-600" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">Cover Letter</CardTitle>
-                      <CardDescription>Tailored to this position</CardDescription>
-                    </div>
+          {/* Cover Letter Card - Always show since it's auto-generated */}
+          <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-emerald-500/20 rounded-xl">
+                    <Mail className="h-6 w-6 text-emerald-600" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      onClick={() => setShowCoverLetter(!showCoverLetter)} 
-                      title="Preview Cover Letter"
-                    >
-                      <Eye className="h-5 w-5 text-emerald-600" />
-                    </Button>
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      onClick={async () => {
-                        await navigator.clipboard.writeText(coverLetter)
-                        toast.success('Cover letter copied to clipboard!')
-                      }} 
-                      title="Copy Cover Letter"
-                    >
-                      <Copy className="h-5 w-5 text-emerald-600" />
-                    </Button>
+                  <div>
+                    <CardTitle className="text-lg">Cover Letter</CardTitle>
+                    <CardDescription>Auto-generated and tailored to this position</CardDescription>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {showCoverLetter ? (
+                <div className="flex items-center gap-2">
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    onClick={() => setShowCoverLetter(!showCoverLetter)} 
+                    title="Preview Cover Letter"
+                  >
+                    <Eye className="h-5 w-5 text-emerald-600" />
+                  </Button>
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    onClick={async () => {
+                      if (coverLetter) {
+                        await navigator.clipboard.writeText(coverLetter)
+                        toast.success('Cover letter copied to clipboard!')
+                      }
+                    }} 
+                    title="Copy Cover Letter"
+                  >
+                    <Copy className="h-5 w-5 text-emerald-600" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {coverLetter ? (
+                showCoverLetter ? (
                   <div className="space-y-3">
                     <div className="p-4 bg-white/50 rounded-lg max-h-64 overflow-y-auto">
                       <p className="text-sm whitespace-pre-wrap leading-relaxed">{coverLetter}</p>
@@ -709,10 +711,17 @@ ${name}`
                       Show Full Cover Letter
                     </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                )
+              ) : (
+                <div className="p-4 bg-white/50 rounded-lg">
+                  <div className="flex items-center justify-center gap-2 text-amber-600">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <p className="text-sm">Generating cover letter...</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions */}
@@ -802,79 +811,6 @@ ${name}`
           </Card>
         </div>
 
-        {/* Cover Letter Section */}
-        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-amber-600" />
-                <CardTitle>Cover Letter</CardTitle>
-              </div>
-              {!coverLetter ? (
-                <Button 
-                  onClick={generateCoverLetter}
-                  disabled={generatingCoverLetter}
-                  variant="outline"
-                  className="border-amber-300 hover:bg-amber-100"
-                >
-                  {generatingCoverLetter ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Generate Cover Letter
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowCoverLetter(!showCoverLetter)}
-                    className="border-amber-300"
-                  >
-                    {showCoverLetter ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    {showCoverLetter ? 'Hide' : 'Show'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyCoverLetter}
-                    className="border-amber-300"
-                  >
-                    <Copy className="h-4 w-4 mr-1" />
-                    Copy
-                  </Button>
-                </div>
-              )}
-            </div>
-            <CardDescription>
-              {coverLetter 
-                ? 'Your personalized cover letter is ready'
-                : 'Generate a tailored cover letter based on your resume and the job description'
-              }
-            </CardDescription>
-          </CardHeader>
-          {showCoverLetter && coverLetter && (
-            <CardContent>
-              <div className="bg-white rounded-lg p-4 border border-amber-200">
-                <Textarea
-                  value={coverLetter}
-                  onChange={(e) => setCoverLetter(e.target.value)}
-                  className="min-h-[300px] font-serif text-sm leading-relaxed border-0 focus-visible:ring-0 resize-none"
-                  placeholder="Your cover letter will appear here..."
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                You can edit the cover letter above before copying
-              </p>
-            </CardContent>
-          )}
-        </Card>
 
         {/* AI Changes Made */}
         {aiSuggestions.changes.length > 0 && (
