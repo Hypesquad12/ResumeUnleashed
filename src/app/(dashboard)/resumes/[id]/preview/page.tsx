@@ -45,6 +45,57 @@ export default function ResumePreviewPage() {
 
   const loadResume = async () => {
     const supabase = createClient()
+    
+    // Try to load from customized_resumes first (AI-customized)
+    let { data: customizedData, error: customizedError } = await supabase
+      .from('customized_resumes')
+      .select('*')
+      .eq('id', resumeId)
+      .single()
+
+    // If found in customized_resumes, extract from customized_content
+    if (!customizedError && customizedData) {
+      const customizedContent = customizedData.customized_content as any
+      const contactData = customizedContent?.contact as Record<string, unknown> | null
+      const contact: ContactInfo = {
+        name: (contactData?.name as string) || '',
+        email: (contactData?.email as string) || '',
+        phone: (contactData?.phone as string) || '',
+        linkedin: (contactData?.linkedin as string) || '',
+        location: (contactData?.location as string) || '',
+        website: (contactData?.website as string) || '',
+      }
+
+      const experience = Array.isArray(customizedContent?.experience) 
+        ? (customizedContent.experience as unknown as Experience[]) 
+        : []
+      
+      const education = Array.isArray(customizedContent?.education) 
+        ? (customizedContent.education as unknown as Education[]) 
+        : []
+      
+      const skills = Array.isArray(customizedContent?.skills) 
+        ? (customizedContent.skills as string[]) 
+        : []
+
+      const template = (customizedContent?.template as string) || 'classic'
+      setSelectedTemplate(template)
+
+      setResume({
+        id: customizedData.id,
+        title: customizedData.title || 'Untitled Resume',
+        contact,
+        summary: customizedContent?.summary || '',
+        experience,
+        education,
+        skills,
+        template,
+      })
+      setLoading(false)
+      return
+    }
+
+    // If not found in customized_resumes, try regular resumes table
     const { data, error } = await supabase
       .from('resumes')
       .select('*')
