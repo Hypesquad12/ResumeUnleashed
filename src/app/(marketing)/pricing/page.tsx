@@ -174,16 +174,10 @@ function PricingPageContent() {
         .from('subscriptions')
         .upsert({
           user_id: user.id,
-          plan_id: selectedPlanForCheckout.id,
           status: 'pending',
           billing_cycle: selectedCycleForCheckout,
           current_period_start: periodStart.toISOString(),
           current_period_end: periodEnd.toISOString(),
-          metadata: couponCode ? {
-            coupon_code: couponCode,
-            discount_applied: discountAmount,
-            original_amount: baseAmount,
-          } : null,
         }, {
           onConflict: 'user_id'
         })
@@ -208,13 +202,15 @@ function PricingPageContent() {
         },
         notes: {
           user_id: user.id,
-          plan_id: selectedPlanForCheckout.id,
-          tier: selectedPlanForCheckout.tier,
+          plan_name: selectedPlanForCheckout.name,
+          plan_tier: selectedPlanForCheckout.tier,
           billing_cycle: selectedCycleForCheckout,
-          subscription_id: subscriptionData.id,
+          subscription_db_id: subscriptionData.id,
+          original_amount: baseAmount.toString(),
+          final_amount: finalAmount.toString(),
           ...(couponCode && {
             coupon_code: couponCode,
-            discount: discountAmount.toString(),
+            discount_amount: discountAmount.toString(),
           }),
         },
         theme: {
