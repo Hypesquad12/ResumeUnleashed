@@ -59,24 +59,33 @@ export async function POST(request: NextRequest) {
     let couponDetails = null
 
     if (couponCode) {
-      // Validate coupon
-      const couponResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/razorpay/validate-coupon`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ couponCode, planAmount }),
-      })
+      // Validate coupon directly (avoid server-to-server fetch)
+      const promoCodes: Record<string, { discount: number; type: 'percentage' | 'flat'; maxDiscount?: number }> = {
+        'WELCOME10': { discount: 10, type: 'percentage', maxDiscount: 100 },
+        'SAVE20': { discount: 20, type: 'percentage', maxDiscount: 200 },
+        'FLAT100': { discount: 100, type: 'flat' },
+        'FLAT200': { discount: 200, type: 'flat' },
+      }
 
-      if (couponResponse.ok) {
-        const couponData = await couponResponse.json()
-        if (couponData.valid) {
-          discountAmount = couponData.discountAmount
-          finalAmount = couponData.finalAmount
-          couponDetails = {
-            code: couponData.couponCode,
-            discount: couponData.discount,
-            type: couponData.discountType,
-            amount: discountAmount,
+      const promo = promoCodes[couponCode.toUpperCase()]
+      
+      if (promo) {
+        // Calculate discount
+        if (promo.type === 'percentage') {
+          discountAmount = Math.round((planAmount * promo.discount) / 100)
+          if (promo.maxDiscount && discountAmount > promo.maxDiscount) {
+            discountAmount = promo.maxDiscount
           }
+        } else {
+          discountAmount = promo.discount
+        }
+
+        finalAmount = Math.max(0, planAmount - discountAmount)
+        couponDetails = {
+          code: couponCode.toUpperCase(),
+          discount: promo.discount,
+          type: promo.type,
+          amount: discountAmount,
         }
       }
     }
