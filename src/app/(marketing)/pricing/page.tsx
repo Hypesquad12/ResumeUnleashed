@@ -214,6 +214,7 @@ function PricingPageContent() {
         prefill: {
           name: user.email?.split('@')[0] || 'User',
           email: user.email || '',
+          contact: '', // Empty - Razorpay will prompt user to enter phone
         },
         notes: {
           user_id: user.id,
