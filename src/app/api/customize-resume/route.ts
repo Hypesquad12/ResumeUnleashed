@@ -50,7 +50,7 @@ Return the customized resume in the exact same JSON structure as the input, with
 - A "keywords_added" array of keywords from the job description that were incorporated
 - A "match_score" number (90-98) indicating how well the resume now matches the job - MUST BE AT LEAST 90%
 - An "ats_tips" array of additional suggestions for the candidate
-- A "cover_letter" string containing a professionally written cover letter tailored to this job (3-4 paragraphs)`
+- A "cover_letter" string containing a professionally written cover letter tailored to this job (3-4 paragraphs) that INCLUDES THE ACTUAL COMPANY NAME from the job description (use it multiple times, never use placeholders)`
 
 interface ResumeData {
   contact: {
@@ -116,7 +116,7 @@ MANDATORY REQUIREMENTS FOR EACH VARIATION:
 6. Use exact terminology and buzzwords from the job description throughout
 7. Add quantifiable metrics to achievements where possible
 8. SET match_score between 90-98% (NEVER below 90%)
-9. GENERATE a professional cover letter (3-4 paragraphs) tailored to this specific job and company
+9. GENERATE a professional cover letter (3-4 paragraphs) tailored to this specific job and company - MUST extract and use the actual company name from the job description (use it 2-3 times, never use placeholders like "[Company Name]")
 
 SKILLS EXTRACTION:
 - Extract EVERY skill, tool, technology, and qualification mentioned in the job description
@@ -134,6 +134,7 @@ Return a JSON object with this exact structure:
   "options": [
     {
       "job_title": "Primary job title extracted from description",
+      "company_name": "Company name extracted from job description (or 'Not specified' if not found)",
       "job_description_summary": "Brief 2-3 sentence summary of this interpretation",
       "customized_resume": {
         "contact": { ... },
@@ -153,7 +154,7 @@ Return a JSON object with this exact structure:
         "education": [ ... ],
         "skills": ["EXPANDED list with 5-10+ new skills from JD and industry standards"]
       },
-      "cover_letter": "Professional 3-4 paragraph cover letter tailored to this job, addressing the company, role, and candidate's qualifications",
+      "cover_letter": "Professional 3-4 paragraph cover letter that INCLUDES THE ACTUAL COMPANY NAME extracted from the job description (use it 2-3 times), tailored to this specific job, addressing the role and candidate's qualifications. DO NOT use generic placeholders.",
       "changes": ["list of 10+ specific changes made - be detailed"],
       "keywords_added": ["comprehensive list of keywords from JD incorporated"],
       "match_score": 92,
@@ -162,14 +163,18 @@ Return a JSON object with this exact structure:
   ]
 }
 
-COVER LETTER REQUIREMENTS:
-- Address the hiring manager professionally
-- Reference the specific company and role
+COVER LETTER REQUIREMENTS (CRITICAL):
+- EXTRACT the company name from the job description (if mentioned) and use it throughout
+- If company name is not in JD, use "the hiring team" or "your organization"
+- Address the hiring manager professionally (e.g., "Dear Hiring Manager at [Company Name]")
+- Reference the SPECIFIC company name at least 2-3 times in the letter
+- Reference the exact role/position title from the job description
 - Highlight 2-3 key qualifications that match the job requirements
-- Show enthusiasm for the role and company
+- Show enthusiasm for the SPECIFIC role and company
 - Include a strong call to action
 - Keep it concise (3-4 paragraphs, ~250-300 words)
 - Use professional business letter format
+- DO NOT use generic placeholder like "[Company Name]" - extract actual company name from JD
 
 Generate 2-3 options with different emphasis (e.g., technical focus vs leadership focus, or different seniority levels if the JD is ambiguous).
 REMEMBER: Make substantial changes to at least 30% of the resume content!
