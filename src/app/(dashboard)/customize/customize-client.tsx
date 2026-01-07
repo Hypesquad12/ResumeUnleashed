@@ -142,6 +142,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       // Single option or old format - proceed directly
       const option = aiResult.options?.[0] || aiResult
       const jobTitle = option.job_title || 'Customized'
+      const companyName = option.company_name || 'Not specified'
       
       // Set optimization stats from AI response
       const stats = {
@@ -167,7 +168,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         .insert({
           user_id: user.id,
           source_resume_id: selectedResume,
-          title: `${sourceResume.title} - ${jobTitle}`,
+          title: `${sourceResume.title} - ${jobTitle} - ${companyName}`,
           customized_content: option.customized_resume || {
             contact: sourceResume.contact,
             summary: sourceResume.summary,
