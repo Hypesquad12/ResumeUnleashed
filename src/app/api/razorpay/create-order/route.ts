@@ -30,7 +30,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    console.log('Creating order for:', { planId, billingCycle, region, tier })
+
     const razorpay = getRazorpayInstance()
+    
+    if (!razorpay) {
+      console.error('Razorpay instance is null')
+      return NextResponse.json({ error: 'Payment gateway not configured' }, { status: 500 })
+    }
 
     // Calculate plan amount
     let planAmount = 0
@@ -92,6 +99,14 @@ export async function POST(request: NextRequest) {
 
     // Convert to paise
     const amountInPaise = finalAmount * 100
+
+    console.log('Creating Razorpay order:', {
+      amountInPaise,
+      finalAmount,
+      planAmount,
+      discountAmount,
+      couponCode,
+    })
 
     // Create Razorpay order for UPI Recurring (AutoPay)
     const order = await razorpay.orders.create({
@@ -172,8 +187,18 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Order creation error:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      message: error.message,
+      description: error.description,
+      statusCode: error.statusCode,
+      error: error.error,
+    })
     return NextResponse.json(
-      { error: error.message || 'Failed to create order' },
+      { 
+        error: error.message || 'Failed to create order',
+        details: error.description || error.error || 'Unknown error',
+      },
       { status: 500 }
     )
   }
