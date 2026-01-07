@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { FileText, Sparkles, CreditCard, Plus, ArrowRight, Brain, Target, Briefcase, TrendingUp, Clock, Zap, ChevronRight, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
+import { UsageWidget } from '@/components/dashboard/usage-widget'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
 
 export default async function DashboardPage() {
@@ -171,8 +172,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activity - Two Column Layout with improved styling */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Recent Activity - Three Column Layout with Usage Widget */}
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Resumes */}
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -290,6 +291,9 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Usage & Limits Widget */}
+        <UsageWidget />
       </div>
     </div>
     </DashboardClient>
