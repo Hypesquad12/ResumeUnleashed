@@ -95,6 +95,23 @@ export default function NewResumePage() {
       return
     }
 
+    // Check resume limit
+    try {
+      const { data: canCreate, error: limitError } = await supabase.rpc('check_resume_limit', {
+        p_user_id: user.id
+      })
+      
+      if (limitError) {
+        console.error('Limit check error:', limitError)
+      } else if (!canCreate) {
+        toast.error('Resume limit reached. Please upgrade your plan or delete an existing resume.')
+        setLoading(false)
+        return
+      }
+    } catch (err) {
+      console.error('Resume limit check failed:', err)
+    }
+
     const { data, error } = await supabase
       .from('resumes')
       .insert({

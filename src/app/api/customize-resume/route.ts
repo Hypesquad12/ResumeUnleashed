@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { createClient } from '@/lib/supabase/server'
+import { checkUsageLimit, incrementUsage } from '@/lib/usage-control'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -86,6 +88,26 @@ interface ResumeData {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get user from session
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Check usage limit
+    const hasUsage = await checkUsageLimit(user.id, 'ai_customization')
+    if (!hasUsage) {
+      return NextResponse.json(
+        { error: 'AI customization limit reached. Please upgrade your plan.' },
+        { status: 403 }
+      )
+    }
+
     const { resume, jobDescription } = await request.json()
 
     if (!resume || !jobDescription) {
@@ -196,6 +218,9 @@ REMEMBER: Make substantial changes to at least 30% of the resume content!
     }
 
     const result = JSON.parse(responseText)
+
+    // Increment usage after successful customization
+    await incrementUsage(user.id, 'ai_customization')
 
     return NextResponse.json({
       success: true,
