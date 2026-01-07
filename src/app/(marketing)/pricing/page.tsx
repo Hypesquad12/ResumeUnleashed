@@ -160,8 +160,22 @@ function PricingPageContent() {
       // Convert to paise
       const amountInPaise = finalAmount * 100
 
-      // Save subscription intent to database
+      // Get plan_id from subscription_plans table
       const supabase = createClient()
+      
+      const { data: planData, error: planError } = await supabase
+        .from('subscription_plans')
+        .select('id')
+        .eq('tier', selectedPlanForCheckout.tier)
+        .eq('region', selectedPlanForCheckout.region)
+        .single()
+
+      if (planError || !planData) {
+        console.error('Plan lookup error:', planError)
+        throw new Error('Plan not found')
+      }
+
+      // Save subscription intent to database
       const periodStart = new Date()
       const periodEnd = new Date()
       if (selectedCycleForCheckout === 'annual') {
@@ -174,6 +188,7 @@ function PricingPageContent() {
         .from('subscriptions')
         .upsert({
           user_id: user.id,
+          plan_id: planData.id,
           status: 'pending',
           billing_cycle: selectedCycleForCheckout,
           current_period_start: periodStart.toISOString(),
