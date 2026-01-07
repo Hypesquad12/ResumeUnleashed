@@ -169,14 +169,17 @@ function PricingPageContent() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Detecting your location...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50"
+      style={{
+        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 50%, #f8fafc 100%)'
+      }}
+    >
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-12">

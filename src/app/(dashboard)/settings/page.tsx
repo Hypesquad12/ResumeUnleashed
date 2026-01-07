@@ -20,12 +20,14 @@ type Subscription = Database['public']['Tables']['subscriptions']['Row']
 export default function SettingsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [fullName, setFullName] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
+      setInitialLoading(true)
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       
@@ -54,6 +56,7 @@ export default function SettingsPage() {
           setSubscription(subscriptionData)
         }
       }
+      setInitialLoading(false)
     }
     fetchData()
   }, [])
@@ -82,6 +85,25 @@ export default function SettingsPage() {
     .map((n) => n[0])
     .join('')
     .toUpperCase() || 'U'
+
+  if (initialLoading) {
+    return (
+      <div className="space-y-6 max-w-2xl">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your account settings and preferences
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+            <p className="text-sm text-muted-foreground">Loading your settings...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 max-w-2xl">
