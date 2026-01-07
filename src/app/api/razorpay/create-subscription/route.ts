@@ -22,11 +22,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { planId, billingCycle, region, tier } = body as {
+    const { planId, billingCycle, region, tier, couponCode } = body as {
       planId: string
       billingCycle: BillingCycle
       region: Region
       tier: SubscriptionTier
+      couponCode?: string
     }
 
     // Validate input
