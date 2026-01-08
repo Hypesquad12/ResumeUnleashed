@@ -1830,7 +1830,7 @@ export default function InterviewCoachPage() {
                       <div className="p-4 pt-0 border-t space-y-4">
                         <div className="bg-violet-50 rounded-lg p-4">
                           <h4 className="text-sm font-medium text-violet-700 mb-2">Question:</h4>
-                          <p className="text-slate-800">{questions[index]?.question}</p>
+                          <p className="text-slate-800 max-w-3xl break-words">{questions[index]?.question}</p>
                         </div>
                         
                         {answer.answer ? (
