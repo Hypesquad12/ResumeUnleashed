@@ -9,17 +9,49 @@ export async function checkUsageLimit(userId: string, featureType: FeatureType):
   const supabase = await createClient()
   
   try {
-    const { data, error } = await supabase.rpc('check_usage_limit', {
-      p_user_id: userId,
-      p_feature_type: featureType
-    })
+    // Get active subscription with plan_id
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('plan_id, current_period_start, current_period_end')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single()
     
-    if (error) {
-      console.error('Usage check error:', error)
+    if (!subscription) {
+      return false // No active subscription
+    }
+
+    // Get plan limits
+    const { data: plan } = await supabase
+      .from('subscription_plans')
+      .select('limits')
+      .eq('id', subscription.plan_id)
+      .single()
+    
+    if (!plan?.limits) {
       return false
     }
+
+    const limits = plan.limits as any
+    const limit = limits[featureType === 'ai_customization' ? 'customizations' : featureType]
     
-    return data === true
+    // -1 means unlimited
+    if (limit === -1) {
+      return true
+    }
+
+    // Get current usage
+    const { data: usageData } = await supabase
+      .from('usage_tracking')
+      .select('usage_count')
+      .eq('user_id', userId)
+      .eq('feature_type', featureType)
+      .eq('period_start', subscription.current_period_start)
+      .eq('period_end', subscription.current_period_end)
+      .single()
+
+    const currentUsage = usageData?.usage_count ?? 0
+    return currentUsage < limit
   } catch (error) {
     console.error('Usage check exception:', error)
     return false
@@ -33,13 +65,53 @@ export async function incrementUsage(userId: string, featureType: FeatureType): 
   const supabase = await createClient()
   
   try {
-    const { error } = await supabase.rpc('increment_usage', {
-      p_user_id: userId,
-      p_feature_type: featureType
-    })
-    
+    // Get active subscription period
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('id, current_period_start, current_period_end')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single()
+
+    if (!subscription) {
+      console.error('No active subscription for user')
+      return
+    }
+
+    // Upsert usage tracking
+    const { error } = await supabase
+      .from('usage_tracking')
+      .upsert({
+        user_id: userId,
+        subscription_id: subscription.id,
+        feature_type: featureType,
+        usage_count: 1,
+        period_start: subscription.current_period_start,
+        period_end: subscription.current_period_end
+      }, {
+        onConflict: 'user_id,feature_type,period_start',
+        ignoreDuplicates: false
+      })
+      .select()
+
     if (error) {
-      console.error('Usage increment error:', error)
+      // Try increment instead
+      const { data: existing } = await supabase
+        .from('usage_tracking')
+        .select('usage_count')
+        .eq('user_id', userId)
+        .eq('feature_type', featureType)
+        .eq('period_start', subscription.current_period_start)
+        .single()
+
+      if (existing) {
+        await supabase
+          .from('usage_tracking')
+          .update({ usage_count: (existing.usage_count ?? 0) + 1 })
+          .eq('user_id', userId)
+          .eq('feature_type', featureType)
+          .eq('period_start', subscription.current_period_start)
+      }
     }
   } catch (error) {
     console.error('Usage increment exception:', error)
@@ -56,10 +128,7 @@ export async function getUserUsage(userId: string) {
     // Get active subscription
     const { data: subscription, error: subError } = await supabase
       .from('subscriptions')
-      .select(`
-        *,
-        plan:subscription_plans(*)
-      `)
+      .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
       .single()
@@ -67,6 +136,13 @@ export async function getUserUsage(userId: string) {
     if (subError || !subscription) {
       return null
     }
+
+    // Get plan details separately
+    const { data: plan } = await supabase
+      .from('subscription_plans')
+      .select('*')
+      .eq('id', subscription.plan_id)
+      .single()
     
     // Get usage tracking for current period
     const { data: usage, error: usageError } = await supabase
@@ -84,7 +160,7 @@ export async function getUserUsage(userId: string) {
     return {
       subscription,
       usage: usage || [],
-      plan: subscription.plan
+      plan
     }
   } catch (error) {
     console.error('Get usage exception:', error)
@@ -102,26 +178,26 @@ export async function checkResumeLimit(userId: string): Promise<boolean> {
     // Get active subscription
     const { data: subscription, error: subError } = await supabase
       .from('subscriptions')
-      .select(`
-        *,
-        plan:subscription_plans(*)
-      `)
+      .select('plan_id')
       .eq('user_id', userId)
       .eq('status', 'active')
       .single()
     
-    if (subError || !subscription) {
-      // No active subscription - allow 1 resume (free tier)
-      const { count } = await supabase
-        .from('resumes')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
+    let resumeLimit = 1 // Default free tier
+
+    if (!subError && subscription?.plan_id) {
+      // Get plan limits
+      const { data: plan } = await supabase
+        .from('subscription_plans')
+        .select('limits')
+        .eq('id', subscription.plan_id)
+        .single()
       
-      return (count || 0) < 1
+      if (plan?.limits) {
+        const limits = plan.limits as any
+        resumeLimit = limits.resumes ?? 1
+      }
     }
-    
-    const limits = subscription.plan.limits as any
-    const resumeLimit = limits.resumes || 1
     
     // -1 means unlimited
     if (resumeLimit === -1) {
@@ -150,19 +226,23 @@ export async function getUserSubscriptionTier(userId: string): Promise<string> {
   try {
     const { data: subscription, error } = await supabase
       .from('subscriptions')
-      .select(`
-        *,
-        plan:subscription_plans(tier)
-      `)
+      .select('plan_id')
       .eq('user_id', userId)
       .eq('status', 'active')
       .single()
     
-    if (error || !subscription) {
+    if (error || !subscription?.plan_id) {
       return 'free'
     }
+
+    // Get plan tier
+    const { data: plan } = await supabase
+      .from('subscription_plans')
+      .select('tier')
+      .eq('id', subscription.plan_id)
+      .single()
     
-    return subscription.plan.tier || 'free'
+    return (plan?.tier as string) || 'free'
   } catch (error) {
     console.error('Get tier exception:', error)
     return 'free'

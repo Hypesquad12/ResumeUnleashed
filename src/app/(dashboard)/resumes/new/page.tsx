@@ -97,21 +97,35 @@ export default function NewResumePage() {
 
     // Check resume limit
     try {
-      // Get subscription and plan limits
+      // Get subscription with plan_id
       const { data: subscription } = await supabase
         .from('subscriptions')
-        .select('plan:subscription_plans(limits)')
+        .select('plan_id')
         .eq('user_id', user.id)
         .eq('status', 'active')
         .single()
 
+      let maxResumes = 1 // Default free tier limit
+
+      if (subscription?.plan_id) {
+        // Get plan limits separately
+        const { data: plan } = await supabase
+          .from('subscription_plans')
+          .select('limits')
+          .eq('id', subscription.plan_id)
+          .single()
+
+        if (plan?.limits) {
+          const limits = plan.limits as any
+          maxResumes = limits.resumes ?? 1
+        }
+      }
+
+      // Count user's resumes
       const { count: resumeCount } = await supabase
         .from('resumes')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-
-      const limits = subscription?.plan?.limits as any
-      const maxResumes = limits?.resumes ?? 1 // Default to 1 for free tier
       
       if (maxResumes !== -1 && (resumeCount || 0) >= maxResumes) {
         toast.error('Resume limit reached. Please upgrade your plan or delete an existing resume.')
