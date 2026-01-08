@@ -298,6 +298,10 @@ export default function InterviewCoachPage() {
   const [showTips, setShowTips] = useState(true)
   const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false)
   const [overallScore, setOverallScore] = useState(0)
+  const [aiThreadId, setAiThreadId] = useState<string | null>(null)
+  const [aiMessages, setAiMessages] = useState<any[]>([])
+  const [aiMode, setAiMode] = useState(false)
+  const [aiEvaluation, setAiEvaluation] = useState<any>(null)
   
   // Audio states
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -376,10 +380,9 @@ export default function InterviewCoachPage() {
           .order('created_at', { ascending: false }),
         (supabase as any)
           .from('customized_resumes')
-          .select('id, title, ai_suggestions, customized_content, contact, summary, experience, education, skills, created_at')
+          .select('id, title, ai_suggestions, customized_content, source_resume_id, job_description_id, cover_letter, match_score, created_at, updated_at')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(20),
+          .order('created_at', { ascending: false }),
         (supabase as any)
           .from('interview_sessions')
           .select('id, job_title, overall_score, status, created_at, questions, answers')
@@ -387,6 +390,16 @@ export default function InterviewCoachPage() {
           .order('created_at', { ascending: false })
           .limit(10)
       ])
+
+      if (resumesResult.error) {
+        console.error('Interview Prep - resumes load error:', resumesResult.error)
+      }
+      if (customizedResult.error) {
+        console.error('Interview Prep - customized resumes load error:', customizedResult.error)
+      }
+      if (jdsResult.error) {
+        console.error('Interview Prep - job descriptions load error:', jdsResult.error)
+      }
       
       // Combine base resumes and customized resumes
       const allResumes: Resume[] = []
@@ -423,14 +436,8 @@ export default function InterviewCoachPage() {
           const jobTitle = titleParts.length > 1 ? titleParts[1] : 'Job Position'
           const jdId = `cr_${cr.id}`
           
-          // Get resume content from customized_content or direct fields
-          const resumeContent = cr.customized_content || {
-            contact: cr.contact,
-            summary: cr.summary,
-            experience: cr.experience,
-            education: cr.education,
-            skills: cr.skills,
-          }
+          // Get resume content from customized_content
+          const resumeContent = cr.customized_content || {}
           
           // Add customized resume as a resume option
           allResumes.push({
@@ -688,7 +695,61 @@ export default function InterviewCoachPage() {
     setSkills(skills.filter(s => s !== skill))
   }
 
-  const startPractice = () => {
+  const startPractice = async () => {
+    setAiEvaluation(null)
+    setAiMode(false)
+    setAiThreadId(null)
+    setAiMessages([])
+
+    try {
+      const response = await fetch('/api/interview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'start',
+          jobTitle,
+          jobDescription,
+          resumeData: selectedResumeData,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to start interview')
+      }
+
+      const data = await response.json()
+
+      const q: Question = {
+        id: data.questionNumber || 1,
+        question: data.question || "Let's begin. Tell me about yourself.",
+        type: (data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral',
+        difficulty: 'medium',
+        tips: getTipsForType((data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral'),
+      }
+
+      setAiMode(true)
+      setAiThreadId(data.threadId)
+      setAiMessages(data.messages || [])
+      setQuestions([q])
+      setStep('practice')
+      setCurrentQuestion(0)
+      setAnswers([])
+      setCurrentAnswer('')
+      setTimer(0)
+      setIsTimerRunning(true)
+
+      setTimeout(() => {
+        speakText(q.question, () => {
+          if (recognitionSupported) {
+            setTimeout(() => startRecording(), 800)
+          }
+        })
+      }, 300)
+      return
+    } catch (error) {
+      console.error('Interview start error (fallback to local):', error)
+    }
+
     const generatedQuestions = generateQuestionsFromContext(jobTitle, jobDescription, skills, selectedResumeData)
     setQuestions(generatedQuestions)
     setStep('practice')
@@ -696,16 +757,13 @@ export default function InterviewCoachPage() {
     setAnswers([])
     setTimer(0)
     setIsTimerRunning(true)
-    
-    // Speak intro and first question, then auto-start recording for natural dialog
+
     const introText = "Let's begin your interview practice. Take your time to think before answering."
     setTimeout(() => {
       speakText(introText, () => {
-        // After intro, speak the first question
         setTimeout(() => {
           if (generatedQuestions.length > 0) {
             speakText(generatedQuestions[0].question, () => {
-              // Auto-start recording after question is spoken for natural dialog
               if (recognitionSupported) {
                 setTimeout(() => startRecording(), 800)
               }
@@ -771,8 +829,99 @@ export default function InterviewCoachPage() {
       feedback,
     }
 
-    setAnswers([...answers, newAnswer])
+    setAnswers(prev => [...prev, newAnswer])
     setIsGeneratingFeedback(false)
+
+    if (aiMode && aiThreadId) {
+      try {
+        const response = await fetch('/api/interview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'respond',
+            threadId: aiThreadId,
+            message: currentAnswer,
+            messages: aiMessages,
+            interviewContext: {
+              questionNumber: questions[currentQuestion]?.id || currentQuestion + 1,
+              jobTitle,
+              jobDescription,
+            },
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to get next question')
+        }
+
+        const data = await response.json()
+        setAiMessages(data.messages || [])
+
+        if (data.isComplete) {
+          const allAnswers = [...answers, newAnswer]
+          let avgScore = Math.round(
+            allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length
+          )
+
+          try {
+            const endResp = await fetch('/api/interview', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'end',
+                threadId: aiThreadId,
+                messages: data.messages || aiMessages,
+                interviewContext: {
+                  jobTitle,
+                  jobDescription,
+                },
+              }),
+            })
+
+            if (endResp.ok) {
+              const evaluation = await endResp.json()
+              setAiEvaluation(evaluation)
+              if (typeof evaluation?.overallScore === 'number') {
+                avgScore = evaluation.overallScore
+              }
+            }
+          } catch (e) {
+            console.error('Interview end error:', e)
+          }
+
+          setOverallScore(avgScore)
+          setStep('review')
+          saveSession(allAnswers, avgScore)
+          return
+        }
+
+        const nextQuestion: Question = {
+          id: data.questionNumber || (questions[currentQuestion]?.id || currentQuestion + 1) + 1,
+          question: data.question || 'Please continue.',
+          type: (data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral',
+          difficulty: 'medium',
+          tips: getTipsForType((data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral'),
+        }
+
+        setQuestions(prev => [...prev, nextQuestion])
+        const nextQIndex = currentQuestion + 1
+        setCurrentQuestion(nextQIndex)
+        setCurrentAnswer('')
+        setTimer(0)
+        setIsTimerRunning(true)
+
+        setTimeout(() => {
+          speakText(nextQuestion.question, () => {
+            if (recognitionSupported) {
+              setTimeout(() => startRecording(), 800)
+            }
+          })
+        }, 500)
+        return
+      } catch (error) {
+        console.error('Interview respond error (fallback flow):', error)
+      }
+    }
 
     if (currentQuestion < questions.length - 1) {
       const nextQ = currentQuestion + 1
@@ -780,26 +929,21 @@ export default function InterviewCoachPage() {
       setCurrentAnswer('')
       setTimer(0)
       setIsTimerRunning(true)
-      
-      // Move to next question
+
       setTimeout(() => {
         speakText(questions[nextQ].question, () => {
-          // Auto-start recording after question for natural dialog
           if (recognitionSupported) {
             setTimeout(() => startRecording(), 800)
           }
         })
       }, 500)
     } else {
-      // Calculate overall score
       const allAnswers = [...answers, newAnswer]
       const avgScore = Math.round(
         allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length
       )
       setOverallScore(avgScore)
       setStep('review')
-      
-      // Save session to database
       saveSession(allAnswers, avgScore)
     }
   }

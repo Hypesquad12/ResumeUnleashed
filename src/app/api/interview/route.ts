@@ -6,10 +6,17 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+type InterviewQuestionType = 'intro' | 'behavioral' | 'technical' | 'situational' | 'closing'
+
+type InterviewTurn = {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { action, threadId, message, jobTitle, jobDescription, resumeData, interviewContext } = body
+    const { action, threadId, message, jobTitle, jobDescription, resumeData, interviewContext, messages } = body
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -23,10 +30,10 @@ export async function POST(request: NextRequest) {
         return await startInterview(jobTitle, jobDescription, resumeData)
       
       case 'respond':
-        return await continueInterview(threadId, message, interviewContext)
+        return await continueInterview(threadId, message, interviewContext, messages)
       
       case 'end':
-        return await endInterview(threadId, user.id, interviewContext)
+        return await endInterview(threadId, user.id, interviewContext, messages)
       
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
@@ -40,10 +47,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function startInterview(jobTitle: string, jobDescription: string, resumeData: any) {
-  const thread = await openai.beta.threads.create()
-  
-  const systemContext = `You are an experienced technical interviewer conducting a comprehensive interview for the position: ${jobTitle}.
+function buildSystemContext(jobTitle: string, jobDescription: string, resumeData: any) {
+  return `You are an experienced interviewer conducting a realistic interview for the position: ${jobTitle}.
 
 Job Description:
 ${jobDescription}
@@ -78,45 +83,74 @@ When the interview is complete (after 8-10 questions), set "isComplete": true an
 
 Start the interview now with your introduction and first question.`
 
-  await openai.beta.threads.messages.create(thread.id, {
-    role: 'user',
-    content: systemContext
-  })
-
-  const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
-    assistant_id: process.env.OPENAI_ASSISTANT_ID || 'asst_default',
-    model: 'gpt-4o-mini',
-    instructions: systemContext,
-  })
-
-  if (run.status === 'completed') {
-    const messages = await openai.beta.threads.messages.list(thread.id)
-    const lastMessage = messages.data[0]
-    
-    if (lastMessage.role === 'assistant' && lastMessage.content[0].type === 'text') {
-      try {
-        const response = JSON.parse(lastMessage.content[0].text.value)
-        return NextResponse.json({
-          threadId: thread.id,
-          ...response
-        })
-      } catch (e) {
-        return NextResponse.json({
-          threadId: thread.id,
-          question: lastMessage.content[0].text.value,
-          questionNumber: 1,
-          questionType: 'intro',
-          isComplete: false
-        })
-      }
-    }
-  }
-
-  return NextResponse.json({ error: 'Failed to start interview' }, { status: 500 })
 }
 
-async function continueInterview(threadId: string, candidateAnswer: string, interviewContext: any) {
-  await openai.beta.threads.messages.create(threadId, {
+function parseOrFallbackQuestion(text: string, fallbackQuestionNumber: number) {
+  try {
+    const parsed = JSON.parse(text)
+    return {
+      question: parsed.question as string,
+      questionNumber: (parsed.questionNumber as number) || fallbackQuestionNumber,
+      questionType: (parsed.questionType as InterviewQuestionType) || 'behavioral',
+      context: parsed.context as string | undefined,
+      isComplete: Boolean(parsed.isComplete),
+    }
+  } catch {
+    return {
+      question: text,
+      questionNumber: fallbackQuestionNumber,
+      questionType: 'intro' as InterviewQuestionType,
+      context: undefined,
+      isComplete: false,
+    }
+  }
+}
+
+async function runInterviewModel(turns: InterviewTurn[]) {
+  const response = await openai.responses.create({
+    model: 'gpt-4o-mini',
+    input: turns.map(t => ({ role: t.role, content: t.content })),
+  })
+
+  const text = response.output_text
+  return { text }
+}
+
+async function startInterview(jobTitle: string, jobDescription: string, resumeData: any) {
+  const systemContext = buildSystemContext(jobTitle, jobDescription, resumeData)
+
+  const turns: InterviewTurn[] = [
+    { role: 'system', content: systemContext },
+    {
+      role: 'user',
+      content:
+        'Start now. Introduce yourself as the interviewer briefly and ask the first question. Remember: first question must be "Tell me about yourself".',
+    },
+  ]
+
+  const { text } = await runInterviewModel(turns)
+  const parsed = parseOrFallbackQuestion(text, 1)
+
+  const newMessages: InterviewTurn[] = [
+    ...turns,
+    { role: 'assistant', content: JSON.stringify(parsed) },
+  ]
+
+  // Use a lightweight thread id (no OpenAI thread dependency)
+  const threadId = crypto.randomUUID()
+
+  return NextResponse.json({
+    threadId,
+    messages: newMessages,
+    ...parsed,
+  })
+}
+
+async function continueInterview(threadId: string, candidateAnswer: string, interviewContext: any, messages: InterviewTurn[] | undefined) {
+  const questionNumber = (interviewContext?.questionNumber as number) || 1
+  const turns: InterviewTurn[] = Array.isArray(messages) ? messages : []
+
+  turns.push({
     role: 'user',
     content: `CANDIDATE'S ANSWER: "${candidateAnswer}"
 
@@ -129,35 +163,21 @@ Now provide your next question following the interview guidelines. Remember to:
 Return JSON format as specified in the system context.`
   })
 
-  const run = await openai.beta.threads.runs.createAndPoll(threadId, {
-    assistant_id: process.env.OPENAI_ASSISTANT_ID || 'asst_default',
-    model: 'gpt-4o-mini',
+  const { text } = await runInterviewModel(turns)
+  const parsed = parseOrFallbackQuestion(text, questionNumber + 1)
+  turns.push({ role: 'assistant', content: JSON.stringify(parsed) })
+
+  return NextResponse.json({
+    threadId,
+    messages: turns,
+    ...parsed,
   })
-
-  if (run.status === 'completed') {
-    const messages = await openai.beta.threads.messages.list(threadId)
-    const lastMessage = messages.data[0]
-    
-    if (lastMessage.role === 'assistant' && lastMessage.content[0].type === 'text') {
-      try {
-        const response = JSON.parse(lastMessage.content[0].text.value)
-        return NextResponse.json(response)
-      } catch (e) {
-        return NextResponse.json({
-          question: lastMessage.content[0].text.value,
-          questionNumber: (interviewContext?.questionNumber || 1) + 1,
-          questionType: 'behavioral',
-          isComplete: false
-        })
-      }
-    }
-  }
-
-  return NextResponse.json({ error: 'Failed to continue interview' }, { status: 500 })
 }
 
-async function endInterview(threadId: string, userId: string, interviewContext: any) {
-  await openai.beta.threads.messages.create(threadId, {
+async function endInterview(threadId: string, userId: string, interviewContext: any, messages: InterviewTurn[] | undefined) {
+  const turns: InterviewTurn[] = Array.isArray(messages) ? messages : []
+
+  turns.push({
     role: 'user',
     content: `The interview is now ending. Please provide:
 1. A brief summary of the candidate's performance
@@ -176,42 +196,34 @@ Return as JSON:
 }`
   })
 
-  const run = await openai.beta.threads.runs.createAndPoll(threadId, {
-    assistant_id: process.env.OPENAI_ASSISTANT_ID || 'asst_default',
-    model: 'gpt-4o-mini',
-  })
-
-  if (run.status === 'completed') {
-    const messages = await openai.beta.threads.messages.list(threadId)
-    const lastMessage = messages.data[0]
-    
-    if (lastMessage.role === 'assistant' && lastMessage.content[0].type === 'text') {
-      try {
-        const evaluation = JSON.parse(lastMessage.content[0].text.value)
-        
-        const supabase = await createClient()
-        await supabase.from('interview_sessions').insert({
-          user_id: userId,
-          job_title: interviewContext?.jobTitle,
-          job_description: interviewContext?.jobDescription,
-          thread_id: threadId,
-          overall_score: evaluation.overallScore,
-          evaluation: evaluation,
-          status: 'completed'
-        })
-        
-        return NextResponse.json(evaluation)
-      } catch (e) {
-        return NextResponse.json({
-          summary: lastMessage.content[0].text.value,
-          overallScore: 75,
-          strengths: [],
-          improvements: [],
-          recommendation: 'Maybe'
-        })
-      }
+  const { text } = await runInterviewModel(turns)
+  let evaluation: any
+  try {
+    evaluation = JSON.parse(text)
+  } catch {
+    evaluation = {
+      summary: text,
+      overallScore: 75,
+      strengths: [],
+      improvements: [],
+      recommendation: 'Maybe',
     }
   }
 
-  return NextResponse.json({ error: 'Failed to end interview' }, { status: 500 })
+  try {
+    const supabase = await createClient()
+    await supabase.from('interview_sessions').insert({
+      user_id: userId,
+      job_title: interviewContext?.jobTitle,
+      job_description: interviewContext?.jobDescription,
+      thread_id: threadId,
+      overall_score: evaluation.overallScore,
+      evaluation: evaluation,
+      status: 'completed'
+    })
+  } catch (e) {
+    console.error('Failed saving interview session evaluation:', e)
+  }
+
+  return NextResponse.json(evaluation)
 }
