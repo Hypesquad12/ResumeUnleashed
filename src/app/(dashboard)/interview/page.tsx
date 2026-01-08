@@ -302,6 +302,7 @@ export default function InterviewCoachPage() {
   const [aiMessages, setAiMessages] = useState<any[]>([])
   const [aiMode, setAiMode] = useState(false)
   const [aiEvaluation, setAiEvaluation] = useState<any>(null)
+  const [isFetchingNextQuestion, setIsFetchingNextQuestion] = useState(false)
   
   // Audio states
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -331,6 +332,7 @@ export default function InterviewCoachPage() {
   const recognitionRef = useRef<any>(null)
   const synthRef = useRef<SpeechSynthesis | null>(null)
   const voicesLoadedRef = useRef<boolean>(false)
+  const practiceSetupRef = useRef<HTMLDivElement | null>(null)
 
   const supabase = createClient()
   
@@ -530,7 +532,7 @@ export default function InterviewCoachPage() {
   
   // Auto-fill when JD is selected
   useEffect(() => {
-    if (selectedJDId && inputMode === 'saved') {
+    if (selectedJDId) {
       const jd = savedJDs.find(j => j.id === selectedJDId)
       if (jd) {
         setJobTitle(jd.title || '')
@@ -546,6 +548,19 @@ export default function InterviewCoachPage() {
       }
     }
   }, [selectedJDId, savedJDs, inputMode])
+
+  const applyQuickStartJD = useCallback((jd: JobDescription) => {
+    setSelectedJDId(jd.id)
+    setInputMode('saved')
+    setJobTitle(jd.title || '')
+    setJobDescription(jd.description || '')
+    if (jd.linkedResumeId) {
+      setSelectedResumeId(jd.linkedResumeId)
+    }
+    if (jd.extracted_keywords) {
+      setSkills(jd.extracted_keywords.slice(0, 5))
+    }
+  }, [])
   
   // Text-to-Speech function using browser Web Speech API (FREE)
   const speakText = useCallback((text: string, onComplete?: () => void) => {
@@ -566,12 +581,13 @@ export default function InterviewCoachPage() {
     // Select the best available voice
     const voices = synthRef.current.getVoices()
     
-    // Priority order for natural-sounding voices
+    // Priority order for interview-style voices
     const preferredVoiceNames = [
-      'Samantha',           // macOS - very natural
-      'Karen',              // macOS Australian
-      'Daniel',             // macOS British
       'Google UK English Female',
+      'Samantha',           // macOS
+      'Daniel',             // macOS British
+      'Alex',               // macOS
+      'Karen',              // macOS Australian
       'Google US English',
       'Microsoft Zira',     // Windows
       'Microsoft David',    // Windows
@@ -668,6 +684,44 @@ export default function InterviewCoachPage() {
     setIsRecording(false)
     setInterimTranscript('')
   }, [])
+
+  const endInterviewEarly = useCallback(async () => {
+    stopRecording()
+    stopSpeaking()
+    setIsTimerRunning(false)
+    setIsFetchingNextQuestion(true)
+
+    try {
+      if (aiMode && aiThreadId) {
+        const endResp = await fetch('/api/interview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'end',
+            threadId: aiThreadId,
+            messages: aiMessages,
+            interviewContext: {
+              jobTitle,
+              jobDescription,
+            },
+          }),
+        })
+
+        if (endResp.ok) {
+          const evaluation = await endResp.json()
+          setAiEvaluation(evaluation)
+          if (typeof evaluation?.overallScore === 'number') {
+            setOverallScore(evaluation.overallScore)
+          }
+        }
+      }
+    } catch (e) {
+      console.error('End interview error:', e)
+    } finally {
+      setIsFetchingNextQuestion(false)
+      setStep('review')
+    }
+  }, [aiMode, aiThreadId, aiMessages, jobTitle, jobDescription, stopRecording, stopSpeaking])
 
   // Timer effect
   useEffect(() => {
@@ -834,6 +888,7 @@ export default function InterviewCoachPage() {
 
     if (aiMode && aiThreadId) {
       try {
+        setIsFetchingNextQuestion(true)
         const response = await fetch('/api/interview', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -892,6 +947,7 @@ export default function InterviewCoachPage() {
           setOverallScore(avgScore)
           setStep('review')
           saveSession(allAnswers, avgScore)
+          setIsFetchingNextQuestion(false)
           return
         }
 
@@ -909,6 +965,7 @@ export default function InterviewCoachPage() {
         setCurrentAnswer('')
         setTimer(0)
         setIsTimerRunning(true)
+        setIsFetchingNextQuestion(false)
 
         setTimeout(() => {
           speakText(nextQuestion.question, () => {
@@ -920,6 +977,7 @@ export default function InterviewCoachPage() {
         return
       } catch (error) {
         console.error('Interview respond error (fallback flow):', error)
+        setIsFetchingNextQuestion(false)
       }
     }
 
@@ -1070,9 +1128,9 @@ export default function InterviewCoachPage() {
           {step === 'setup' && (
             <motion.div
               key="setup"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
               {/* Past Sessions History */}
@@ -1101,7 +1159,6 @@ export default function InterviewCoachPage() {
                             key={session.id}
                             className="group flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-violet-50 hover:border-violet-300 border border-transparent transition-all cursor-pointer"
                             onClick={() => {
-                              // Load the session data into review mode
                               setStep('review')
                               setJobTitle(session.job_title || '')
                               setJobDescription(session.job_description || '')
@@ -1161,18 +1218,12 @@ export default function InterviewCoachPage() {
                         <button
                           key={jd.id}
                           onClick={() => {
-                            setInputMode('saved')
-                            setSelectedJDId(jd.id)
-                            setJobTitle(jd.title || '')
-                            setJobDescription(jd.description || '')
-                            if (jd.linkedResumeId) {
-                              setSelectedResumeId(jd.linkedResumeId)
-                            }
-                            if (jd.extracted_keywords) {
-                              setSkills(jd.extracted_keywords.slice(0, 5))
-                            }
+                            applyQuickStartJD(jd)
+                            practiceSetupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                           }}
-                          className="flex items-center justify-between p-3 bg-white rounded-lg border border-violet-100 hover:border-violet-300 hover:shadow-sm transition-all text-left group"
+                          className={`flex items-center justify-between p-3 bg-white rounded-lg border hover:shadow-sm transition-all text-left group ${
+                            selectedJDId === jd.id ? 'border-violet-400 ring-2 ring-violet-200' : 'border-violet-100 hover:border-violet-300'
+                          }`}
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
@@ -1199,6 +1250,7 @@ export default function InterviewCoachPage() {
               )}
 
               <Card>
+                <div ref={practiceSetupRef} />
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Target className="h-5 w-5 text-violet-500" />
@@ -1463,7 +1515,7 @@ export default function InterviewCoachPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <Badge variant="outline" className="text-violet-600 border-violet-300">
-                        Question {currentQuestion + 1} of {questions.length}
+                        Question {currentQuestion + 1}
                       </Badge>
                       <Badge className={`${
                         questions[currentQuestion].difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :
@@ -1475,17 +1527,23 @@ export default function InterviewCoachPage() {
                       <Badge variant="secondary">
                         {questions[currentQuestion].type}
                       </Badge>
+                      {isFetchingNextQuestion && (
+                        <span className="flex items-center gap-2 text-sm text-slate-500">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading next question...
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 text-slate-600">
                       <Clock className="h-4 w-4" />
                       <span className="font-mono text-lg">{formatTime(timer)}</span>
                     </div>
                   </div>
-                  <Progress value={(currentQuestion / questions.length) * 100} className="mt-4" />
+                  <Progress value={Math.min(((currentQuestion + 1) / 10) * 100, 100)} className="mt-4" />
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Question with Audio Controls */}
-                  <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-6 border border-violet-100">
+                  <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-6 border border-violet-100 relative">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3 flex-1">
                         <MessageSquare className="h-6 w-6 text-violet-500 mt-1 flex-shrink-0" />
@@ -1499,6 +1557,7 @@ export default function InterviewCoachPage() {
                           size="icon"
                           onClick={() => isSpeaking ? stopSpeaking() : speakText(questions[currentQuestion].question)}
                           className="flex-shrink-0"
+                          disabled={isFetchingNextQuestion}
                         >
                           {isSpeaking ? (
                             <VolumeX className="h-5 w-5 text-violet-500" />
@@ -1589,6 +1648,7 @@ export default function InterviewCoachPage() {
                         onChange={(e) => setCurrentAnswer(e.target.value)}
                         rows={6}
                         className={`resize-none ${isRecording ? 'border-red-300 bg-red-50/50' : ''}`}
+                        disabled={isFetchingNextQuestion}
                       />
                       {isRecording && (
                         <div className="absolute bottom-3 right-3 flex items-center gap-2">
@@ -1611,6 +1671,14 @@ export default function InterviewCoachPage() {
                   {/* Actions */}
                   <div className="flex gap-3">
                     <Button
+                      variant="destructive"
+                      onClick={endInterviewEarly}
+                      className="flex-1"
+                      disabled={isFetchingNextQuestion}
+                    >
+                      End Interview
+                    </Button>
+                    <Button
                       variant="outline"
                       onClick={() => {
                         stopRecording()
@@ -1618,6 +1686,7 @@ export default function InterviewCoachPage() {
                         skipQuestion()
                       }}
                       className="flex-1"
+                      disabled={isFetchingNextQuestion}
                     >
                       Skip Question
                     </Button>
@@ -1627,7 +1696,7 @@ export default function InterviewCoachPage() {
                         stopSpeaking()
                         submitAnswer()
                       }}
-                      disabled={!currentAnswer.trim() || isGeneratingFeedback}
+                      disabled={!currentAnswer.trim() || isGeneratingFeedback || isFetchingNextQuestion}
                       className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
                     >
                       {isGeneratingFeedback ? (
