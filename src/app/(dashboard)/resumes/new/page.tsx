@@ -97,19 +97,30 @@ export default function NewResumePage() {
 
     // Check resume limit
     try {
-      const { data: canCreate, error: limitError } = await supabase.rpc('check_resume_limit', {
-        p_user_id: user.id
-      })
+      // Get subscription and plan limits
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('plan:subscription_plans(limits)')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single()
+
+      const { count: resumeCount } = await supabase
+        .from('resumes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+
+      const limits = subscription?.plan?.limits as any
+      const maxResumes = limits?.resumes ?? 1 // Default to 1 for free tier
       
-      if (limitError) {
-        console.error('Limit check error:', limitError)
-      } else if (!canCreate) {
+      if (maxResumes !== -1 && (resumeCount || 0) >= maxResumes) {
         toast.error('Resume limit reached. Please upgrade your plan or delete an existing resume.')
         setLoading(false)
         return
       }
     } catch (err) {
       console.error('Resume limit check failed:', err)
+      // Continue anyway - better to allow than block on error
     }
 
     const { data, error } = await supabase
