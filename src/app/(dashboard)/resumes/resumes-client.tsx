@@ -129,7 +129,7 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
       {(resumes && resumes.length > 0) || (customizedResumes && customizedResumes.length > 0) ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredResumes.map((resume, index) => (
-            <Card key={resume.id} className="group border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300 overflow-hidden">
+            <Card key={resume.id} className="group border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300 overflow-hidden flex flex-col h-full">
               <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-500/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
               <CardHeader className="flex flex-row items-start justify-between space-y-0 relative">
                 <div className="flex items-start gap-3">
@@ -208,7 +208,7 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                     )}
                   </div>
                 )}
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-auto">
                   <Link href={`/resumes/${resume.id}`} className="flex-1">
                     <Button variant="outline" className="w-full h-9 text-sm border-slate-200 dark:border-slate-700 hover:border-slate-300 hover:bg-slate-50">
                       <Edit className="h-3.5 w-3.5 mr-1.5" />
@@ -228,7 +228,7 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
           
           {/* AI-Customized Resumes */}
           {filteredCustomizedResumes.map((resume) => (
-            <Card key={resume.id} className="group border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 overflow-hidden">
+            <Card key={resume.id} className="group border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 overflow-hidden flex flex-col h-full">
               <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
               <CardHeader className="flex flex-row items-start justify-between space-y-0 relative">
                 <div className="flex items-start gap-3">
@@ -294,7 +294,7 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 flex-1 flex flex-col">
                 {/* Cover Letter Badge */}
                 {resume.cover_letter && (
                   <div className="mb-3 flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950 rounded-lg border border-emerald-200 dark:border-emerald-800">
@@ -315,7 +315,7 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                   </div>
                 )}
                 
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-auto">
                   <Link href={`/resumes/${resume.id}/preview`} className="flex-1">
                     <Button variant="outline" className="w-full h-9 text-sm border-emerald-200 dark:border-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950">
                       <Eye className="h-3.5 w-3.5 mr-1.5" />
