@@ -44,6 +44,11 @@ interface Answer {
   }
 }
 
+const computeAverageScore = (allAnswers: Answer[]) => {
+  if (!allAnswers || allAnswers.length === 0) return 0
+  return Math.round(allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length)
+}
+
 interface Resume {
   id: string
   title: string
@@ -685,6 +690,30 @@ export default function InterviewCoachPage() {
     setInterimTranscript('')
   }, [])
 
+  // Save interview session to database
+  const saveSession = useCallback(async (allAnswers: Answer[], score: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      
+      const totalDuration = allAnswers.reduce((sum, a) => sum + a.duration, 0)
+      
+      await (supabase as any).from('interview_sessions').insert({
+        user_id: user.id,
+        resume_id: selectedResumeId || null,
+        job_title: jobTitle,
+        job_description: jobDescription,
+        questions: questions,
+        answers: allAnswers,
+        feedback: allAnswers.map(a => a.feedback),
+        overall_score: score,
+        status: 'completed'
+      })
+    } catch (error) {
+      console.error('Error saving interview session:', error)
+    }
+  }, [supabase, selectedResumeId, jobTitle, jobDescription, questions])
+
   const endInterviewEarly = useCallback(async () => {
     stopRecording()
     stopSpeaking()
@@ -710,18 +739,18 @@ export default function InterviewCoachPage() {
         if (endResp.ok) {
           const evaluation = await endResp.json()
           setAiEvaluation(evaluation)
-          if (typeof evaluation?.overallScore === 'number') {
-            setOverallScore(evaluation.overallScore)
-          }
         }
       }
     } catch (e) {
       console.error('End interview error:', e)
     } finally {
+      const avgScore = computeAverageScore(answers)
+      setOverallScore(avgScore)
+      saveSession(answers, avgScore)
       setIsFetchingNextQuestion(false)
       setStep('review')
     }
-  }, [aiMode, aiThreadId, aiMessages, jobTitle, jobDescription, stopRecording, stopSpeaking])
+  }, [aiMode, aiThreadId, aiMessages, jobTitle, jobDescription, stopRecording, stopSpeaking, answers, saveSession])
 
   // Timer effect
   useEffect(() => {
@@ -914,9 +943,7 @@ export default function InterviewCoachPage() {
 
         if (data.isComplete) {
           const allAnswers = [...answers, newAnswer]
-          let avgScore = Math.round(
-            allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length
-          )
+          const avgScore = computeAverageScore(allAnswers)
 
           try {
             const endResp = await fetch('/api/interview', {
@@ -936,9 +963,6 @@ export default function InterviewCoachPage() {
             if (endResp.ok) {
               const evaluation = await endResp.json()
               setAiEvaluation(evaluation)
-              if (typeof evaluation?.overallScore === 'number') {
-                avgScore = evaluation.overallScore
-              }
             }
           } catch (e) {
             console.error('Interview end error:', e)
@@ -997,36 +1021,10 @@ export default function InterviewCoachPage() {
       }, 500)
     } else {
       const allAnswers = [...answers, newAnswer]
-      const avgScore = Math.round(
-        allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length
-      )
+      const avgScore = computeAverageScore(allAnswers)
       setOverallScore(avgScore)
       setStep('review')
       saveSession(allAnswers, avgScore)
-    }
-  }
-  
-  // Save interview session to database
-  const saveSession = async (allAnswers: Answer[], score: number) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      
-      const totalDuration = allAnswers.reduce((sum, a) => sum + a.duration, 0)
-      
-      await (supabase as any).from('interview_sessions').insert({
-        user_id: user.id,
-        resume_id: selectedResumeId || null,
-        job_title: jobTitle,
-        job_description: jobDescription,
-        questions: questions,
-        answers: allAnswers,
-        feedback: allAnswers.map(a => a.feedback),
-        overall_score: score,
-        status: 'completed'
-      })
-    } catch (error) {
-      console.error('Error saving interview session:', error)
     }
   }
 
@@ -1045,9 +1043,7 @@ export default function InterviewCoachPage() {
       setTimer(0)
     } else {
       const allAnswers = [...answers, newAnswer]
-      const avgScore = Math.round(
-        allAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / allAnswers.length
-      )
+      const avgScore = computeAverageScore(allAnswers)
       setOverallScore(avgScore)
       setStep('review')
       
@@ -1164,7 +1160,7 @@ export default function InterviewCoachPage() {
                               setJobDescription(session.job_description || '')
                               setQuestions(session.questions || [])
                               setAnswers(session.answers || [])
-                              setOverallScore(session.overall_score || 0)
+                              setOverallScore(computeAverageScore(session.answers || []) || session.overall_score || 0)
                             }}
                           >
                             <div className="flex items-center gap-3 flex-1">
