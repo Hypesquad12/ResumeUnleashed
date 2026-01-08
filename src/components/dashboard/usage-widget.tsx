@@ -11,7 +11,7 @@ import Link from 'next/link'
 
 interface UsageData {
   feature_type: string
-  usage_count: number
+  usage_count: number | null
 }
 
 interface PlanLimits {
@@ -52,8 +52,9 @@ export function UsageWidget() {
         .single()
 
       if (subscription?.plan) {
-        setLimits(subscription.plan.limits as PlanLimits)
-        setTier(subscription.plan.tier || 'free')
+        const planData = subscription.plan as any
+        setLimits(planData.limits as PlanLimits)
+        setTier(planData.tier || 'free')
 
         // Get usage for current period
         const { data: usageData } = await supabase
@@ -88,7 +89,7 @@ export function UsageWidget() {
 
   const getUsageCount = (featureType: string) => {
     const item = usage.find(u => u.feature_type === featureType)
-    return item?.usage_count || 0
+    return item?.usage_count ?? 0
   }
 
   const getPercentage = (used: number, limit: number) => {
