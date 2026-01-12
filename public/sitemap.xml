@@ -138,20 +138,6 @@
     <priority>0.7</priority>
   </url>
   
-  <!-- Auth Pages -->
-  <url>
-    <loc>https://www.resumeunleashed.com/signup</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.resumeunleashed.com/login</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
   <!-- Legal Pages -->
   <url>
     <loc>https://www.resumeunleashed.com/contact</loc>
