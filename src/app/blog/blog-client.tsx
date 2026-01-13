@@ -163,7 +163,7 @@ export function BlogClient({ posts }: BlogClientProps) {
           <p className="text-teal-100 mb-8 max-w-xl mx-auto text-lg">
             Put these tips into action with our AI-powered resume builder. Create ATS-optimized resumes in minutes.
           </p>
-          <Link href="/signup">
+          <Link href="/">
             <Button size="lg" className="bg-white text-teal-600 hover:bg-teal-50 shadow-xl">
               Start Building for Free <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

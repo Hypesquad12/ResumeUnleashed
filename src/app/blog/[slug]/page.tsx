@@ -71,7 +71,7 @@ export default async function BlogPostPage({ params }: Props) {
             <Link href="/">
               <Button variant="ghost" className="text-slate-600 hover:text-slate-900">Home</Button>
             </Link>
-            <Link href="/login">
+            <Link href="/">
               <Button className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 shadow-lg shadow-teal-500/25">
                 Get Started
               </Button>
@@ -150,6 +150,16 @@ export default async function BlogPostPage({ params }: Props) {
           <p className="text-xl text-slate-600 mb-10 leading-relaxed font-medium border-l-4 border-teal-500 pl-6 italic">
             {post.excerpt}
           </p>
+
+          <div className="mb-10 rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <p className="text-slate-700">
+              Want to turn these tips into a resume recruiters love?{' '}
+              <Link href="/" className="text-teal-600 hover:text-teal-700 underline underline-offset-2 font-semibold">
+                Visit Resume Unleashed
+              </Link>
+              {' '}to get started.
+            </p>
+          </div>
 
           {/* Article Content */}
           <div className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-p:text-justify prose-li:text-slate-600 prose-strong:text-slate-900">
@@ -236,7 +246,7 @@ export default async function BlogPostPage({ params }: Props) {
               <p className="text-teal-100 mb-6 max-w-lg mx-auto">
                 Create your professional resume with our AI-powered builder and land your dream job.
               </p>
-              <Link href="/signup">
+              <Link href="/">
                 <Button size="lg" className="bg-white text-teal-600 hover:bg-teal-50 shadow-xl">
                   Build Your Resume <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -286,6 +296,7 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
             <p className="text-slate-500 text-sm">© 2024 Resume Unleashed. All rights reserved.</p>
             <div className="flex items-center gap-6 text-sm text-slate-600">
+              <Link href="/" className="hover:text-teal-600 transition-colors">Home</Link>
               <Link href="/blog" className="hover:text-teal-600 transition-colors">Blog</Link>
               <Link href="/templates" className="hover:text-teal-600 transition-colors">Templates</Link>
               <Link href="/login" className="hover:text-teal-600 transition-colors">Sign In</Link>
