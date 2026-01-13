@@ -8,6 +8,9 @@ const openai = new OpenAI({
 
 type InterviewQuestionType = 'intro' | 'behavioral' | 'technical' | 'situational' | 'closing'
 
+type InterviewRound = 'managerial' | 'technical_round_1' | 'technical_round_2' | 'hr'
+type InterviewLevel = 'easy' | 'medium' | 'hard' | 'god'
+
 type InterviewTurn = {
   role: 'system' | 'user' | 'assistant'
   content: string
@@ -16,7 +19,18 @@ type InterviewTurn = {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { action, threadId, message, jobTitle, jobDescription, resumeData, interviewContext, messages } = body
+    const {
+      action,
+      threadId,
+      message,
+      jobTitle,
+      jobDescription,
+      resumeData,
+      interviewRound,
+      interviewLevel,
+      interviewContext,
+      messages,
+    } = body
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -27,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'start':
-        return await startInterview(jobTitle, jobDescription, resumeData)
+        return await startInterview(jobTitle, jobDescription, resumeData, interviewRound, interviewLevel)
       
       case 'respond':
         return await continueInterview(threadId, message, interviewContext, messages)
@@ -47,8 +61,32 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function buildSystemContext(jobTitle: string, jobDescription: string, resumeData: any) {
+function buildSystemContext(
+  jobTitle: string,
+  jobDescription: string,
+  resumeData: any,
+  interviewRound: InterviewRound | undefined,
+  interviewLevel: InterviewLevel | undefined
+) {
+  const roundLabel =
+    interviewRound === 'managerial'
+      ? 'Managerial round'
+      : interviewRound === 'technical_round_1'
+      ? 'Technical round 1'
+      : interviewRound === 'technical_round_2'
+      ? 'Technical round 2'
+      : interviewRound === 'hr'
+      ? 'HR round'
+      : 'General round'
+
+  const levelLabel =
+    interviewLevel === 'god' ? 'God level (extremely challenging)' : interviewLevel || 'medium'
+
   return `You are an experienced interviewer conducting a realistic interview for the position: ${jobTitle}.
+
+This interview should follow these constraints:
+- Round: ${roundLabel}
+- Difficulty level: ${levelLabel}
 
 Job Description:
 ${jobDescription}
@@ -116,8 +154,14 @@ async function runInterviewModel(turns: InterviewTurn[]) {
   return { text }
 }
 
-async function startInterview(jobTitle: string, jobDescription: string, resumeData: any) {
-  const systemContext = buildSystemContext(jobTitle, jobDescription, resumeData)
+async function startInterview(
+  jobTitle: string,
+  jobDescription: string,
+  resumeData: any,
+  interviewRound: InterviewRound | undefined,
+  interviewLevel: InterviewLevel | undefined
+) {
+  const systemContext = buildSystemContext(jobTitle, jobDescription, resumeData, interviewRound, interviewLevel)
 
   const turns: InterviewTurn[] = [
     { role: 'system', content: systemContext },
@@ -216,6 +260,8 @@ Return as JSON:
       user_id: userId,
       job_title: interviewContext?.jobTitle,
       job_description: interviewContext?.jobDescription,
+      interview_round: interviewContext?.interviewRound,
+      interview_level: interviewContext?.interviewLevel,
       thread_id: threadId,
       overall_score: evaluation.overallScore,
       evaluation: evaluation,

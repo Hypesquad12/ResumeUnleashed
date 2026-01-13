@@ -32,6 +32,9 @@ interface Question {
   tips: string[]
 }
 
+type InterviewRound = 'managerial' | 'technical_round_1' | 'technical_round_2' | 'hr'
+type InterviewLevel = 'easy' | 'medium' | 'hard' | 'god'
+
 interface Answer {
   questionId: number
   answer: string
@@ -103,7 +106,9 @@ const generateQuestionsFromContext = (
   jobTitle: string, 
   jobDescription: string, 
   skills: string[],
-  resumeData?: any
+  resumeData: any | undefined,
+  interviewRound: InterviewRound,
+  interviewLevel: InterviewLevel
 ): Question[] => {
   const questions: Question[] = []
   
@@ -205,8 +210,38 @@ const generateQuestionsFromContext = (
       tips: getTipsForType(q.type)
     })
   }
-  
-  return questions.slice(0, 8)
+
+  const baseQuestions = questions.slice(0, 8)
+
+  const normalizedDifficulty: Question['difficulty'] =
+    interviewLevel === 'easy' ? 'easy' : interviewLevel === 'medium' ? 'medium' : 'hard'
+
+  const roundAdjusted: Question[] = baseQuestions.map((q): Question => {
+    if (interviewRound === 'hr') {
+      if (q.type === 'technical') {
+        return { ...q, type: 'behavioral', tips: getTipsForType('behavioral') }
+      }
+      return q
+    }
+
+    if (interviewRound === 'managerial') {
+      if (q.type === 'technical') {
+        return { ...q, type: 'situational', tips: getTipsForType('situational') }
+      }
+      return q
+    }
+
+    if (interviewRound === 'technical_round_2') {
+      if (q.type === 'behavioral') {
+        return { ...q, type: 'technical', tips: getTipsForType('technical') }
+      }
+      return q
+    }
+
+    return q
+  })
+
+  return roundAdjusted.map((q): Question => ({ ...q, difficulty: normalizedDifficulty }))
 }
 
 const getTipsForType = (type: string): string[] => {
@@ -291,6 +326,8 @@ export default function InterviewCoachPage() {
   const [step, setStep] = useState<'setup' | 'practice' | 'review'>('setup')
   const [jobTitle, setJobTitle] = useState('')
   const [jobDescription, setJobDescription] = useState('')
+  const [interviewRound, setInterviewRound] = useState<InterviewRound>('technical_round_1')
+  const [interviewLevel, setInterviewLevel] = useState<InterviewLevel>('medium')
   const [skills, setSkills] = useState<string[]>([])
   const [skillInput, setSkillInput] = useState('')
   const [questions, setQuestions] = useState<Question[]>([])
@@ -392,7 +429,7 @@ export default function InterviewCoachPage() {
           .order('created_at', { ascending: false }),
         (supabase as any)
           .from('interview_sessions')
-          .select('id, job_title, overall_score, status, created_at, questions, answers')
+          .select('id, job_title, job_description, overall_score, status, created_at, questions, answers, interview_round, interview_level')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(10)
@@ -703,6 +740,8 @@ export default function InterviewCoachPage() {
         resume_id: selectedResumeId || null,
         job_title: jobTitle,
         job_description: jobDescription,
+        interview_round: interviewRound,
+        interview_level: interviewLevel,
         questions: questions,
         answers: allAnswers,
         feedback: allAnswers.map(a => a.feedback),
@@ -712,7 +751,7 @@ export default function InterviewCoachPage() {
     } catch (error) {
       console.error('Error saving interview session:', error)
     }
-  }, [supabase, selectedResumeId, jobTitle, jobDescription, questions])
+  }, [supabase, selectedResumeId, jobTitle, jobDescription, interviewRound, interviewLevel, questions])
 
   const endInterviewEarly = useCallback(async () => {
     stopRecording()
@@ -732,6 +771,8 @@ export default function InterviewCoachPage() {
             interviewContext: {
               jobTitle,
               jobDescription,
+              interviewRound,
+              interviewLevel,
             },
           }),
         })
@@ -750,7 +791,7 @@ export default function InterviewCoachPage() {
       setIsFetchingNextQuestion(false)
       setStep('review')
     }
-  }, [aiMode, aiThreadId, aiMessages, jobTitle, jobDescription, stopRecording, stopSpeaking, answers, saveSession])
+  }, [aiMode, aiThreadId, aiMessages, jobTitle, jobDescription, interviewRound, interviewLevel, stopRecording, stopSpeaking, answers, saveSession])
 
   // Timer effect
   useEffect(() => {
@@ -793,6 +834,8 @@ export default function InterviewCoachPage() {
           jobTitle,
           jobDescription,
           resumeData: selectedResumeData,
+          interviewRound,
+          interviewLevel,
         }),
       })
 
@@ -806,7 +849,7 @@ export default function InterviewCoachPage() {
         id: data.questionNumber || 1,
         question: data.question || "Let's begin. Tell me about yourself.",
         type: (data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral',
-        difficulty: 'medium',
+        difficulty: interviewLevel === 'easy' ? 'easy' : interviewLevel === 'medium' ? 'medium' : 'hard',
         tips: getTipsForType((data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral'),
       }
 
@@ -833,7 +876,7 @@ export default function InterviewCoachPage() {
       console.error('Interview start error (fallback to local):', error)
     }
 
-    const generatedQuestions = generateQuestionsFromContext(jobTitle, jobDescription, skills, selectedResumeData)
+    const generatedQuestions = generateQuestionsFromContext(jobTitle, jobDescription, skills, selectedResumeData, interviewRound, interviewLevel)
     setQuestions(generatedQuestions)
     setStep('practice')
     setCurrentQuestion(0)
@@ -930,6 +973,8 @@ export default function InterviewCoachPage() {
               questionNumber: questions[currentQuestion]?.id || currentQuestion + 1,
               jobTitle,
               jobDescription,
+              interviewRound,
+              interviewLevel,
             },
           }),
         })
@@ -956,6 +1001,8 @@ export default function InterviewCoachPage() {
                 interviewContext: {
                   jobTitle,
                   jobDescription,
+                  interviewRound,
+                  interviewLevel,
                 },
               }),
             })
@@ -979,7 +1026,7 @@ export default function InterviewCoachPage() {
           id: data.questionNumber || (questions[currentQuestion]?.id || currentQuestion + 1) + 1,
           question: data.question || 'Please continue.',
           type: (data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral',
-          difficulty: 'medium',
+          difficulty: interviewLevel === 'easy' ? 'easy' : interviewLevel === 'medium' ? 'medium' : 'hard',
           tips: getTipsForType((data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral'),
         }
 
@@ -1158,6 +1205,8 @@ export default function InterviewCoachPage() {
                               setStep('review')
                               setJobTitle(session.job_title || '')
                               setJobDescription(session.job_description || '')
+                              setInterviewRound((session.interview_round as InterviewRound) || 'technical_round_1')
+                              setInterviewLevel((session.interview_level as InterviewLevel) || 'medium')
                               setQuestions(session.questions || [])
                               setAnswers(session.answers || [])
                               setOverallScore(computeAverageScore(session.answers || []) || session.overall_score || 0)
@@ -1397,11 +1446,56 @@ export default function InterviewCoachPage() {
                     )}
                   </div>
 
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-200" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label className="flex items-center gap-2 text-base font-semibold">
+                      <Brain className="h-4 w-4 text-violet-500" />
+                      Step 3: Interview Settings
+                    </Label>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Round</Label>
+                        <Select value={interviewRound} onValueChange={(v) => setInterviewRound(v as InterviewRound)}>
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Select round" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="managerial">Managerial Round</SelectItem>
+                            <SelectItem value="technical_round_1">Technical Round 1</SelectItem>
+                            <SelectItem value="technical_round_2">Technical Round 2</SelectItem>
+                            <SelectItem value="hr">HR Round</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Level</Label>
+                        <Select value={interviewLevel} onValueChange={(v) => setInterviewLevel(v as InterviewLevel)}>
+                          <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="easy">Easy</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="hard">Hard</SelectItem>
+                            <SelectItem value="god">God Level</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Step 3: Additional Skills */}
                   <div className="space-y-4">
                     <Label className="flex items-center gap-2 text-base font-semibold">
                       <Zap className="h-4 w-4 text-amber-500" />
-                      Step 3: Key Skills
+                      Step 4: Key Skills
                     </Label>
                     <div className="flex gap-2">
                       <Input
@@ -1512,6 +1606,22 @@ export default function InterviewCoachPage() {
                     <div className="flex items-center gap-4">
                       <Badge variant="outline" className="text-violet-600 border-violet-300">
                         Question {currentQuestion + 1}
+                      </Badge>
+                      <Badge variant="secondary">
+                        {interviewRound === 'managerial'
+                          ? 'Managerial'
+                          : interviewRound === 'technical_round_1'
+                          ? 'Technical R1'
+                          : interviewRound === 'technical_round_2'
+                          ? 'Technical R2'
+                          : 'HR'}
+                      </Badge>
+                      <Badge className={`${
+                        interviewLevel === 'easy' ? 'bg-emerald-100 text-emerald-700' :
+                        interviewLevel === 'medium' ? 'bg-amber-100 text-amber-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {interviewLevel === 'god' ? 'god level' : interviewLevel}
                       </Badge>
                       <Badge className={`${
                         questions[currentQuestion].difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :

@@ -62,14 +62,18 @@ export type Database = {
           answers: Json | null
           company_name: string | null
           created_at: string | null
+          evaluation: Json | null
           feedback: Json | null
           id: string
+          interview_level: string | null
+          interview_round: string | null
           job_description: string | null
           job_title: string | null
           overall_score: number | null
           questions: Json | null
           resume_id: string | null
           status: string | null
+          thread_id: string | null
           updated_at: string | null
           user_id: string
         }
@@ -77,14 +81,18 @@ export type Database = {
           answers?: Json | null
           company_name?: string | null
           created_at?: string | null
+          evaluation?: Json | null
           feedback?: Json | null
           id?: string
+          interview_level?: string | null
+          interview_round?: string | null
           job_description?: string | null
           job_title?: string | null
           overall_score?: number | null
           questions?: Json | null
           resume_id?: string | null
           status?: string | null
+          thread_id?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -92,14 +100,18 @@ export type Database = {
           answers?: Json | null
           company_name?: string | null
           created_at?: string | null
+          evaluation?: Json | null
           feedback?: Json | null
           id?: string
+          interview_level?: string | null
+          interview_round?: string | null
           job_description?: string | null
           job_title?: string | null
           overall_score?: number | null
           questions?: Json | null
           resume_id?: string | null
           status?: string | null
+          thread_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
