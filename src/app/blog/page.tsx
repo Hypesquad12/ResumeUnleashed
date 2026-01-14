@@ -21,19 +21,19 @@ export default function BlogPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+        <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <Link href="/" className="flex items-center gap-2 w-full sm:w-auto">
             <div className="p-1.5 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg shadow-lg shadow-teal-500/20">
               <FileText className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-slate-800">Resume Unleashed</span>
+            <span className="font-bold text-base sm:text-lg text-slate-800">Resume Unleashed</span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
             <Link href="/">
-              <Button variant="ghost" className="text-slate-600 hover:text-slate-900">Home</Button>
+              <Button variant="ghost" className="text-slate-600 hover:text-slate-900 h-9 px-3 text-sm">Home</Button>
             </Link>
             <Link href="/login">
-              <Button className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 shadow-lg shadow-teal-500/25">
+              <Button className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 shadow-lg shadow-teal-500/25 h-9 px-3 text-sm">
                 Get Started
               </Button>
             </Link>
@@ -54,7 +54,7 @@ export default function BlogPage() {
               <span className="font-semibold text-slate-800">Resume Unleashed</span>
             </div>
             <p className="text-slate-500 text-sm">© 2024 Resume Unleashed. All rights reserved.</p>
-            <div className="flex items-center gap-6 text-sm text-slate-600">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-2 text-sm text-slate-600">
               <Link href="/blog" className="hover:text-teal-600 transition-colors">Blog</Link>
               <Link href="/templates" className="hover:text-teal-600 transition-colors">Templates</Link>
               <Link href="/login" className="hover:text-teal-600 transition-colors">Sign In</Link>
