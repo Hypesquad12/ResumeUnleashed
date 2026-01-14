@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { ArrowRight, CheckCircle2, Shield, Clock, Star, Play, FileText, Sparkles, Target } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Shield, Clock, Star, FileText, Sparkles, Target } from 'lucide-react'
 import Link from 'next/link'
 
 // Company logos for social proof - using actual logos
@@ -22,7 +22,7 @@ const companyLogos = [
 
 export function HeroSection() {
   return (
-    <section className="relative pt-28 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="relative pt-20 sm:pt-28 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Subtle background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-200/40 rounded-full blur-3xl" />
@@ -30,7 +30,7 @@ export function HeroSection() {
       </div>
 
       <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
           {/* Left Column - Copy */}
           <div className="text-left animate-fade-in">
             {/* Social proof badge */}
@@ -48,36 +48,30 @@ export function HeroSection() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 tracking-tight leading-[1.1]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 tracking-tight leading-[1.1]">
               Land Your Dream Job{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
                 3x Faster
               </span>
               <br />
-              <span className="text-slate-700 text-3xl sm:text-4xl lg:text-5xl">
+              <span className="text-slate-700 text-2xl sm:text-4xl lg:text-5xl">
                 with AI-Powered Resumes
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
+            <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
               Our AI-powered resume builder transforms your resume in <span className="font-bold text-violet-600">under 60 seconds</span> with AI that understands what recruiters want. 
               <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who landed their dream jobs.
             </p>
 
             {/* CTA */}
-            <div className="mt-8 space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4">
+            <div className="mt-6 sm:mt-8 space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link href="/signup" className="group">
-                  <Button size="lg" className="w-full sm:w-auto text-base px-10 h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 text-white font-semibold transition-all duration-300 hover:scale-105">
+                  <Button size="lg" className="w-full sm:w-auto text-base px-8 sm:px-10 h-12 sm:h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 text-white font-semibold transition-all duration-300 sm:hover:scale-105">
                     Get Started Free - No Credit Card
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-                <Link href="#demo" className="group">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-base px-8 h-14 border-2 border-slate-300 hover:border-violet-300 hover:bg-violet-50 transition-all duration-300">
-                    <Play className="mr-2 h-5 w-5" />
-                    Watch 60s Demo
                   </Button>
                 </Link>
               </div>
@@ -100,7 +94,7 @@ export function HeroSection() {
             </div>
 
             {/* Company logos */}
-            <div className="mt-10 pt-8 border-t border-slate-200">
+            <div className="hidden sm:block mt-10 pt-8 border-t border-slate-200">
               <p className="text-xs text-slate-500 uppercase tracking-wide font-medium mb-4">
                 Our users landed jobs at
               </p>
@@ -139,7 +133,7 @@ export function HeroSection() {
           </div>
 
           {/* Right Column - Product Screenshot */}
-          <div className="relative animate-fade-in-delayed">
+          <div className="hidden sm:block relative animate-fade-in-delayed">
             {/* Main product mockup */}
             <div className="relative bg-white rounded-2xl shadow-2xl shadow-slate-200/50 border border-slate-200 overflow-hidden">
               {/* Browser chrome */}
