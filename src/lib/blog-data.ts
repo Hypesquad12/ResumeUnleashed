@@ -20,6 +20,11 @@ import { appleResumeGuide } from './blog-posts/apple-resume-guide'
 import { netflixResumeGuide } from './blog-posts/netflix-resume-guide'
 import { big4ResumeGuide } from './blog-posts/big4-resume-guide'
 import { mbbResumeGuide } from './blog-posts/mbb-resume-guide'
+import { hdfcResumeInterviewGuide } from './blog-posts/hdfc-resume-interview-guide'
+import { relianceIndustriesResumeInterviewGuide } from './blog-posts/reliance-industries-resume-interview-guide'
+import { bhartiAirtelResumeInterviewGuide } from './blog-posts/bharti-airtel-resume-interview-guide'
+import { tcsResumeInterviewGuide } from './blog-posts/tcs-resume-interview-guide'
+import { infosysResumeInterviewGuide } from './blog-posts/infosys-resume-interview-guide'
 
 // Free Unsplash images for blog posts
 const blogImages = {
@@ -892,7 +897,12 @@ Your career starts with a great first impression. **[Sign up for Resume Unleashe
   appleResumeGuide,
   netflixResumeGuide,
   big4ResumeGuide,
-  mbbResumeGuide
+  mbbResumeGuide,
+  hdfcResumeInterviewGuide,
+  relianceIndustriesResumeInterviewGuide,
+  bhartiAirtelResumeInterviewGuide,
+  tcsResumeInterviewGuide,
+  infosysResumeInterviewGuide
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
