@@ -10,6 +10,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/blog/crafting-perfect-resume-for-mbb',
+        destination: '/blog/crafting-perfect-resume-for-mbb-consulting',
+        permanent: true,
+      },
+      {
+        source: '/blog/crafting-perfect-resume-for-big4',
+        destination: '/blog/crafting-perfect-resume-for-big4-consulting',
+        permanent: true,
+      },
+    ]
+  },
   experimental: {
     optimizeCss: true,
   },

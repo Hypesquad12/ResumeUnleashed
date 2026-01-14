@@ -25,6 +25,13 @@ import { relianceIndustriesResumeInterviewGuide } from './blog-posts/reliance-in
 import { bhartiAirtelResumeInterviewGuide } from './blog-posts/bharti-airtel-resume-interview-guide'
 import { tcsResumeInterviewGuide } from './blog-posts/tcs-resume-interview-guide'
 import { infosysResumeInterviewGuide } from './blog-posts/infosys-resume-interview-guide'
+import { mckinseyResumeInterviewGuide } from './blog-posts/mckinsey-resume-interview-guide'
+import { bainResumeInterviewGuide } from './blog-posts/bain-resume-interview-guide'
+import { bcgResumeInterviewGuide } from './blog-posts/bcg-resume-interview-guide'
+import { deloitteResumeInterviewGuide } from './blog-posts/deloitte-resume-interview-guide'
+import { pwcResumeInterviewGuide } from './blog-posts/pwc-resume-interview-guide'
+import { eyResumeInterviewGuide } from './blog-posts/ey-resume-interview-guide'
+import { kpmgResumeInterviewGuide } from './blog-posts/kpmg-resume-interview-guide'
 
 // Free Unsplash images for blog posts
 const blogImages = {
@@ -902,7 +909,14 @@ Your career starts with a great first impression. **[Sign up for Resume Unleashe
   relianceIndustriesResumeInterviewGuide,
   bhartiAirtelResumeInterviewGuide,
   tcsResumeInterviewGuide,
-  infosysResumeInterviewGuide
+  infosysResumeInterviewGuide,
+  mckinseyResumeInterviewGuide,
+  bainResumeInterviewGuide,
+  bcgResumeInterviewGuide,
+  deloitteResumeInterviewGuide,
+  pwcResumeInterviewGuide,
+  eyResumeInterviewGuide,
+  kpmgResumeInterviewGuide
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
