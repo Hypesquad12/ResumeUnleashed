@@ -32,7 +32,7 @@ export function PricingSection() {
     {
       name: 'Professional',
       price: 499,
-      originalPrice: 700,
+      originalPrice: 649,
       period: '/month',
       description: 'Perfect for active job seekers',
       icon: Zap,
@@ -51,8 +51,8 @@ export function PricingSection() {
     },
     {
       name: 'Premium',
-      price: 899,
-      originalPrice: 1200,
+      price: 799,
+      originalPrice: 1049,
       period: '/month',
       description: 'Best value for serious professionals',
       icon: Sparkles,
@@ -73,8 +73,8 @@ export function PricingSection() {
     },
     {
       name: 'Ultimate',
-      price: 1199,
-      originalPrice: 1599,
+      price: 1099,
+      originalPrice: 1449,
       period: '/month',
       description: 'Maximum features for career growth',
       icon: Crown,
@@ -97,8 +97,8 @@ export function PricingSection() {
   ] : [
     {
       name: 'Professional',
-      price: 5.60,
-      originalPrice: 7.87,
+      price: 8.99,
+      originalPrice: 11.99,
       period: '/month',
       description: 'Perfect for active job seekers',
       icon: Zap,
@@ -117,8 +117,8 @@ export function PricingSection() {
     },
     {
       name: 'Premium',
-      price: 10.11,
-      originalPrice: 13.48,
+      price: 12.99,
+      originalPrice: 16.99,
       period: '/month',
       description: 'Best value for serious professionals',
       icon: Sparkles,
@@ -139,8 +139,8 @@ export function PricingSection() {
     },
     {
       name: 'Ultimate',
-      price: 13.47,
-      originalPrice: 17.97,
+      price: 15.99,
+      originalPrice: 20.99,
       period: '/month',
       description: 'Maximum features for career growth',
       icon: Crown,
