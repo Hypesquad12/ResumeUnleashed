@@ -52,21 +52,14 @@ export function FreeTierPrompt() {
   }, [pathname])
 
   const handleUpgrade = () => {
-    setShowModal(false)
-    sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
     router.push('/pricing')
-  }
-
-  const handleDismiss = () => {
-    setShowModal(false)
-    sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
   }
 
   if (isChecking) return null
 
   return (
-    <Dialog open={showModal} onOpenChange={setShowModal}>
-      <DialogContent className="sm:max-w-lg">
+    <Dialog open={showModal} onOpenChange={() => {}}>
+      <DialogContent className="sm:max-w-lg" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center mb-4">
             <Sparkles className="h-8 w-8 text-white" />
@@ -75,7 +68,7 @@ export function FreeTierPrompt() {
             Welcome! Let's Get You Started
           </DialogTitle>
           <DialogDescription className="text-center text-base">
-            To access all features and start building your perfect resume, you'll need to choose a subscription plan.
+            To access all features, you must choose a subscription plan and set up payment. Your card will be charged after the free trial period ends.
           </DialogDescription>
         </DialogHeader>
 
@@ -122,13 +115,10 @@ export function FreeTierPrompt() {
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={handleDismiss} className="w-full sm:w-auto">
-            I'll Do This Later
-          </Button>
-          <Button onClick={handleUpgrade} className="w-full sm:w-auto bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600">
+        <DialogFooter>
+          <Button onClick={handleUpgrade} className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600">
             <Sparkles className="mr-2 h-4 w-4" />
-            Choose a Plan
+            Choose a Plan Now
           </Button>
         </DialogFooter>
       </DialogContent>

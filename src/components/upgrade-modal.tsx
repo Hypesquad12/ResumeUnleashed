@@ -74,13 +74,10 @@ export function UpgradeModal({ open, onClose, feature, current, limit, tier }: U
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">
-            Maybe Later
-          </Button>
-          <Button onClick={handleUpgrade} className="w-full sm:w-auto bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600">
+        <DialogFooter>
+          <Button onClick={handleUpgrade} className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600">
             <Zap className="mr-2 h-4 w-4" />
-            View Plans
+            Upgrade Now
           </Button>
         </DialogFooter>
       </DialogContent>

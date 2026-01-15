@@ -211,10 +211,10 @@ export default function SettingsPage() {
                 </div>
                 <CreditCard className="h-8 w-8 text-muted-foreground" />
               </div>
-              <div className="flex gap-2">
+              <div className="space-y-3">
                 <Button 
                   variant="outline" 
-                  className="flex-1"
+                  className="w-full"
                   onClick={() => router.push('/pricing')}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
@@ -222,10 +222,10 @@ export default function SettingsPage() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="flex-1"
-                  onClick={() => toast.info('Cancellation feature coming soon')}
+                  className="w-full text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                  onClick={() => router.push('/settings/manage-subscription')}
                 >
-                  Cancel Subscription
+                  Manage Subscription
                 </Button>
               </div>
             </>
