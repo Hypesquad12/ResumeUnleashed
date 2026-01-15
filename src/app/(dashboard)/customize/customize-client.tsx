@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
 import { OptionSelector } from './components/option-selector'
+import { AiLoadingOverlay } from '@/components/ai-loading-overlay'
 
 interface Resume {
   id: string
@@ -81,6 +82,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
 
   const hasResumes = resumes.length > 0
   const canStartCustomization = selectedResume && (jobDescription.trim() || jobUrl.trim())
+  const showAiOverlay = isCustomizing || generatingCoverLetter
 
   const handleStartCustomization = async () => {
     if (!canStartCustomization) return
@@ -544,41 +546,46 @@ ${name}`
 
   if (!hasResumes) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI Customize</h1>
-          <p className="text-muted-foreground mt-1">
-            Tailor your resume for specific job descriptions using AI
-          </p>
-        </div>
-        
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="p-4 bg-muted rounded-full mb-4">
-              <FileText className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No resumes to customize</h3>
-            <p className="text-muted-foreground text-center mb-4 max-w-sm">
-              Create a resume first, then come back here to customize it for specific jobs.
+      <>
+        {showAiOverlay && <AiLoadingOverlay />}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">AI Customize</h1>
+            <p className="text-muted-foreground mt-1">
+              Tailor your resume for specific job descriptions using AI
             </p>
-            <Link href="/resumes/new">
-              <Button>Create Resume First</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+          
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-4 bg-muted rounded-full mb-4">
+                <FileText className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No resumes to customize</h3>
+              <p className="text-muted-foreground text-center mb-4 max-w-sm">
+                Create a resume first, then come back here to customize it for specific jobs.
+              </p>
+              <Link href="/resumes/new">
+                <Button>Create Resume First</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     )
   }
 
   if (customizationComplete) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Customization Complete!</h1>
-          <p className="text-muted-foreground mt-1">
-            Your resume and cover letter have been optimized for the job description
-          </p>
-        </div>
+      <>
+        {showAiOverlay && <AiLoadingOverlay />}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Customization Complete!</h1>
+            <p className="text-muted-foreground mt-1">
+              Your resume and cover letter have been optimized for the job description
+            </p>
+          </div>
 
         {/* Combined Resume & Cover Letter Container */}
         <div className="grid gap-6 lg:grid-cols-2">
@@ -913,37 +920,43 @@ ${name}`
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </>
     )
   }
 
   // Show options selector if multiple options available
   if (showOptionsStep && aiOptions.length > 0) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
-            <Sparkles className="h-6 w-6 text-white" />
+      <>
+        {showAiOverlay && <AiLoadingOverlay />}
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
+              <Sparkles className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Select Your Option</h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
+                Choose and customize one of the AI-generated variations
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Select Your Option</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Choose and customize one of the AI-generated variations
-            </p>
-          </div>
+          
+          <OptionSelector
+            options={aiOptions}
+            onSelect={handleOptionSelect}
+            onCancel={handleCancelOptions}
+          />
         </div>
-        
-        <OptionSelector
-          options={aiOptions}
-          onSelect={handleOptionSelect}
-          onCancel={handleCancelOptions}
-        />
-      </div>
+      </>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      {showAiOverlay && <AiLoadingOverlay />}
+      <div className="space-y-6">
       {/* Header with gradient accent */}
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
@@ -1286,6 +1299,7 @@ ${name}`
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </>
   )
 }
