@@ -48,9 +48,9 @@ export async function getUserSubscription(): Promise<{
       tier: 'free',
       region,
       limits: {
-        resumes: 0,
-        customizations: 0,
-        interviews: 0,
+        resumes: 1, // Allow 1 resume for all users including free
+        customizations: 2, // Trial: 2 customizations
+        interviews: 1, // Trial: 1 interview
         jobMatching: 0,
         coverLetters: 0,
       }
@@ -67,7 +67,7 @@ export async function getUserSubscription(): Promise<{
     tier,
     region,
     limits: {
-      resumes: plan.limits.resumes,
+      resumes: 1, // All users limited to 1 resume (must delete to create new)
       customizations: plan.limits.customizations,
       interviews: plan.limits.interviews,
       jobMatching: plan.limits.jobMatching,

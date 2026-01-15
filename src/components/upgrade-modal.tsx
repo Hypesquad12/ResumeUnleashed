@@ -44,9 +44,9 @@ export function UpgradeModal({ open, onClose, feature, current, limit, tier }: U
           <DialogDescription className="text-center">
             {isFree ? (
               <>
-                You need a paid subscription to access this feature.
+                You've reached your <strong>free trial limit</strong> of <strong>{limit}</strong> {feature}.
                 <br />
-                Choose a plan that fits your needs!
+                Upgrade to a paid plan to continue using this feature!
               </>
             ) : (
               <>

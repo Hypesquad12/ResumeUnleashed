@@ -13,6 +13,7 @@ import { Loader2, User, Crown, CreditCard, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import type { Database } from '@/types/database'
+import { UsageStats } from '@/components/usage-stats'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Subscription = Database['public']['Tables']['subscriptions']['Row']
@@ -171,6 +172,9 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Usage Statistics */}
+      <UsageStats />
 
       <Card>
         <CardHeader>
