@@ -30,32 +30,17 @@ export function PricingSection() {
   // Define plans based on region
   const plans = region === 'india' ? [
     {
-      name: 'Starter',
-      price: 0,
-      period: '',
-      description: 'Try it out, no credit card required',
-      icon: Gift,
-      popular: false,
-      savings: null,
-      isFree: true,
-      currency: '₹',
-      freeFeatures: [
-        '1 professional template',
-        'No AI customization',
-        'PDF with watermark',
-        'Email support (72hr)',
-      ],
-    },
-    {
       name: 'Professional',
       price: 499,
+      originalPrice: 700,
       period: '/month',
       description: 'Perfect for active job seekers',
       icon: Zap,
       popular: false,
-      savings: null,
+      savings: '7-day free trial',
       isFree: false,
       currency: '₹',
+      trialDays: 7,
       tierFeatures: [
         '10 professional templates',
         '10 AI customizations/month',
@@ -67,6 +52,7 @@ export function PricingSection() {
     {
       name: 'Premium',
       price: 899,
+      originalPrice: 1200,
       period: '/month',
       description: 'Best value for serious professionals',
       icon: Sparkles,
@@ -74,6 +60,7 @@ export function PricingSection() {
       savings: 'BEST VALUE',
       isFree: false,
       currency: '₹',
+      trialDays: 7,
       tierFeatures: [
         'All 25+ templates',
         '50 AI customizations/month',
@@ -87,13 +74,15 @@ export function PricingSection() {
     {
       name: 'Ultimate',
       price: 1199,
+      originalPrice: 1599,
       period: '/month',
       description: 'Maximum features for career growth',
       icon: Crown,
       popular: false,
-      savings: 'Save 25% annually',
+      savings: '7-day free trial',
       isFree: false,
       currency: '₹',
+      trialDays: 7,
       tierFeatures: [
         'Everything in Premium',
         'Unlimited AI customizations',
@@ -107,32 +96,17 @@ export function PricingSection() {
     },
   ] : [
     {
-      name: 'Starter',
-      price: 0,
-      period: '',
-      description: 'Try it out, no credit card required',
-      icon: Gift,
-      popular: false,
-      savings: null,
-      isFree: true,
-      currency: '$',
-      freeFeatures: [
-        '1 professional template',
-        'No AI customization',
-        'PDF with watermark',
-        'Email support (72hr)',
-      ],
-    },
-    {
       name: 'Professional',
-      price: 9.99,
+      price: 5.60,
+      originalPrice: 7.87,
       period: '/month',
       description: 'Perfect for active job seekers',
       icon: Zap,
       popular: false,
-      savings: null,
+      savings: '7-day free trial',
       isFree: false,
       currency: '$',
+      trialDays: 7,
       tierFeatures: [
         '10 professional templates',
         '10 AI customizations/month',
@@ -143,7 +117,8 @@ export function PricingSection() {
     },
     {
       name: 'Premium',
-      price: 16.99,
+      price: 10.11,
+      originalPrice: 13.48,
       period: '/month',
       description: 'Best value for serious professionals',
       icon: Sparkles,
@@ -151,6 +126,7 @@ export function PricingSection() {
       savings: 'BEST VALUE',
       isFree: false,
       currency: '$',
+      trialDays: 7,
       tierFeatures: [
         'All 25+ templates',
         '50 AI customizations/month',
@@ -163,14 +139,16 @@ export function PricingSection() {
     },
     {
       name: 'Ultimate',
-      price: 19.99,
+      price: 13.47,
+      originalPrice: 17.97,
       period: '/month',
       description: 'Maximum features for career growth',
       icon: Crown,
       popular: false,
-      savings: 'Save 25% annually',
+      savings: '7-day free trial',
       isFree: false,
       currency: '$',
+      trialDays: 7,
       tierFeatures: [
         'Everything in Premium',
         'Unlimited AI customizations',
@@ -233,12 +211,12 @@ export function PricingSection() {
             </span>
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Choose the perfect plan for your career journey. Start free, upgrade anytime.
+            Choose the perfect plan for your career journey. All plans start with a free trial.
           </p>
         </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
@@ -286,38 +264,45 @@ export function PricingSection() {
 
                   {/* Price */}
                   <div className="mb-6">
+                    {plan.originalPrice && (
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-lg text-slate-400 line-through">{plan.currency}{plan.originalPrice.toLocaleString()}</span>
+                        <span className="text-sm font-semibold text-emerald-600">Save {Math.round((1 - plan.price / plan.originalPrice) * 100)}%</span>
+                      </div>
+                    )}
                     <div className="flex items-baseline gap-1">
-                      {!plan.isFree && <span className="text-2xl font-bold text-slate-900">{plan.currency}</span>}
+                      <span className="text-2xl font-bold text-slate-900">{plan.currency}</span>
                       <span className="text-4xl font-bold text-slate-900">
-                        {plan.isFree ? 'Free' : plan.price.toLocaleString()}
+                        {plan.price.toLocaleString()}
                       </span>
-                      {!plan.isFree && <span className="text-slate-600">{plan.period}</span>}
+                      <span className="text-slate-600">{plan.period}</span>
                     </div>
+                    {plan.trialDays && (
+                      <p className="text-sm text-violet-600 font-medium mt-2">{plan.trialDays}-day free trial included</p>
+                    )}
                   </div>
 
                   {/* CTA Button */}
-                  <Link href={plan.isFree ? '/signup' : '/pricing'} className="block mb-6">
+                  <Link href='/pricing' className="block mb-6">
                     <Button 
                       className={`w-full ${
                         plan.popular
                           ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/30'
-                          : plan.isFree
-                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                           : 'bg-slate-900 hover:bg-slate-800 text-white'
                       }`}
                       size="lg"
                     >
-                      {plan.isFree ? 'Start Free' : 'Get Started'}
+                      Start {plan.trialDays}-Day Trial
                     </Button>
                   </Link>
                   
                   {/* Features preview */}
                   <div className="pt-4 border-t border-slate-100">
                     <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
-                      {plan.isFree ? 'Includes:' : 'Everything included:'}
+                      Everything included:
                     </p>
                     <ul className="space-y-2">
-                      {(plan.isFree ? plan.freeFeatures : plan.tierFeatures)?.map((feature: string) => (
+                      {plan.tierFeatures?.map((feature: string) => (
                         <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
                           <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                           {feature}
@@ -360,7 +345,7 @@ export function PricingSection() {
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-50 border border-emerald-200 rounded-full">
             <Check className="h-5 w-5 text-emerald-600" />
             <span className="text-sm font-medium text-emerald-700">
-              14-day money-back guarantee on all paid plans
+              Free trial on all plans • Cancel anytime • No commitment required
             </span>
           </div>
         </motion.div>

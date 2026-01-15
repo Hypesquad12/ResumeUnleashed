@@ -25,6 +25,8 @@ export function CheckoutModal({ open, onClose, plan, billingCycle, onProceed, is
   const [couponError, setCouponError] = useState('')
 
   const baseAmount = billingCycle === 'monthly' ? plan.priceMonthly : plan.priceAnnual
+  const originalPrice = billingCycle === 'monthly' ? plan.originalPriceMonthly : plan.originalPriceAnnual
+  const trialDays = billingCycle === 'monthly' ? plan.trialDays : plan.trialDaysAnnual
   const finalAmount = couponData ? couponData.finalAmount : baseAmount
 
   const validateCoupon = async () => {
@@ -80,15 +82,34 @@ export function CheckoutModal({ open, onClose, plan, billingCycle, onProceed, is
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Trial Period Notice */}
+          {trialDays && (
+            <div className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-violet-700 dark:text-violet-300 font-semibold mb-1">
+                <Check className="h-5 w-5" />
+                {trialDays}-Day Free Trial Included
+              </div>
+              <p className="text-sm text-violet-600 dark:text-violet-400">
+                You won't be charged until your trial ends. Cancel anytime during the trial period.
+              </p>
+            </div>
+          )}
+
           {/* Plan Summary */}
           <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 space-y-2">
             <div className="flex justify-between items-center">
               <span className="font-semibold">{plan.name}</span>
               <span className="text-sm text-muted-foreground">{billingCycle === 'monthly' ? 'Monthly' : 'Annual'}</span>
             </div>
+            {originalPrice && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Original Price</span>
+                <span className="line-through text-muted-foreground">{formatPrice(originalPrice, plan.currency)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Original Price</span>
-              <span>{formatPrice(baseAmount, plan.currency)}</span>
+              <span className="text-muted-foreground">{originalPrice ? 'Discounted Price' : 'Price'}</span>
+              <span className={originalPrice ? 'text-green-600 font-semibold' : ''}>{formatPrice(baseAmount, plan.currency)}</span>
             </div>
             {couponData && (
               <>

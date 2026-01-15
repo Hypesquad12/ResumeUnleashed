@@ -94,16 +94,6 @@ function PricingPageContent() {
   }, [shouldAutoSelect, autoSelectPlanId, autoSelectCycle, plans])
 
   const handlePlanSelect = async (plan: PricingPlan, cycle: BillingCycle) => {
-    // Skip free plan
-    if (plan.tier === 'free') {
-      if (!user) {
-        router.push('/signup')
-      } else {
-        router.push('/dashboard')
-      }
-      return
-    }
-
     // Check if user is authenticated
     if (!user) {
       // Store plan selection and redirect to signup

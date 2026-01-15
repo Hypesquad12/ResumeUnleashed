@@ -16,7 +16,10 @@ interface PricingCardProps {
 
 export function PricingCard({ plan, billingCycle, onSelect, isLoading }: PricingCardProps) {
   const price = billingCycle === 'monthly' ? plan.priceMonthly : plan.priceAnnual
+  const originalPrice = billingCycle === 'monthly' ? plan.originalPriceMonthly : plan.originalPriceAnnual
+  const trialDays = billingCycle === 'monthly' ? plan.trialDays : plan.trialDaysAnnual
   const displayPrice = formatPrice(price, plan.currency)
+  const displayOriginalPrice = originalPrice ? formatPrice(originalPrice, plan.currency) : null
   
   const savings = billingCycle === 'annual' 
     ? calculateSavings(plan.priceMonthly, plan.priceAnnual)
@@ -82,7 +85,17 @@ export function PricingCard({ plan, billingCycle, onSelect, isLoading }: Pricing
       <CardHeader>
         <CardTitle className="text-2xl">{plan.name}</CardTitle>
         <CardDescription>
-          <div className="mt-4 flex items-baseline gap-2">
+          {displayOriginalPrice && (
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="text-lg text-muted-foreground line-through">
+                {displayOriginalPrice}
+              </span>
+              <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                Save {originalPrice && Math.round((1 - price / originalPrice) * 100)}%
+              </span>
+            </div>
+          )}
+          <div className="mt-2 flex items-baseline gap-2">
             <span className="text-4xl font-bold text-foreground">
               {displayPrice}
             </span>
@@ -90,6 +103,11 @@ export function PricingCard({ plan, billingCycle, onSelect, isLoading }: Pricing
               /{billingCycle === 'monthly' ? 'month' : 'year'}
             </span>
           </div>
+          {trialDays && (
+            <div className="mt-2 text-sm font-medium text-primary">
+              {trialDays}-day free trial included
+            </div>
+          )}
           {savings && (
             <div className="mt-2 text-sm text-green-600 dark:text-green-400">
               Save {formatPrice(savings.amount, plan.currency)} ({savings.percentage}% off)
@@ -115,9 +133,9 @@ export function PricingCard({ plan, billingCycle, onSelect, isLoading }: Pricing
           size="lg"
           variant={plan.popular ? 'default' : 'outline'}
           onClick={() => onSelect(plan, billingCycle)}
-          disabled={isLoading || plan.tier === 'free'}
+          disabled={isLoading}
         >
-          {plan.tier === 'free' ? 'Current Plan' : 'Get Started'}
+          {trialDays ? `Start ${trialDays}-Day Trial` : 'Get Started'}
         </Button>
       </CardFooter>
     </Card>

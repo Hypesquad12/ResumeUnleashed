@@ -1,4 +1,4 @@
-export type SubscriptionTier = 'free' | 'professional' | 'premium' | 'ultimate'
+export type SubscriptionTier = 'professional' | 'premium' | 'ultimate'
 export type BillingCycle = 'monthly' | 'annual'
 export type Region = 'india' | 'row'
 
@@ -10,6 +10,10 @@ export interface PricingPlan {
   currency: string
   priceMonthly: number
   priceAnnual: number
+  originalPriceMonthly?: number
+  originalPriceAnnual?: number
+  trialDays?: number
+  trialDaysAnnual?: number
   features: {
     templates: number | 'all'
     aiCustomization: boolean
@@ -38,31 +42,6 @@ export interface PricingPlan {
 // India Pricing (INR)
 export const indiaPricing: PricingPlan[] = [
   {
-    id: 'india-free',
-    name: 'Starter',
-    tier: 'free',
-    region: 'india',
-    currency: 'INR',
-    priceMonthly: 0,
-    priceAnnual: 0,
-    features: {
-      templates: 1,
-      aiCustomization: false,
-      atsOptimization: false,
-      downloads: 'pdf_watermark',
-      jobMatching: 'none',
-      interviewPrep: false,
-      visitingCards: 0,
-      support: 'Email (72hr response)',
-    },
-    limits: {
-      resumes: 1,
-      customizations: 0,
-      interviews: 0,
-      jobMatching: 0,
-    },
-  },
-  {
     id: 'india-professional',
     name: 'Professional',
     tier: 'professional',
@@ -70,6 +49,10 @@ export const indiaPricing: PricingPlan[] = [
     currency: 'INR',
     priceMonthly: 499,
     priceAnnual: 4491,
+    originalPriceMonthly: 700,
+    originalPriceAnnual: 6300,
+    trialDays: 7,
+    trialDaysAnnual: 30,
     features: {
       templates: 10,
       aiCustomization: true,
@@ -154,38 +137,17 @@ export const indiaPricing: PricingPlan[] = [
 // Exchange rate: ₹89 = $1
 export const rowPricing: PricingPlan[] = [
   {
-    id: 'row-free',
-    name: 'Starter',
-    tier: 'free',
-    region: 'row',
-    currency: 'USD',
-    priceMonthly: 0,
-    priceAnnual: 0,
-    features: {
-      templates: 1,
-      aiCustomization: false,
-      atsOptimization: false,
-      downloads: 'pdf_watermark',
-      jobMatching: 'none',
-      interviewPrep: false,
-      visitingCards: 0,
-      support: 'Email (72hr response)',
-    },
-    limits: {
-      resumes: 1,
-      customizations: 0,
-      interviews: 0,
-      jobMatching: 0,
-    },
-  },
-  {
     id: 'row-professional',
     name: 'Professional',
     tier: 'professional',
     region: 'row',
     currency: 'USD',
-    priceMonthly: 9.99,
-    priceAnnual: 95.99,
+    priceMonthly: 5.60,
+    priceAnnual: 50.45,
+    originalPriceMonthly: 7.87,
+    originalPriceAnnual: 70.79,
+    trialDays: 7,
+    trialDaysAnnual: 30,
     features: {
       templates: 10,
       aiCustomization: true,
