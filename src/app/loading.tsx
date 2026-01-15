@@ -1,5 +1,5 @@
 import { AiLoadingOverlay } from '@/components/ai-loading-overlay'
 
-export default function ResumesLoading() {
+export default function Loading() {
   return <AiLoadingOverlay />
 }
