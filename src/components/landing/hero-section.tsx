@@ -88,7 +88,7 @@ export function HeroSection() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Shield className="h-4 w-4 text-emerald-500" />
-                  Free forever plan
+                  Free trial available
                 </div>
               </div>
             </div>
