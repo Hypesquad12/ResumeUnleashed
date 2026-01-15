@@ -116,151 +116,49 @@ function PricingPageContent() {
     setIsLoading(true)
 
     try {
-      // Calculate amount
-      const baseAmount = selectedCycleForCheckout === 'monthly' 
-        ? selectedPlanForCheckout.priceMonthly 
-        : selectedPlanForCheckout.priceAnnual
+      // Create subscription via API (this handles mandate creation with trial period)
+      const response = await fetch('/api/razorpay/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: selectedPlanForCheckout.id,
+          billingCycle: selectedCycleForCheckout,
+          region: selectedPlanForCheckout.region,
+          tier: selectedPlanForCheckout.tier,
+          couponCode: couponCode || undefined,
+        }),
+      })
 
-      let finalAmount = baseAmount
-      let discountAmount = 0
-
-      // Apply coupon if provided
-      if (couponCode) {
-        const promoCodes: Record<string, { discount: number; type: 'percentage' | 'flat'; maxDiscount?: number }> = {
-          'WELCOME10': { discount: 10, type: 'percentage', maxDiscount: 100 },
-          'SAVE20': { discount: 20, type: 'percentage', maxDiscount: 200 },
-          'FLAT100': { discount: 100, type: 'flat' },
-          'FLAT200': { discount: 200, type: 'flat' },
-        }
-
-        const promo = promoCodes[couponCode.toUpperCase()]
-        if (promo) {
-          if (promo.type === 'percentage') {
-            discountAmount = Math.round((baseAmount * promo.discount) / 100)
-            if (promo.maxDiscount && discountAmount > promo.maxDiscount) {
-              discountAmount = promo.maxDiscount
-            }
-          } else {
-            discountAmount = promo.discount
-          }
-          finalAmount = Math.max(0, baseAmount - discountAmount)
-        }
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create subscription')
       }
 
-      // Convert to paise
-      const amountInPaise = finalAmount * 100
+      const { subscriptionId, shortUrl } = await response.json()
 
-      // Get plan_id from subscription_plans table
-      const supabase = createClient()
-      
-      const { data: planData, error: planError } = await supabase
-        .from('subscription_plans')
-        .select('id')
-        .eq('tier', selectedPlanForCheckout.tier)
-        .eq('region', selectedPlanForCheckout.region)
-        .single()
+      console.log('Subscription created:', subscriptionId)
+      console.log('Checkout URL:', shortUrl)
 
-      if (planError || !planData) {
-        console.error('Plan lookup error:', planError)
-        throw new Error('Plan not found')
-      }
-
-      // Save subscription intent to database
-      const periodStart = new Date()
-      const periodEnd = new Date()
-      if (selectedCycleForCheckout === 'annual') {
-        periodEnd.setFullYear(periodEnd.getFullYear() + 1)
+      // Redirect to Razorpay hosted checkout page
+      // This page handles:
+      // 1. UPI mandate/card authorization (no upfront charge for trial users)
+      // 2. Customer authentication
+      // 3. Payment method setup
+      // 4. Auto-charge after trial period or when upgrading
+      if (shortUrl) {
+        window.location.href = shortUrl
       } else {
-        periodEnd.setMonth(periodEnd.getMonth() + 1)
+        throw new Error('Failed to get checkout URL')
       }
-
-      const { data: subscriptionData, error: dbError } = await supabase
-        .from('subscriptions')
-        .upsert({
-          user_id: user.id,
-          plan_id: planData.id,
-          status: 'pending',
-          billing_cycle: selectedCycleForCheckout,
-          current_period_start: periodStart.toISOString(),
-          current_period_end: periodEnd.toISOString(),
-        }, {
-          onConflict: 'user_id'
-        })
-        .select()
-        .single()
-
-      if (dbError) {
-        console.error('Database error:', dbError)
-        throw new Error('Failed to save subscription')
-      }
-
-      // Initialize Razorpay Checkout with UPI mandate
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: amountInPaise,
-        currency: selectedPlanForCheckout.currency,
-        name: 'Resume Unleashed',
-        description: `${selectedPlanForCheckout.name} - ${selectedCycleForCheckout === 'monthly' ? 'Monthly' : 'Annual'}`,
-        prefill: {
-          name: user.email?.split('@')[0] || 'User',
-          email: user.email || '',
-        },
-        notes: {
-          user_id: user.id,
-          plan_name: selectedPlanForCheckout.name,
-          plan_tier: selectedPlanForCheckout.tier,
-          billing_cycle: selectedCycleForCheckout,
-          subscription_db_id: subscriptionData.id,
-          original_amount: baseAmount.toString(),
-          final_amount: finalAmount.toString(),
-          ...(couponCode && {
-            coupon_code: couponCode,
-            discount_amount: discountAmount.toString(),
-          }),
-        },
-        theme: {
-          color: '#8b5cf6',
-        },
-        handler: async function (response: any) {
-          console.log('Payment successful:', response)
-          
-          // Verify payment on backend
-          const verifyResponse = await fetch('/api/razorpay/verify-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              subscription_id: subscriptionData.id,
-            }),
-          })
-
-          if (verifyResponse.ok) {
-            window.location.href = '/dashboard?payment=success'
-          } else {
-            window.location.href = '/dashboard?payment=failed'
-          }
-        },
-        modal: {
-          ondismiss: function() {
-            setIsLoading(false)
-            setShowCheckoutModal(false)
-            console.log('Payment cancelled by user')
-          }
-        },
-        recurring: 1, // Enable UPI AutoPay/Recurring mandate
-      }
-
-      const rzp = new (window as any).Razorpay(options)
-      rzp.open()
     } catch (error: any) {
-      console.error('Payment error:', error)
-      const errorMessage = error.message || 'Failed to initiate payment. Please try again.'
+      console.error('Subscription creation error:', error)
+      const errorMessage = error.message || 'Failed to create subscription. Please try again.'
       
       if (typeof window !== 'undefined') {
         alert(errorMessage)
       }
       setIsLoading(false)
+      setShowCheckoutModal(false)
     }
   }
 

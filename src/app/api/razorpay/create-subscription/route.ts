@@ -126,10 +126,14 @@ export async function POST(request: NextRequest) {
     // Create subscription using Razorpay API
     // IMPORTANT: Do NOT pass customer_id - it breaks hosted checkout link generation
     // Razorpay will create customer automatically during payment authentication
-    // If user has had paid subscription before, charge immediately (no trial)
-    // Otherwise, add trial period (7 days for all plans)
+    // Trial period configuration:
+    // - New customers: 7-day trial (no upfront charge, only mandate setup)
+    // - Returning customers: No trial (charge immediately after mandate setup)
     const trialDays = hadPaidSubscription ? 0 : 7
-    const startTime = hadPaidSubscription 
+    
+    // For trial users: First charge happens after trial period
+    // For returning customers: First charge happens immediately after authentication
+    const firstChargeTime = hadPaidSubscription 
       ? Math.floor(Date.now() / 1000) + 60 // Start 1 minute from now for returning customers
       : Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // Start after 7-day trial for new customers
     
@@ -138,7 +142,7 @@ export async function POST(request: NextRequest) {
       total_count: billingCycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
-      start_at: startTime,
+      start_at: firstChargeTime, // When first charge will happen
       addons: [],
       notes: {
         user_id: user.id,
@@ -156,10 +160,8 @@ export async function POST(request: NextRequest) {
       },
     }
     
-    // Only add trial_end for new customers with trial
-    if (!hadPaidSubscription && trialDays > 0) {
-      subscriptionParams.trial_end = startTime
-    }
+    // DO NOT add upfront_amount or any immediate charge parameters
+    // Razorpay subscriptions will only create mandate and charge at start_at time
 
     console.log('Creating Razorpay subscription with params:', subscriptionParams)
 
