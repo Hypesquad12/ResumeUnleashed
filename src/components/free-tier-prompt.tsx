@@ -1,0 +1,137 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { isFreeTierUser } from '@/lib/subscription-limits'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Sparkles, TrendingUp, Zap } from 'lucide-react'
+
+/**
+ * Component that checks if user is on free tier and prompts them to upgrade
+ * Should be added to dashboard layout to check on all dashboard pages
+ */
+export function FreeTierPrompt() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [showModal, setShowModal] = useState(false)
+  const [isChecking, setIsChecking] = useState(true)
+
+  // Pages where we don't want to show the modal
+  const excludedPaths = ['/pricing', '/checkout', '/settings']
+
+  useEffect(() => {
+    async function checkTier() {
+      // Don't check on excluded paths
+      if (excludedPaths.some(path => pathname?.includes(path))) {
+        setIsChecking(false)
+        return
+      }
+
+      const isFree = await isFreeTierUser()
+      
+      if (isFree) {
+        // Check if user has dismissed the prompt in this session
+        const dismissed = sessionStorage.getItem('free_tier_prompt_dismissed')
+        if (!dismissed) {
+          setShowModal(true)
+        }
+      }
+      
+      setIsChecking(false)
+    }
+
+    checkTier()
+  }, [pathname])
+
+  const handleUpgrade = () => {
+    setShowModal(false)
+    sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
+    router.push('/pricing')
+  }
+
+  const handleDismiss = () => {
+    setShowModal(false)
+    sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
+  }
+
+  if (isChecking) return null
+
+  return (
+    <Dialog open={showModal} onOpenChange={setShowModal}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center mb-4">
+            <Sparkles className="h-8 w-8 text-white" />
+          </div>
+          <DialogTitle className="text-center text-2xl">
+            Welcome! Let's Get You Started
+          </DialogTitle>
+          <DialogDescription className="text-center text-base">
+            To access all features and start building your perfect resume, you'll need to choose a subscription plan.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg p-4 border border-violet-100">
+            <div className="flex items-start gap-3">
+              <Zap className="h-5 w-5 text-violet-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-slate-700">
+                <p className="font-semibold mb-2">What you'll get:</p>
+                <ul className="space-y-1.5 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span>AI-powered resume customization</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span>Professional templates & ATS optimization</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span>Interview prep sessions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span>Digital visiting cards with QR codes</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span>7-30 day free trial on all plans</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+            <div className="flex items-start gap-3">
+              <TrendingUp className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-amber-800">
+                <p className="font-medium mb-1">Free tier is no longer available</p>
+                <p className="text-amber-700">All new and existing users need an active subscription to access features.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={handleDismiss} className="w-full sm:w-auto">
+            I'll Do This Later
+          </Button>
+          <Button onClick={handleUpgrade} className="w-full sm:w-auto bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Choose a Plan
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}

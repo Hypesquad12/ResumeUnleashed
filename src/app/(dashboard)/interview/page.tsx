@@ -24,6 +24,8 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { AiLoadingOverlay } from '@/components/ai-loading-overlay'
+import { canPerformAction } from '@/lib/subscription-limits'
+import { UpgradeModal } from '@/components/upgrade-modal'
 
 interface Question {
   id: number
@@ -347,6 +349,10 @@ export default function InterviewCoachPage() {
   const [aiEvaluation, setAiEvaluation] = useState<any>(null)
   const [isFetchingNextQuestion, setIsFetchingNextQuestion] = useState(false)
   const [isStartingInterview, setIsStartingInterview] = useState(false)
+  
+  // Upgrade modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free' })
   
   // Audio states
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -837,6 +843,18 @@ export default function InterviewCoachPage() {
   }
 
   const startPractice = async () => {
+    // Check subscription limits first
+    const limitCheck = await canPerformAction('interviews')
+    if (!limitCheck.allowed) {
+      setUpgradeInfo({ 
+        current: limitCheck.current, 
+        limit: limitCheck.limit, 
+        tier: limitCheck.tier 
+      })
+      setShowUpgradeModal(true)
+      return
+    }
+
     setIsStartingInterview(true)
     setAiEvaluation(null)
     setAiMode(false)
@@ -2316,6 +2334,16 @@ export default function InterviewCoachPage() {
         </AnimatePresence>
       </div>
     </div>
+
+    {/* Upgrade Modal */}
+    <UpgradeModal
+      open={showUpgradeModal}
+      onClose={() => setShowUpgradeModal(false)}
+      feature="interviews"
+      current={upgradeInfo.current}
+      limit={upgradeInfo.limit}
+      tier={upgradeInfo.tier}
+    />
     </>
   )
 }

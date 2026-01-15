@@ -26,7 +26,7 @@ function PricingPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [region, setRegion] = useState<Region>('row')
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly')
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>('annual')
   const [isDetecting, setIsDetecting] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any>(null)

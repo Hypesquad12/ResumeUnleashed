@@ -24,6 +24,8 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { OptionSelector } from './components/option-selector'
 import { AiLoadingOverlay } from '@/components/ai-loading-overlay'
+import { canPerformAction } from '@/lib/subscription-limits'
+import { UpgradeModal } from '@/components/upgrade-modal'
 
 interface Resume {
   id: string
@@ -70,6 +72,10 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   }>({ keywords_added: [], changes: [], ats_tips: [] })
   const [coverLetter, setCoverLetter] = useState<string>('')
   const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false)
+  
+  // Upgrade modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free' })
   const [showCoverLetter, setShowCoverLetter] = useState(false)
   
   // Multiple options state
@@ -452,6 +458,159 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
     setShowOptionsStep(false)
     setAiOptions([])
     setSelectedOptionIndex(null)
+  }
+
+  const handleCustomize = async () => {
+    if (!selectedResume || (!jobDescription && !jobUrl)) {
+      toast.error('Please select a resume and provide a job description')
+      return
+    }
+
+    // Check subscription limits
+    const limitCheck = await canPerformAction('customizations')
+    if (!limitCheck.allowed) {
+      setUpgradeInfo({ 
+        current: limitCheck.current, 
+        limit: limitCheck.limit, 
+        tier: limitCheck.tier 
+      })
+      setShowUpgradeModal(true)
+      return
+    }
+
+    setIsCustomizing(true)
+    const supabase = createClient()
+    
+    try {
+      const { data: sourceResume } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('id', selectedResume)
+        .single()
+
+      if (!sourceResume) {
+        toast.error('Source resume not found')
+        setIsCustomizing(false)
+        return
+      }
+
+      const jdText = jobDescription || jobUrl
+      
+      // Call edge function for AI customization
+      const { data: result, error } = await supabase.functions.invoke('customize-resume', {
+        body: {
+          resume: {
+            contact: sourceResume.contact,
+            summary: sourceResume.summary,
+            experience: sourceResume.experience,
+            education: sourceResume.education,
+            skills: sourceResume.skills,
+          },
+          jobDescription: jdText,
+        },
+      })
+
+      if (error || !result?.success) {
+        console.error('Error customizing resume:', error)
+        toast.error('Failed to customize resume')
+      } else {
+        const customizedResume = result.data.customized_resume
+        
+        // Set optimization stats
+        const stats = {
+          keywords: result.data.keywords_added?.length || 0,
+          sections: result.data.changes?.length || 0,
+          score: result.data.match_score || 85
+        }
+        setOptimizationStats(stats)
+        setAiSuggestions({
+          keywords_added: result.data.keywords_added || [],
+          changes: result.data.changes || [],
+          ats_tips: result.data.ats_tips || [],
+        })
+
+        // Save to database
+        const { data: customized, error } = await supabase
+          .from('customized_resumes')
+          .insert({
+            user_id: sourceResume.user_id,
+            source_resume_id: selectedResume!,
+            title: `${sourceResume.title} - ${result.data.job_title}`,
+            customized_content: customizedResume,
+            ai_suggestions: {
+              keywords_added: result.data.keywords_added || [],
+              changes: result.data.changes || [],
+              ats_tips: result.data.ats_tips || [],
+              job_description: jdText,
+              job_description_summary: result.data.job_description_summary,
+            },
+            match_score: stats.score,
+          })
+          .select()
+          .single()
+
+        if (error) {
+          console.error('Error saving customization:', error)
+          setCustomizedResumeId(selectedResume!)
+        } else {
+          setCustomizedResumeId(customized.id)
+          setCustomizationHistory(prev => [{
+            id: customized.id,
+            title: customized.title,
+            source_resume_id: customized.source_resume_id,
+            match_score: customized.match_score,
+            created_at: customized.created_at || new Date().toISOString(),
+          }, ...prev])
+
+          // Create public link
+          try {
+            setCreatingPublicLink(true)
+            const existing = await supabase
+              .from('public_resume_links')
+              .select('public_slug')
+              .eq('user_id', sourceResume.user_id)
+              .eq('customized_resume_id', customized.id)
+              .eq('is_active', true)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle()
+
+            if (existing.data?.public_slug) {
+              setPublicResumeSlug(existing.data.public_slug)
+            } else {
+              const slug = `${sourceResume.user_id.slice(0, 8)}-${Date.now()}`
+              const { data: newLink } = await supabase
+                .from('public_resume_links')
+                .insert({
+                  user_id: sourceResume.user_id,
+                  customized_resume_id: customized.id,
+                  public_slug: slug,
+                  is_active: true,
+                })
+                .select()
+                .single()
+
+              if (newLink) {
+                setPublicResumeSlug(newLink.public_slug)
+              }
+            }
+          } catch (e) {
+            console.error('Failed to create public resume link:', e)
+          } finally {
+            setCreatingPublicLink(false)
+          }
+        }
+        
+        toast.success('Resume customization complete!')
+        setCustomizationComplete(true)
+        setShowOptionsStep(false)
+      }
+    } catch (error) {
+      console.error('Customization error:', error)
+      toast.error('Failed to customize resume')
+    } finally {
+      setIsCustomizing(false)
+    }
   }
 
   const generateCoverLetter = async () => {
@@ -1300,6 +1459,16 @@ ${name}`
         </Card>
       )}
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="customizations"
+        current={upgradeInfo.current}
+        limit={upgradeInfo.limit}
+        tier={upgradeInfo.tier}
+      />
     </>
   )
 }

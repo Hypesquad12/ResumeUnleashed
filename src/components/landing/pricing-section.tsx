@@ -9,7 +9,8 @@ import { detectUserRegion } from '@/lib/geo-detection'
 import type { Region } from '@/lib/pricing-config'
 
 export function PricingSection() {
-  const [region, setRegion] = useState<Region>('row')
+  const [region, setRegion] = useState<Region>('india')
+  const [billingCycle, setBillingCycle] = useState<'annual' | 'monthly'>('annual')
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Header } from '@/components/layout/header'
 import { Toaster } from '@/components/ui/sonner'
+import { FreeTierPrompt } from '@/components/free-tier-prompt'
 
 export default async function DashboardLayout({
   children,
@@ -33,6 +34,7 @@ export default async function DashboardLayout({
         </main>
       </div>
       <Toaster />
+      <FreeTierPrompt />
     </div>
   )
 }

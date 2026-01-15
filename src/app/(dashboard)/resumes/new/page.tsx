@@ -17,6 +17,8 @@ import {
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { Progress } from '@/components/ui/progress'
+import { canPerformAction } from '@/lib/subscription-limits'
+import { UpgradeModal } from '@/components/upgrade-modal'
 
 interface Experience {
   id: string
@@ -83,6 +85,10 @@ export default function NewResumePage() {
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploadStage, setUploadStage] = useState<'idle' | 'validating' | 'parsing' | 'saving' | 'complete' | 'error'>('idle')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Upgrade modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free' })
 
   const handleCreateResume = async () => {
     setLoading(true)
@@ -95,9 +101,20 @@ export default function NewResumePage() {
       return
     }
 
-    // Check resume limit
+    // Check subscription limits
+    const limitCheck = await canPerformAction('resumes')
+    if (!limitCheck.allowed) {
+      setUpgradeInfo({ 
+        current: limitCheck.current, 
+        limit: limitCheck.limit, 
+        tier: limitCheck.tier 
+      })
+      setShowUpgradeModal(true)
+      setLoading(false)
+      return
+    }
+
     try {
-      // Get subscription with plan_id
       const { data: subscription } = await supabase
         .from('subscriptions')
         .select('plan_id')
@@ -1137,6 +1154,16 @@ export default function NewResumePage() {
           )}
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="resumes"
+        current={upgradeInfo.current}
+        limit={upgradeInfo.limit}
+        tier={upgradeInfo.tier}
+      />
     </div>
   )
 }
