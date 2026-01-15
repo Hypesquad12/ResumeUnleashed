@@ -40,6 +40,7 @@ interface CustomizationHistory {
   source_resume_id: string | null
   match_score: number | null
   created_at: string | null
+  cover_letter: string | null
 }
 
 interface CustomizeClientProps {
@@ -209,6 +210,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           source_resume_id: customized.source_resume_id,
           match_score: customized.match_score,
           created_at: customized.created_at || new Date().toISOString(),
+          cover_letter: customized.cover_letter || null,
         }, ...prev])
 
         // Create or reuse a public link (for QR + public access)
@@ -284,7 +286,8 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       toast.error('No resume selected')
       return
     }
-    window.open(`/resumes/${resumeId}/preview`, '_blank')
+    // Open in same page, not new tab
+    window.location.href = `/resumes/${resumeId}/preview`
   }
 
   const getShareableLink = () => {
@@ -402,6 +405,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           source_resume_id: customized.source_resume_id,
           match_score: customized.match_score,
           created_at: customized.created_at || new Date().toISOString(),
+          cover_letter: customized.cover_letter || null,
         }, ...prev])
 
         // Create public link
@@ -560,6 +564,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             source_resume_id: customized.source_resume_id,
             match_score: customized.match_score,
             created_at: customized.created_at || new Date().toISOString(),
+            cover_letter: customized.cover_letter || null,
           }, ...prev])
 
           // Create public link
@@ -933,12 +938,10 @@ ${name}`
               <Button variant="outline" onClick={handleReset}>
                 Customize Another
               </Button>
-              <Link href="/resumes">
-                <Button>
-                  View Resumes
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+              <Button onClick={handlePreview}>
+                <Eye className="mr-2 h-4 w-4" />
+                Preview Resume
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -1394,19 +1397,14 @@ ${name}`
               {customizationHistory.slice(0, 5).map((item) => (
                 <div
                   key={item.id}
-                  className="group relative flex items-center justify-between p-4 rounded-lg border hover:border-violet-300 hover:shadow-md transition-all cursor-pointer bg-white"
-                  onClick={() => {
-                    if (item.source_resume_id) {
-                      window.open(`/resumes/${item.source_resume_id}/preview`, '_blank')
-                    }
-                  }}
+                  className="group relative flex items-center justify-between p-4 rounded-lg border hover:border-violet-300 hover:shadow-md transition-all bg-white"
                 >
                   <div className="flex items-center gap-4 flex-1">
                     <div className="p-2 rounded-lg bg-violet-50 group-hover:bg-violet-100 transition-colors">
                       <FileText className="h-5 w-5 text-violet-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-slate-900 group-hover:text-violet-700 transition-colors">
+                      <p className="font-semibold text-slate-900">
                         {item.title}
                       </p>
                       <div className="flex items-center gap-3 mt-1">
@@ -1432,12 +1430,29 @@ ${name}`
                       onClick={(e) => {
                         e.stopPropagation()
                         if (item.source_resume_id) {
-                          window.open(`/resumes/${item.source_resume_id}/preview`, '_blank')
+                          window.location.href = `/resumes/${item.source_resume_id}/preview`
                         }
                       }}
+                      title="View Resume"
                     >
-                      <Eye className="h-4 w-4" />
+                      <FileText className="h-4 w-4" />
                     </Button>
+                    {item.cover_letter && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-emerald-50 hover:text-emerald-700"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setCoverLetter(item.cover_letter || '')
+                          setShowCoverLetter(true)
+                          toast.success('Cover letter loaded')
+                        }}
+                        title="View Cover Letter"
+                      >
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1448,6 +1463,7 @@ ${name}`
                           window.open(`/resumes/${item.source_resume_id}/preview?download=true`, '_blank')
                         }
                       }}
+                      title="Download Resume"
                     >
                       <Download className="h-4 w-4" />
                     </Button>

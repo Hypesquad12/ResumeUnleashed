@@ -14,7 +14,7 @@ export default async function CustomizePage() {
   // Fetch customization history
   const { data: history } = await supabase
     .from('customized_resumes')
-    .select('id, title, source_resume_id, match_score, created_at')
+    .select('id, title, source_resume_id, match_score, created_at, cover_letter')
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
     .limit(10)
