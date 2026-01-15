@@ -117,11 +117,13 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         return
       }
 
-      // Call Supabase Edge Function for AI customization
+      // Call Next.js API route for AI customization
       const jdText = jobDescription || jobUrl
       
-      const { data: edgeFnResult, error: edgeFnError } = await supabase.functions.invoke('customize-resume', {
-        body: {
+      const apiResponse = await fetch('/api/customize-resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           resume: {
             contact: sourceResume.contact,
             summary: sourceResume.summary,
@@ -130,11 +132,18 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             skills: sourceResume.skills,
           },
           jobDescription: jdText,
-        },
+        }),
       })
 
-      if (edgeFnError || !edgeFnResult?.success) {
-        throw new Error(edgeFnResult?.error || edgeFnError?.message || 'Failed to customize resume')
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json()
+        throw new Error(errorData.error || 'Failed to customize resume')
+      }
+
+      const edgeFnResult = await apiResponse.json()
+      
+      if (!edgeFnResult?.success) {
+        throw new Error(edgeFnResult?.error || 'Failed to customize resume')
       }
 
       const aiResult = edgeFnResult.data
@@ -500,9 +509,11 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
 
       const jdText = jobDescription || jobUrl
       
-      // Call edge function for AI customization
-      const { data: result, error } = await supabase.functions.invoke('customize-resume', {
-        body: {
+      // Call Next.js API route for AI customization
+      const apiResponse = await fetch('/api/customize-resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           resume: {
             contact: sourceResume.contact,
             summary: sourceResume.summary,
@@ -511,105 +522,118 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             skills: sourceResume.skills,
           },
           jobDescription: jdText,
-        },
+        }),
       })
 
-      if (error || !result?.success) {
-        console.error('Error customizing resume:', error)
-        toast.error('Failed to customize resume')
-      } else {
-        const customizedResume = result.data.customized_resume
-        
-        // Set optimization stats
-        const stats = {
-          keywords: result.data.keywords_added?.length || 0,
-          sections: result.data.changes?.length || 0,
-          score: result.data.match_score || 85
-        }
-        setOptimizationStats(stats)
-        setAiSuggestions({
-          keywords_added: result.data.keywords_added || [],
-          changes: result.data.changes || [],
-          ats_tips: result.data.ats_tips || [],
-        })
-
-        // Save to database
-        const { data: customized, error } = await supabase
-          .from('customized_resumes')
-          .insert({
-            user_id: sourceResume.user_id,
-            source_resume_id: selectedResume!,
-            title: `${sourceResume.title} - ${result.data.job_title}`,
-            customized_content: customizedResume,
-            ai_suggestions: {
-              keywords_added: result.data.keywords_added || [],
-              changes: result.data.changes || [],
-              ats_tips: result.data.ats_tips || [],
-              job_description: jdText,
-              job_description_summary: result.data.job_description_summary,
-            },
-            match_score: stats.score,
-          })
-          .select()
-          .single()
-
-        if (error) {
-          console.error('Error saving customization:', error)
-          setCustomizedResumeId(selectedResume!)
-        } else {
-          setCustomizedResumeId(customized.id)
-          setCustomizationHistory(prev => [{
-            id: customized.id,
-            title: customized.title,
-            source_resume_id: customized.source_resume_id,
-            match_score: customized.match_score,
-            created_at: customized.created_at || new Date().toISOString(),
-            cover_letter: customized.cover_letter || null,
-          }, ...prev])
-
-          // Create public link
-          try {
-            setCreatingPublicLink(true)
-            const existing = await supabase
-              .from('public_resume_links')
-              .select('public_slug')
-              .eq('user_id', sourceResume.user_id)
-              .eq('customized_resume_id', customized.id)
-              .eq('is_active', true)
-              .order('created_at', { ascending: false })
-              .limit(1)
-              .maybeSingle()
-
-            if (existing.data?.public_slug) {
-              setPublicResumeSlug(existing.data.public_slug)
-            } else {
-              const slug = `${sourceResume.user_id.slice(0, 8)}-${Date.now()}`
-              const { data: newLink } = await supabase
-                .from('public_resume_links')
-                .insert({
-                  user_id: sourceResume.user_id,
-                  customized_resume_id: customized.id,
-                  public_slug: slug,
-                  is_active: true,
-                })
-                .select()
-                .single()
-
-              if (newLink) {
-                setPublicResumeSlug(newLink.public_slug)
-              }
-            }
-          } catch (e) {
-            console.error('Failed to create public resume link:', e)
-          } finally {
-            setCreatingPublicLink(false)
-          }
-        }
-        
-        toast.success('Resume customization complete!')
-        setCustomizationComplete(true)
-        setShowOptionsStep(false)
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json()
+        throw new Error(errorData.error || 'Failed to customize resume')
       }
+
+      const result = await apiResponse.json()
+      
+      if (!result?.success) {
+        throw new Error(result?.error || 'Failed to customize resume')
+      }
+
+      const aiResult = result.data
+      const option = aiResult.options?.[0] || aiResult
+      const customizedResume = option.customized_resume
+      
+      const stats = {
+        keywords: option.keywords_added?.length || 0,
+        sections: option.changes?.length || 0,
+        score: option.match_score || 85
+      }
+      setOptimizationStats(stats)
+      setAiSuggestions({
+        keywords_added: option.keywords_added || [],
+        changes: option.changes || [],
+        ats_tips: option.ats_tips || [],
+      })
+      
+      // Set cover letter if provided
+      if (option.cover_letter) {
+        setCoverLetter(option.cover_letter)
+      }
+
+      // Save to database
+      const { data: customized, error } = await supabase
+        .from('customized_resumes')
+        .insert({
+          user_id: sourceResume.user_id,
+          source_resume_id: selectedResume!,
+          title: `${sourceResume.title} - ${option.job_title || 'Customized'}`,
+          customized_content: customizedResume,
+          ai_suggestions: {
+            keywords_added: option.keywords_added || [],
+            changes: option.changes || [],
+            ats_tips: option.ats_tips || [],
+            job_description: jdText,
+            job_description_summary: option.job_description_summary,
+          },
+          cover_letter: option.cover_letter || null,
+          match_score: stats.score,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error saving customization:', error)
+        setCustomizedResumeId(selectedResume!)
+      } else {
+        setCustomizedResumeId(customized.id)
+        setCustomizationHistory(prev => [{
+          id: customized.id,
+          title: customized.title,
+          source_resume_id: customized.source_resume_id,
+          match_score: customized.match_score,
+          created_at: customized.created_at || new Date().toISOString(),
+          cover_letter: customized.cover_letter || null,
+        }, ...prev])
+
+        // Create public link
+        try {
+          setCreatingPublicLink(true)
+          const existing = await supabase
+            .from('public_resume_links')
+            .select('public_slug')
+            .eq('user_id', sourceResume.user_id)
+            .eq('customized_resume_id', customized.id)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          if (existing.data?.public_slug) {
+            setPublicResumeSlug(existing.data.public_slug)
+          } else {
+            const slug = `${sourceResume.user_id.slice(0, 8)}-${Date.now()}`
+            const { data: newLink } = await supabase
+              .from('public_resume_links')
+              .insert({
+                user_id: sourceResume.user_id,
+                customized_resume_id: customized.id,
+                public_slug: slug,
+                is_active: true,
+              })
+              .select()
+              .single()
+
+            if (newLink) {
+              setPublicResumeSlug(newLink.public_slug)
+            }
+          }
+        } catch (e) {
+          console.error('Failed to create public resume link:', e)
+        } finally {
+          setCreatingPublicLink(false)
+        }
+      }
+      
+      toast.success('Resume customization complete!')
+      setCustomizationComplete(true)
+      setShowOptionsStep(false)
     } catch (error) {
       console.error('Customization error:', error)
       toast.error('Failed to customize resume')
