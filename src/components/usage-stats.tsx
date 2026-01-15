@@ -66,13 +66,6 @@ export function UsageStats() {
       key: 'interviews' as keyof UsageLimits
     },
     {
-      icon: Briefcase,
-      label: 'Job Matching',
-      current: usage?.jobMatching || 0,
-      limit: limits?.jobMatching || 0,
-      key: 'jobMatching' as keyof UsageLimits
-    },
-    {
       icon: Mail,
       label: 'Cover Letters',
       current: usage?.coverLetters || 0,

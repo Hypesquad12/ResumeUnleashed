@@ -97,12 +97,11 @@ export async function getCurrentUsage(): Promise<CurrentUsage> {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
-  // Count resumes created this month
+  // Count total resumes (not monthly since limit is 1 total)
   const { count: resumeCount } = await (supabase as any)
     .from('resumes')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id)
-    .gte('created_at', startOfMonth)
 
   // Count customizations this month
   const { count: customizationCount } = await (supabase as any)
@@ -205,5 +204,25 @@ export async function canPerformAction(action: keyof UsageLimits): Promise<{
  */
 export async function isFreeTierUser(): Promise<boolean> {
   const subscription = await getUserSubscription()
-  return subscription?.tier === 'free' || !subscription
+  return !subscription || subscription.tier === 'free'
+}
+
+/**
+ * Check if user has ever had a paid subscription (to determine trial eligibility)
+ */
+export async function hasHadPaidSubscription(): Promise<boolean> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) return false
+
+  // Check if user has any subscription record (active, cancelled, or expired)
+  const { data: subscriptions } = await supabase
+    .from('subscriptions')
+    .select('id, status')
+    .eq('user_id', user.id)
+    .in('status', ['active', 'cancelled', 'expired'])
+    .limit(1)
+
+  return (subscriptions && subscriptions.length > 0) || false
 }

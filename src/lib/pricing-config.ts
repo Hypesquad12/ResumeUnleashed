@@ -52,7 +52,7 @@ export const indiaPricing: PricingPlan[] = [
     originalPriceMonthly: 649,
     originalPriceAnnual: 5841,
     trialDays: 7,
-    trialDaysAnnual: 30,
+    trialDaysAnnual: 7,
     features: {
       templates: 10,
       aiCustomization: true,
@@ -81,7 +81,7 @@ export const indiaPricing: PricingPlan[] = [
     originalPriceMonthly: 1049,
     originalPriceAnnual: 9441,
     trialDays: 7,
-    trialDaysAnnual: 30,
+    trialDaysAnnual: 7,
     popular: true,
     badge: 'BEST VALUE',
     features: {
@@ -116,7 +116,7 @@ export const indiaPricing: PricingPlan[] = [
     originalPriceMonthly: 1449,
     originalPriceAnnual: 13041,
     trialDays: 7,
-    trialDaysAnnual: 30,
+    trialDaysAnnual: 7,
     features: {
       templates: 'all',
       aiCustomization: true,
@@ -155,7 +155,7 @@ export const rowPricing: PricingPlan[] = [
     originalPriceMonthly: 11.99,
     originalPriceAnnual: 107.91,
     trialDays: 7,
-    trialDaysAnnual: 30,
+    trialDaysAnnual: 7,
     features: {
       templates: 10,
       aiCustomization: true,
@@ -184,7 +184,7 @@ export const rowPricing: PricingPlan[] = [
     originalPriceMonthly: 16.99,
     originalPriceAnnual: 152.91,
     trialDays: 7,
-    trialDaysAnnual: 30,
+    trialDaysAnnual: 7,
     popular: true,
     badge: 'BEST VALUE',
     features: {
@@ -219,7 +219,7 @@ export const rowPricing: PricingPlan[] = [
     originalPriceMonthly: 20.99,
     originalPriceAnnual: 188.91,
     trialDays: 7,
-    trialDaysAnnual: 30,
+    trialDaysAnnual: 7,
     features: {
       templates: 'all',
       aiCustomization: true,

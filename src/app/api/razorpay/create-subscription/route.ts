@@ -3,6 +3,7 @@ import { getRazorpayInstance, RAZORPAY_PLAN_IDS } from '@/lib/razorpay'
 import { createClient } from '@/lib/supabase/server'
 import { Region, BillingCycle, SubscriptionTier, rowPricing } from '@/lib/pricing-config'
 import { convertUsdToInr, getUsdToInrRate } from '@/lib/currency'
+import { hasHadPaidSubscription } from '@/lib/subscription-limits'
 
 // Razorpay subscription response type
 interface RazorpaySubscriptionResponse {
@@ -119,19 +120,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check if user has had a paid subscription before (to determine trial eligibility)
+    const hadPaidSubscription = await hasHadPaidSubscription()
+    
     // Create subscription using Razorpay API
     // IMPORTANT: Do NOT pass customer_id - it breaks hosted checkout link generation
     // Razorpay will create customer automatically during payment authentication
-    // Minimal delay required by Razorpay for hosted checkout - charges within 1 minute of authentication
-    const immediateStart = Math.floor(Date.now() / 1000) + 60 // Start 1 minute from now (minimum for Razorpay)
+    // If user has had paid subscription before, charge immediately (no trial)
+    // Otherwise, add trial period (7 days for all plans)
+    const trialDays = hadPaidSubscription ? 0 : 7
+    const startTime = hadPaidSubscription 
+      ? Math.floor(Date.now() / 1000) + 60 // Start 1 minute from now for returning customers
+      : Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // Start after 7-day trial for new customers
     
-    const subscriptionParams = {
+    const subscriptionParams: any = {
       plan_id: razorpayPlanId,
       total_count: billingCycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
-      start_at: immediateStart, // Start immediately after authentication
-      addons: [], // Explicitly set empty addons
+      start_at: startTime,
+      addons: [],
       notes: {
         user_id: user.id,
         user_email: user.email || '',
@@ -139,11 +147,18 @@ export async function POST(request: NextRequest) {
         region,
         tier,
         billing_cycle: billingCycle,
+        trial_days: trialDays.toString(),
+        returning_customer: hadPaidSubscription.toString(),
         ...(region === 'row' && {
           exchange_rate: exchangeRate.toString(),
           plan_amount_inr: (planAmount / 100).toString(),
         }),
       },
+    }
+    
+    // Only add trial_end for new customers with trial
+    if (!hadPaidSubscription && trialDays > 0) {
+      subscriptionParams.trial_end = startTime
     }
 
     console.log('Creating Razorpay subscription with params:', subscriptionParams)
