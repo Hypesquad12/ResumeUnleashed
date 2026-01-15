@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,9 +22,14 @@ const themeColors = [
 
 export default function NewCardPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const editCardId = searchParams.get('edit')
+  const isEditMode = !!editCardId
+  
   const [loading, setLoading] = useState(false)
   const [_loadingResume, setLoadingResume] = useState(true)
   const [_hasResume, setHasResume] = useState(false)
+  const [loadingCard, setLoadingCard] = useState(isEditMode)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -38,8 +43,48 @@ export default function NewCardPage() {
     theme_color: '#1a1a2e',
   })
 
-  // Auto-populate from resume if available
+  // Load card data if in edit mode
   useEffect(() => {
+    if (!editCardId) return
+    
+    const loadCardData = async () => {
+      const supabase = createClient()
+      const { data: card, error } = await supabase
+        .from('visiting_cards')
+        .select('*')
+        .eq('id', editCardId)
+        .single()
+      
+      if (error || !card) {
+        toast.error('Card not found')
+        router.push('/cards')
+        return
+      }
+      
+      setFormData({
+        name: card.name || '',
+        title: card.title || '',
+        company: card.company || '',
+        email: card.email || '',
+        phone: card.phone || '',
+        website: card.website || '',
+        linkedin: card.linkedin || '',
+        github: card.github || '',
+        theme_color: card.theme_color || '#1a1a2e',
+      })
+      setLoadingCard(false)
+    }
+    
+    loadCardData()
+  }, [editCardId, router])
+
+  // Auto-populate from resume if available (only in create mode)
+  useEffect(() => {
+    if (isEditMode) {
+      setLoadingResume(false)
+      return
+    }
+    
     const loadResumeData = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
@@ -87,7 +132,7 @@ export default function NewCardPage() {
     }
 
     loadResumeData()
-  }, [])
+  }, [isEditMode])
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -109,27 +154,45 @@ export default function NewCardPage() {
       return
     }
 
-    // Generate a unique slug
-    const slug = formData.name.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 7)
+    if (isEditMode && editCardId) {
+      // Update existing card
+      const { error } = await supabase
+        .from('visiting_cards')
+        .update(formData)
+        .eq('id', editCardId)
 
-    const { data, error } = await supabase
-      .from('visiting_cards')
-      .insert({
-        user_id: user.id,
-        ...formData,
-        public_slug: slug,
-      })
-      .select()
-      .single()
+      if (error) {
+        toast.error('Failed to update card')
+        setLoading(false)
+        return
+      }
 
-    if (error) {
-      toast.error('Failed to create card')
-      setLoading(false)
-      return
+      toast.success('Card updated successfully!')
+      router.push(`/cards/${editCardId}`)
+    } else {
+      // Create new card
+      // Generate a unique slug
+      const slug = formData.name.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 7)
+
+      const { data, error } = await supabase
+        .from('visiting_cards')
+        .insert({
+          user_id: user.id,
+          ...formData,
+          public_slug: slug,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        toast.error('Failed to create card')
+        setLoading(false)
+        return
+      }
+
+      toast.success('Card created successfully!')
+      router.push(`/cards/${data.id}`)
     }
-
-    toast.success('Card created successfully!')
-    router.push(`/cards/${data.id}`)
   }
 
   return (
@@ -141,9 +204,9 @@ export default function NewCardPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Visiting Card</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{isEditMode ? 'Edit' : 'Create'} Visiting Card</h1>
           <p className="text-muted-foreground mt-1">
-            Design your digital business card
+            {isEditMode ? 'Update your digital business card' : 'Design your digital business card'}
           </p>
         </div>
       </div>
@@ -274,14 +337,14 @@ export default function NewCardPage() {
             <Link href="/cards">
               <Button variant="outline">Cancel</Button>
             </Link>
-            <Button onClick={handleCreate} disabled={loading}>
+            <Button onClick={handleCreate} disabled={loading || loadingCard}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  {isEditMode ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
-                'Create Card'
+                isEditMode ? 'Update Card' : 'Create Card'
               )}
             </Button>
           </div>

@@ -23,6 +23,7 @@ import {
   Brain, Zap, Star, Award, TrendingUp, FileText, Upload, Briefcase
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { AiLoadingOverlay } from '@/components/ai-loading-overlay'
 
 interface Question {
   id: number
@@ -345,6 +346,7 @@ export default function InterviewCoachPage() {
   const [aiMode, setAiMode] = useState(false)
   const [aiEvaluation, setAiEvaluation] = useState<any>(null)
   const [isFetchingNextQuestion, setIsFetchingNextQuestion] = useState(false)
+  const [isStartingInterview, setIsStartingInterview] = useState(false)
   
   // Audio states
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -793,6 +795,21 @@ export default function InterviewCoachPage() {
     }
   }, [aiMode, aiThreadId, aiMessages, jobTitle, jobDescription, interviewRound, interviewLevel, stopRecording, stopSpeaking, answers, saveSession])
 
+  // Cleanup mic and speech on unmount or navigation
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+        recognitionRef.current = null
+      }
+      if (synthRef.current) {
+        synthRef.current.cancel()
+      }
+      setIsRecording(false)
+      setIsSpeaking(false)
+    }
+  }, [])
+
   // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout
@@ -820,6 +837,7 @@ export default function InterviewCoachPage() {
   }
 
   const startPractice = async () => {
+    setIsStartingInterview(true)
     setAiEvaluation(null)
     setAiMode(false)
     setAiThreadId(null)
@@ -864,6 +882,7 @@ export default function InterviewCoachPage() {
       setTimer(0)
       setIsTimerRunning(true)
 
+      setIsStartingInterview(false)
       setTimeout(() => {
         speakText(q.question, () => {
           if (recognitionSupported) {
@@ -874,6 +893,7 @@ export default function InterviewCoachPage() {
       return
     } catch (error) {
       console.error('Interview start error (fallback to local):', error)
+      setIsStartingInterview(false)
     }
 
     const generatedQuestions = generateQuestionsFromContext(jobTitle, jobDescription, skills, selectedResumeData, interviewRound, interviewLevel)
@@ -883,6 +903,7 @@ export default function InterviewCoachPage() {
     setAnswers([])
     setTimer(0)
     setIsTimerRunning(true)
+    setIsStartingInterview(false)
 
     const introText = "Let's begin your interview practice. Take your time to think before answering."
     setTimeout(() => {
@@ -1124,7 +1145,9 @@ export default function InterviewCoachPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50 p-6">
+    <>
+      {isStartingInterview && <AiLoadingOverlay />}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
@@ -2293,5 +2316,6 @@ export default function InterviewCoachPage() {
         </AnimatePresence>
       </div>
     </div>
+    </>
   )
 }

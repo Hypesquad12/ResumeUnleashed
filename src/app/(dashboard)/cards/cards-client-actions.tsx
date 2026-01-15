@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { MoreVertical, Edit, Trash2, Loader2 } from 'lucide-react'
-import Link from 'next/link'
 import { toast } from 'sonner'
 
 interface CardsClientActionsProps {
@@ -56,9 +56,9 @@ export function CardsClientActions({ cardId, cardName }: CardsClientActionsProps
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link href={`/cards/${cardId}`} className="flex items-center">
+          <Link href={`/cards/new?edit=${cardId}`} className="flex items-center">
             <Edit className="mr-2 h-4 w-4" />
-            View & Edit
+            Edit Card
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem 
