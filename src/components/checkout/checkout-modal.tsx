@@ -112,21 +112,31 @@ export function CheckoutModal({ open, onClose, plan, billingCycle, onProceed, is
               <span className={originalPrice ? 'text-green-600 font-semibold' : ''}>{formatPrice(baseAmount, plan.currency)}</span>
             </div>
             {couponData && (
+              <div className="flex justify-between items-center text-sm text-green-600">
+                <span>Discount ({couponData.couponCode})</span>
+                <span>-{formatPrice(couponData.discountAmount, plan.currency)}</span>
+              </div>
+            )}
+            
+            {/* Trial Payment Breakdown */}
+            {trialDays && (
               <>
-                <div className="flex justify-between items-center text-sm text-green-600">
-                  <span>Discount ({couponData.couponCode})</span>
-                  <span>-{formatPrice(couponData.discountAmount, plan.currency)}</span>
+                <div className="border-t pt-2 mt-2"></div>
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">Due now</span>
+                  <span className="text-lg font-bold text-green-600">{formatPrice(0, plan.currency)}</span>
                 </div>
-                <div className="border-t pt-2 flex justify-between items-center font-bold">
-                  <span>Total</span>
-                  <span className="text-lg">{formatPrice(finalAmount, plan.currency)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Due after {trialDays} days</span>
+                  <span className="text-lg font-bold">{formatPrice(finalAmount, plan.currency)}</span>
                 </div>
               </>
             )}
-            {!couponData && (
+            
+            {!trialDays && (
               <div className="border-t pt-2 flex justify-between items-center font-bold">
                 <span>Total</span>
-                <span className="text-lg">{formatPrice(baseAmount, plan.currency)}</span>
+                <span className="text-lg">{formatPrice(finalAmount, plan.currency)}</span>
               </div>
             )}
           </div>
@@ -197,6 +207,8 @@ export function CheckoutModal({ open, onClose, plan, billingCycle, onProceed, is
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
                 </>
+              ) : trialDays ? (
+                `Start ${trialDays}-Day Trial`
               ) : (
                 `Pay ${formatPrice(finalAmount, plan.currency)}`
               )}

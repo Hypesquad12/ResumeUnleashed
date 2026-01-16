@@ -97,22 +97,13 @@ export function FreeTierPrompt() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-600">✓</span>
-                    <span>7-30 day free trial on all plans</span>
+                    <span>7 day free trial on all plans</span>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
 
-          <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-            <div className="flex items-start gap-3">
-              <TrendingUp className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-amber-800">
-                <p className="font-medium mb-1">Free tier is no longer available</p>
-                <p className="text-amber-700">All new and existing users need an active subscription to access features.</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <DialogFooter>
