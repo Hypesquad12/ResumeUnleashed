@@ -24,6 +24,7 @@ export async function getUserSubscription(): Promise<{
   tier: SubscriptionTier | 'free'
   limits: UsageLimits
   region: 'india' | 'row'
+  isTrialActive?: boolean
 } | null> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -53,11 +54,37 @@ export async function getUserSubscription(): Promise<{
         interviews: 1, // Trial: 1 interview
         jobMatching: 0,
         coverLetters: 0,
-      }
+      },
+      isTrialActive: false,
     }
   }
 
-  // Get plan limits from pricing config
+  // Check if user is in trial period (for paid plans)
+  const { data: subscription } = await (supabase as any)
+    .from('subscriptions')
+    .select('trial_active, status')
+    .eq('user_id', user.id)
+    .single()
+
+  const isTrialActive = subscription?.trial_active === true && subscription?.status === 'active'
+
+  // During trial period, enforce trial limits for all paid plans
+  if (isTrialActive) {
+    return {
+      tier,
+      region,
+      limits: {
+        resumes: 1, // All users limited to 1 resume
+        customizations: 2, // Trial: 2 customizations
+        interviews: 1, // Trial: 1 interview (5 min limit enforced in interview component)
+        jobMatching: 0,
+        coverLetters: 0,
+      },
+      isTrialActive: true,
+    }
+  }
+
+  // Get plan limits from pricing config (full limits after trial)
   const plans = getPricingByRegion(region)
   const plan = plans.find(p => p.tier === tier)
   
@@ -72,7 +99,8 @@ export async function getUserSubscription(): Promise<{
       interviews: plan.limits.interviews,
       jobMatching: plan.limits.jobMatching,
       coverLetters: plan.limits.coverLetters || 0,
-    }
+    },
+    isTrialActive: false,
   }
 }
 
@@ -150,6 +178,7 @@ export async function canPerformAction(action: keyof UsageLimits): Promise<{
   current: number
   limit: number
   tier: SubscriptionTier | 'free'
+  isTrialActive?: boolean
 }> {
   const subscription = await getUserSubscription()
   
@@ -167,13 +196,14 @@ export async function canPerformAction(action: keyof UsageLimits): Promise<{
   const current = usage[action]
   const limit = subscription.limits[action]
 
-  // -1 means unlimited
-  if (limit === -1) {
+  // -1 means unlimited (but only for non-trial paid users)
+  if (limit === -1 && !subscription.isTrialActive) {
     return {
       allowed: true,
       current,
       limit: -1,
       tier: subscription.tier,
+      isTrialActive: subscription.isTrialActive,
     }
   }
 
@@ -185,17 +215,29 @@ export async function canPerformAction(action: keyof UsageLimits): Promise<{
       current,
       limit,
       tier: subscription.tier,
+      isTrialActive: false,
     }
   }
 
   const allowed = current < limit
 
+  // Custom message for trial users who hit limits
+  let reason: string | undefined
+  if (!allowed) {
+    if (subscription.isTrialActive) {
+      reason = `Trial limit reached (${limit} ${action}). Complete payment to unlock full features and higher limits!`
+    } else {
+      reason = `You've reached your monthly limit of ${limit} ${action}. Upgrade for more!`
+    }
+  }
+
   return {
     allowed,
-    reason: allowed ? undefined : `You've reached your monthly limit of ${limit} ${action}. Upgrade for more!`,
+    reason,
     current,
     limit,
     tier: subscription.tier,
+    isTrialActive: subscription.isTrialActive,
   }
 }
 

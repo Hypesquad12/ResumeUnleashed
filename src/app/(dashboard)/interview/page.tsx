@@ -24,8 +24,9 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { AiLoadingOverlay } from '@/components/ai-loading-overlay'
-import { canPerformAction } from '@/lib/subscription-limits'
+import { canPerformAction, getUserSubscription } from '@/lib/subscription-limits'
 import { UpgradeModal } from '@/components/upgrade-modal'
+import { toast } from 'sonner'
 
 interface Question {
   id: number
@@ -816,14 +817,40 @@ export default function InterviewCoachPage() {
     }
   }, [])
 
-  // Timer effect
+  // Timer effect with trial limit enforcement
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isTimerRunning) {
-      interval = setInterval(() => setTimer(t => t + 1), 1000)
+      interval = setInterval(() => {
+        setTimer(t => {
+          const newTime = t + 1
+          // Check if user is in trial and enforce 5-minute limit (300 seconds)
+          if (newTime >= 300) {
+            // Get trial status from local check
+            getUserSubscription().then(sub => {
+              if (sub?.isTrialActive) {
+                // Trial user hit 5-minute limit
+                stopRecording()
+                setIsTimerRunning(false)
+                toast.error('Trial interview limit reached (5 minutes). Complete payment to unlock unlimited interview prep!', {
+                  duration: 5000,
+                })
+                // Show upgrade modal
+                setUpgradeInfo({ 
+                  current: 1, 
+                  limit: 1, 
+                  tier: sub.tier 
+                })
+                setShowUpgradeModal(true)
+              }
+            })
+          }
+          return newTime
+        })
+      }, 1000)
     }
     return () => clearInterval(interval)
-  }, [isTimerRunning])
+  }, [isTimerRunning, stopRecording])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)

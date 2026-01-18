@@ -64,7 +64,7 @@ export const indiaPricing: PricingPlan[] = [
       support: 'Email (48hr response)',
     },
     limits: {
-      resumes: 5,
+      resumes: 1,
       customizations: 15,
       interviews: 2,
       jobMatching: 10,
@@ -98,7 +98,7 @@ export const indiaPricing: PricingPlan[] = [
       support: 'Priority (24hr response)',
     },
     limits: {
-      resumes: 15,
+      resumes: 1,
       customizations: 75,
       interviews: 12,
       jobMatching: -1,
@@ -132,7 +132,7 @@ export const indiaPricing: PricingPlan[] = [
       support: 'Priority (12hr response)',
     },
     limits: {
-      resumes: -1,
+      resumes: 1,
       customizations: 100,
       interviews: 15,
       jobMatching: -1,
@@ -167,7 +167,7 @@ export const rowPricing: PricingPlan[] = [
       support: 'Email (48hr response)',
     },
     limits: {
-      resumes: 5,
+      resumes: 1,
       customizations: 15,
       interviews: 2,
       jobMatching: 10,
@@ -201,7 +201,7 @@ export const rowPricing: PricingPlan[] = [
       support: 'Priority (24hr response)',
     },
     limits: {
-      resumes: 15,
+      resumes: 1,
       customizations: 75,
       interviews: 12,
       jobMatching: -1,
