@@ -103,7 +103,12 @@ export async function POST(request: NextRequest) {
     const limitCheck = await canPerformAction('customizations')
     if (!limitCheck.allowed) {
       return NextResponse.json(
-        { error: limitCheck.reason || 'AI customization limit reached. Please upgrade your plan.' },
+        { 
+          error: limitCheck.reason || 'AI customization limit reached. Please upgrade your plan.',
+          errorCode: 'LIMIT_REACHED',
+          isTrialActive: limitCheck.isTrialActive,
+          tier: limitCheck.tier
+        },
         { status: 403 }
       )
     }

@@ -76,7 +76,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   
   // Upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free' })
+  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free', isTrialActive: false })
   const [showCoverLetter, setShowCoverLetter] = useState(false)
   
   // Multiple options state
@@ -485,7 +485,8 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       setUpgradeInfo({ 
         current: limitCheck.current, 
         limit: limitCheck.limit, 
-        tier: limitCheck.tier 
+        tier: limitCheck.tier,
+        isTrialActive: limitCheck.isTrialActive || false
       })
       setShowUpgradeModal(true)
       return
@@ -527,6 +528,20 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
 
       if (!apiResponse.ok) {
         const errorData = await apiResponse.json()
+        
+        // Check if trial limit reached - show activation modal
+        if (errorData.errorCode === 'LIMIT_REACHED' && errorData.isTrialActive) {
+          setUpgradeInfo({
+            current: 2,
+            limit: 2,
+            tier: errorData.tier || 'premium',
+            isTrialActive: true,
+          })
+          setShowUpgradeModal(true)
+          setIsCustomizing(false)
+          return
+        }
+        
         throw new Error(errorData.error || 'Failed to customize resume')
       }
 
@@ -1508,6 +1523,7 @@ ${name}`
         current={upgradeInfo.current}
         limit={upgradeInfo.limit}
         tier={upgradeInfo.tier}
+        isTrialActive={upgradeInfo.isTrialActive}
       />
     </>
   )
