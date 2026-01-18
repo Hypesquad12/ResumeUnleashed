@@ -161,6 +161,12 @@ function PricingPageContent() {
         prefill: {
           name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
           email: user.email || '',
+          contact: user.user_metadata?.phone || '',
+        },
+        readonly: {
+          email: false,
+          contact: false,
+          name: false,
         },
         theme: {
           color: '#0ea5e9',
