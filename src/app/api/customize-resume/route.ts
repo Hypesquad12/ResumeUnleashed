@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { createClient } from '@/lib/supabase/server'
-import { checkUsageLimit, incrementUsage } from '@/lib/usage-control'
+import { canPerformAction } from '@/lib/subscription-limits'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -99,11 +99,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check usage limit
-    const hasUsage = await checkUsageLimit(user.id, 'ai_customization')
-    if (!hasUsage) {
+    // Check usage limit using subscription-limits
+    const limitCheck = await canPerformAction('customizations')
+    if (!limitCheck.allowed) {
       return NextResponse.json(
-        { error: 'AI customization limit reached. Please upgrade your plan.' },
+        { error: limitCheck.reason || 'AI customization limit reached. Please upgrade your plan.' },
         { status: 403 }
       )
     }
@@ -219,8 +219,8 @@ REMEMBER: Make substantial changes to at least 30% of the resume content!
 
     const result = JSON.parse(responseText)
 
-    // Increment usage after successful customization
-    await incrementUsage(user.id, 'ai_customization')
+    // Usage is tracked automatically by subscription-limits.ts via getCurrentUsage
+    // which counts from customized_resumes table
 
     return NextResponse.json({
       success: true,
