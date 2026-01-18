@@ -74,7 +74,7 @@ export function Navbar() {
             <div className="hidden md:flex items-center gap-3">
               <Link href="/login">
                 <Button variant="ghost" className="text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-                  Sign In
+                  Sign in/Sign up
                 </Button>
               </Link>
               <Link href="/signup">
@@ -135,7 +135,7 @@ export function Navbar() {
             <div className="pt-4 border-t border-slate-200 space-y-3">
               <Link href="/login" className="block">
                 <Button variant="outline" className="w-full border-slate-300 text-slate-700">
-                  Sign In
+                  Sign in/Sign up
                 </Button>
               </Link>
               <Link href="/signup" className="block">
