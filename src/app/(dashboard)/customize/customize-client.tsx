@@ -545,14 +545,14 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         const errorData = await apiResponse.json().catch(() => ({}))
         console.error('[DEBUG] API error response:', errorData)
         
-        // Check if trial limit reached - show activation modal
-        if (errorData.errorCode === 'LIMIT_REACHED' && errorData.isTrialActive) {
-          console.log('[DEBUG] Trial limit reached, showing activation modal')
+        // Check if limit reached - show upgrade/activation modal
+        if (errorData.errorCode === 'LIMIT_REACHED') {
+          console.log('[DEBUG] Limit reached, showing upgrade modal')
           setUpgradeInfo({
-            current: 2,
-            limit: 2,
-            tier: errorData.tier || 'premium',
-            isTrialActive: true,
+            current: limitCheck.current,
+            limit: limitCheck.limit,
+            tier: errorData.tier || limitCheck.tier,
+            isTrialActive: errorData.isTrialActive || false,
           })
           setShowUpgradeModal(true)
           setIsCustomizing(false)

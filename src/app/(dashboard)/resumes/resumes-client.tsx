@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { FileText, Plus, MoreVertical, Download, Trash2, Edit, Eye, Loader2, Sparkles, Clock, ChevronRight, Star, Search, Mail, Copy } from 'lucide-react'
+import { FileText, Plus, MoreVertical, Download, Trash2, Edit, Eye, Loader2, Sparkles, Clock, ChevronRight, Star, Search, Mail, Copy, X } from 'lucide-react'
 import Link from 'next/link'
 import {
   DropdownMenu,
@@ -16,6 +16,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 interface Resume {
   id: string
@@ -46,6 +53,8 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
   const [customizedResumes, setCustomizedResumes] = useState<CustomizedResume[]>(initialCustomizedResumes)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showCoverLetter, setShowCoverLetter] = useState(false)
+  const [selectedCoverLetter, setSelectedCoverLetter] = useState('')
   
   // Filter resumes based on search query
   const filteredResumes = resumes.filter(resume => 
@@ -300,18 +309,32 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                   <div className="mb-3 flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950 rounded-lg border border-emerald-200 dark:border-emerald-800">
                     <Mail className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Cover Letter Included</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="ml-auto h-6 px-2 text-xs"
-                      onClick={async () => {
-                        await navigator.clipboard.writeText(resume.cover_letter!)
-                        toast.success('Cover letter copied to clipboard!')
-                      }}
-                    >
-                      <Copy className="h-3 w-3 mr-1" />
-                      Copy
-                    </Button>
+                    <div className="ml-auto flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => {
+                          setSelectedCoverLetter(resume.cover_letter!)
+                          setShowCoverLetter(true)
+                        }}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-xs"
+                        onClick={async () => {
+                          await navigator.clipboard.writeText(resume.cover_letter!)
+                          toast.success('Cover letter copied to clipboard!')
+                        }}
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Copy
+                      </Button>
+                    </div>
                   </div>
                 )}
                 
@@ -371,6 +394,45 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
           </CardContent>
         </Card>
       )}
+
+      {/* Cover Letter Preview Dialog */}
+      <Dialog open={showCoverLetter} onOpenChange={setShowCoverLetter}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-emerald-600" />
+              Cover Letter
+            </DialogTitle>
+            <DialogDescription>
+              Review and copy your AI-generated cover letter
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                {selectedCoverLetter}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowCoverLetter(false)}
+              >
+                Close
+              </Button>
+              <Button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(selectedCoverLetter)
+                  toast.success('Cover letter copied to clipboard!')
+                }}
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy to Clipboard
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

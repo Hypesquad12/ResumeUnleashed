@@ -11,6 +11,11 @@ export default async function DashboardPage() {
   
   const { data: { user } } = await supabase.auth.getUser()
   
+  // Calculate start of current month for usage counts
+  const startOfMonth = new Date()
+  startOfMonth.setDate(1)
+  startOfMonth.setHours(0, 0, 0, 0)
+  
   // Fetch stats including interview sessions
   const [
     { count: resumeCount },
@@ -21,9 +26,9 @@ export default async function DashboardPage() {
     { data: recentInterviews },
   ] = await Promise.all([
     supabase.from('resumes').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
-    supabase.from('customized_resumes').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
+    supabase.from('customized_resumes').select('*', { count: 'exact', head: true }).eq('user_id', user!.id).gte('created_at', startOfMonth.toISOString()),
     supabase.from('visiting_cards').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
-    (supabase as any).from('interview_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
+    (supabase as any).from('interview_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user!.id).gte('created_at', startOfMonth.toISOString()),
     supabase.from('resumes').select('*').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(3),
     (supabase as any).from('interview_sessions').select('id, job_title, overall_score, created_at').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(3),
   ])
