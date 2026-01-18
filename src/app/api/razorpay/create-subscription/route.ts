@@ -156,6 +156,10 @@ export async function POST(request: NextRequest) {
         billing_cycle: billingCycle,
         trial_days: trialDays.toString(),
         returning_customer: hadPaidSubscription.toString(),
+        ...(couponCode && {
+          coupon_code: couponCode.toUpperCase(),
+          coupon_note: 'Manual discount required - create offer in Razorpay Dashboard',
+        }),
         ...(region === 'row' && {
           exchange_rate: exchangeRate.toString(),
           plan_amount_inr: (planAmount / 100).toString(),
