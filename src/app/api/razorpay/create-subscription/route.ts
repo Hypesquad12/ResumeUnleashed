@@ -137,6 +137,9 @@ export async function POST(request: NextRequest) {
       ? Math.floor(Date.now() / 1000) + 60 // Start 1 minute from now for returning customers
       : Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // Start after 7-day trial for new customers
     
+    // Get the base URL for callback
+    const baseUrl = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://resumeunleashed.com'
+    
     const subscriptionParams: any = {
       plan_id: razorpayPlanId,
       total_count: billingCycle === 'annual' ? 1 : 12,
@@ -144,6 +147,9 @@ export async function POST(request: NextRequest) {
       customer_notify: 1,
       start_at: firstChargeTime, // When first charge will happen
       addons: [],
+      notify_info: {
+        notify_email: user.email || '',
+      },
       notes: {
         user_id: user.id,
         user_email: user.email || '',

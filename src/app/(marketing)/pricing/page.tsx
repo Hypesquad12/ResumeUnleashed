@@ -134,22 +134,49 @@ function PricingPageContent() {
         throw new Error(errorData.error || 'Failed to create subscription')
       }
 
-      const { subscriptionId, shortUrl } = await response.json()
+      const { subscriptionId } = await response.json()
 
       console.log('Subscription created:', subscriptionId)
-      console.log('Checkout URL:', shortUrl)
 
-      // Redirect to Razorpay hosted checkout page
-      // This page handles:
-      // 1. UPI mandate/card authorization (no upfront charge for trial users)
-      // 2. Customer authentication
-      // 3. Payment method setup
-      // 4. Auto-charge after trial period or when upgrading
-      if (shortUrl) {
-        window.location.href = shortUrl
-      } else {
-        throw new Error('Failed to get checkout URL')
+      // Load Razorpay Checkout script dynamically
+      const loadRazorpay = () => {
+        return new Promise((resolve) => {
+          const script = document.createElement('script')
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+          script.onload = () => resolve(true)
+          document.body.appendChild(script)
+        })
       }
+
+      await loadRazorpay()
+
+      // Open Razorpay Standard Checkout for subscription authentication
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        subscription_id: subscriptionId,
+        name: 'Resume Unleashed',
+        description: `${selectedPlanForCheckout.name} Plan`,
+        image: '/logo.png',
+        callback_url: `${window.location.origin}/api/razorpay/subscription-callback`,
+        prefill: {
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+          email: user.email || '',
+        },
+        theme: {
+          color: '#0ea5e9',
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false)
+            setShowCheckoutModal(false)
+          },
+        },
+      }
+
+      // @ts-ignore - Razorpay is loaded dynamically
+      const razorpay = new window.Razorpay(options)
+      razorpay.open()
+      
     } catch (error: any) {
       console.error('Subscription creation error:', error)
       const errorMessage = error.message || 'Failed to create subscription. Please try again.'
