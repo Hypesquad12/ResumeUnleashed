@@ -233,10 +233,14 @@ export default function ResumeEditorPage() {
 
     if (error) {
       toast.error('Failed to save resume')
+      setSaving(false)
     } else {
-      toast.success('Resume saved successfully')
+      toast.success('Resume saved! Redirecting to AI Customize...')
+      // Redirect to customize page after successful save
+      setTimeout(() => {
+        router.push('/customize')
+      }, 1000)
     }
-    setSaving(false)
   }
 
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
