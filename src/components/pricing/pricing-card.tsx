@@ -34,10 +34,6 @@ export function PricingCard({ plan, billingCycle, onSelect, isLoading }: Pricing
       ? `${plan.limits.customizations === -1 ? 'Unlimited' : plan.limits.customizations} AI customizations/month`
       : 'No AI customization',
     
-    plan.limits.resumes === -1
-      ? 'Unlimited resumes'
-      : `${plan.limits.resumes} resume${plan.limits.resumes > 1 ? 's' : ''}`,
-    
     plan.features.interviewPrep === 'unlimited'
       ? 'Unlimited interview prep sessions'
       : plan.features.interviewPrep

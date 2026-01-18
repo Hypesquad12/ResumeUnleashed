@@ -64,7 +64,7 @@ export function PricingSection() {
       trialDays: 7,
       tierFeatures: [
         'All 25+ templates',
-        '50 AI customizations/month',
+        '30 AI customizations/month',
         '10 interview prep sessions',
         'Unlimited job matching',
         '10 digital visiting cards',
@@ -130,7 +130,7 @@ export function PricingSection() {
       trialDays: 7,
       tierFeatures: [
         'All 25+ templates',
-        '50 AI customizations/month',
+        '30 AI customizations/month',
         '10 interview prep sessions',
         'Unlimited job matching',
         '10 digital visiting cards',

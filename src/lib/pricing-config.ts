@@ -65,7 +65,7 @@ export const indiaPricing: PricingPlan[] = [
     },
     limits: {
       resumes: 1,
-      customizations: 15,
+      customizations: 10,
       interviews: 2,
       jobMatching: 10,
     },
@@ -99,7 +99,7 @@ export const indiaPricing: PricingPlan[] = [
     },
     limits: {
       resumes: 1,
-      customizations: 75,
+      customizations: 30,
       interviews: 12,
       jobMatching: -1,
       coverLetters: 20,
@@ -168,7 +168,7 @@ export const rowPricing: PricingPlan[] = [
     },
     limits: {
       resumes: 1,
-      customizations: 15,
+      customizations: 10,
       interviews: 2,
       jobMatching: 10,
     },
@@ -202,7 +202,7 @@ export const rowPricing: PricingPlan[] = [
     },
     limits: {
       resumes: 1,
-      customizations: 75,
+      customizations: 30,
       interviews: 12,
       jobMatching: -1,
       coverLetters: 20,
