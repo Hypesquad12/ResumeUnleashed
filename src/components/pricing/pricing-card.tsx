@@ -40,12 +40,6 @@ export function PricingCard({ plan, billingCycle, onSelect, isLoading }: Pricing
       ? `${plan.limits.interviews} interview prep sessions/month`
       : null,
     
-    plan.features.jobMatching === 'unlimited'
-      ? 'Unlimited job matching'
-      : plan.features.jobMatching === 'basic'
-      ? `${plan.limits.jobMatching} job matches/month`
-      : null,
-    
     plan.features.atsOptimization === 'advanced'
       ? 'Advanced ATS optimization'
       : plan.features.atsOptimization
@@ -59,7 +53,6 @@ export function PricingCard({ plan, billingCycle, onSelect, isLoading }: Pricing
       : null,
     
     plan.features.analytics ? 'Advanced analytics dashboard' : null,
-    plan.features.linkedinOptimization ? 'LinkedIn profile optimization' : null,
     plan.features.coverLetter ? 'AI cover letter generation' : null,
     plan.features.resumeDistribution ? 'Resume distribution service' : null,
     plan.features.support,
