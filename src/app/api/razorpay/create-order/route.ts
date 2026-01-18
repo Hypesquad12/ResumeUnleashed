@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
         'SAVE20': { discount: 20, type: 'percentage', maxDiscount: 200 },
         'FLAT100': { discount: 100, type: 'flat' },
         'FLAT200': { discount: 200, type: 'flat' },
+        'RU90-X7K2P9M5': { discount: 90, type: 'percentage' }, // 90% off - secure promo code
       }
 
       const promo = promoCodes[couponCode.toUpperCase()]
