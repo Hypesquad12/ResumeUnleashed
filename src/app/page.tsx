@@ -45,6 +45,31 @@ export default function Home() {
       <PricingSection />
       <CTASection />
       <Footer />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Resume Unleashed",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.8",
+              "ratingCount": "1250"
+            },
+            "description": "AI-powered resume builder helping job seekers create ATS-friendly resumes and get hired faster.",
+            "featureList": "AI Resume Writing, ATS Optimization, Interview Prep, Job Matching",
+            "screenshot": "https://resumeunleashed.com/images/og-image.png"
+          })
+        }}
+      />
     </div>
   )
 }

@@ -1,9 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Truck } from 'lucide-react'
 
-export const metadata = {
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
   title: 'Shipping Policy | Resume Unleashed',
-  description: 'Shipping Policy for Resume Unleashed services',
+  description: 'Shipping Policy. Information about digital delivery of our services and products.',
+  keywords: 'shipping policy, digital delivery, service access',
+  openGraph: {
+    title: 'Shipping Policy | Resume Unleashed',
+    description: 'Information about digital delivery of our services.',
+    url: 'https://resumeunleashed.com/shipping',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://resumeunleashed.com/shipping',
+  },
   robots: {
     index: true,
     follow: true,

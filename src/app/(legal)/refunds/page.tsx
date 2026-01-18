@@ -1,9 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RefreshCw } from 'lucide-react'
 
-export const metadata = {
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
   title: 'Cancellation and Refunds | Resume Unleashed',
-  description: 'Cancellation and Refunds Policy for Resume Unleashed services',
+  description: 'Cancellation and Refunds Policy. Understand your rights regarding subscription cancellations and refund eligibility for our services.',
+  keywords: 'refund policy, cancellation policy, money back guarantee, subscription cancellation',
+  openGraph: {
+    title: 'Cancellation and Refunds | Resume Unleashed',
+    description: 'Understand your rights regarding cancellations and refunds.',
+    url: 'https://resumeunleashed.com/refunds',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://resumeunleashed.com/refunds',
+  },
   robots: {
     index: true,
     follow: true,

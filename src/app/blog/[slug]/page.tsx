@@ -304,6 +304,37 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </div>
       </footer>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "image": [post.image],
+            "datePublished": post.publishedAt,
+            "dateModified": post.publishedAt,
+            "author": [{
+              "@type": "Person",
+              "name": post.author,
+              "url": "https://resumeunleashed.com/about" // Placeholder or actual author profile if available
+            }],
+            "publisher": {
+              "@type": "Organization",
+              "name": "Resume Unleashed",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://resumeunleashed.com/images/logo.png"
+              }
+            },
+            "description": post.excerpt,
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": `https://resumeunleashed.com/blog/${post.slug}`
+            }
+          })
+        }}
+      />
     </div>
   )
 }

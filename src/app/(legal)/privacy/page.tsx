@@ -1,9 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Shield } from 'lucide-react'
 
-export const metadata = {
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
   title: 'Privacy Policy | Resume Unleashed',
-  description: 'Privacy Policy for Resume Unleashed services',
+  description: 'Privacy Policy for Resume Unleashed. Learn how we collect, use, and protect your personal data while using our AI resume builder services.',
+  keywords: 'privacy policy, data protection, user data, resume builder privacy, gdpr, data security',
+  openGraph: {
+    title: 'Privacy Policy | Resume Unleashed',
+    description: 'Learn how we collect, use, and protect your personal data.',
+    url: 'https://resumeunleashed.com/privacy',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://resumeunleashed.com/privacy',
+  },
   robots: {
     index: true,
     follow: true,

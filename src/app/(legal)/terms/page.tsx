@@ -1,9 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText } from 'lucide-react'
 
-export const metadata = {
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
   title: 'Terms and Conditions | Resume Unleashed',
-  description: 'Terms and Conditions for using Resume Unleashed services',
+  description: 'Terms and Conditions for using Resume Unleashed. Read our user agreement, acceptable use policy, and service terms.',
+  keywords: 'terms and conditions, user agreement, terms of service, legal, resume builder terms',
+  openGraph: {
+    title: 'Terms and Conditions | Resume Unleashed',
+    description: 'Read our user agreement and terms of service.',
+    url: 'https://resumeunleashed.com/terms',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://resumeunleashed.com/terms',
+  },
   robots: {
     index: true,
     follow: true,

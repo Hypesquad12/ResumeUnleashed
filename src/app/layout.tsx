@@ -18,9 +18,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Best AI-Powered Resume Customization | Resume Unleashed",
-  description: "Transform your resume with the best AI-powered customization. Create ATS-optimized resumes tailored to any job. Get hired faster with Resume Unleashed.",
-  keywords: "AI resume customization, best resume builder, ATS resume, AI-powered resume, resume maker, job application, career",
+  metadataBase: new URL('https://resumeunleashed.com'),
+  title: {
+    default: "Resume Unleashed | #1 AI Resume Builder & Career Platform",
+    template: "%s | Resume Unleashed"
+  },
+  description: "Build ATS-friendly resumes in minutes with AI. Resume Unleashed offers professional templates, AI-powered customization, job matching, and interview prep to help you get hired faster.",
+  keywords: [
+    "AI resume builder",
+    "resume customization",
+    "ATS resume templates",
+    "CV maker",
+    "job interview prep",
+    "career tools",
+    "resume unleashed",
+    "free resume builder",
+    "AI cover letter generator"
+  ],
+  authors: [{ name: "Resume Unleashed" }],
+  creator: "Resume Unleashed",
+  publisher: "Resume Unleashed",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -29,10 +51,27 @@ export const metadata: Metadata = {
     apple: '/images/logo.png',
   },
   openGraph: {
-    title: "Best AI-Powered Resume Customization | Resume Unleashed",
-    description: "Transform your resume with the best AI-powered customization. Create ATS-optimized resumes tailored to any job.",
-    type: "website",
-    images: ['/images/logo.png'],
+    title: "Resume Unleashed | #1 AI Resume Builder & Career Platform",
+    description: "Build ATS-friendly resumes in minutes with AI. Resume Unleashed offers professional templates, AI-powered customization, job matching, and interview prep.",
+    url: 'https://resumeunleashed.com',
+    siteName: 'Resume Unleashed',
+    images: [
+      {
+        url: '/images/og-image.png', // Assuming we'll add this or it maps to logo for now if needed, but safer to stick to what we have or generic
+        width: 1200,
+        height: 630,
+        alt: 'Resume Unleashed - AI Career Platform',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Resume Unleashed | #1 AI Resume Builder",
+    description: "Create professional, ATS-optimized resumes with AI. Get hired faster.",
+    images: ['/images/og-image.png'],
+    creator: '@ResumeUnleashed', // Placeholder
   },
   robots: {
     index: true,
@@ -62,6 +101,24 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Resume Unleashed",
+              "url": "https://resumeunleashed.com",
+              "logo": "https://resumeunleashed.com/images/logo.png",
+              "sameAs": [
+                "https://twitter.com/resumeunleashed",
+                "https://www.linkedin.com/company/resume-unleashed",
+                "https://www.facebook.com/resumeunleashed"
+              ],
+              "description": "AI-powered resume builder and career platform helping job seekers get hired faster."
+            })
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

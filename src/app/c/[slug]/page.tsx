@@ -3,9 +3,44 @@ import { notFound } from 'next/navigation'
 import { Mail, Phone, Globe, Linkedin, Github, Twitter } from 'lucide-react'
 import { CardTemplate } from '@/components/card-templates'
 import type { CardData } from '@/components/card-templates/types'
+import type { Metadata } from 'next'
 
 interface PageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = await createClient()
+  
+  const { data: card } = await supabase
+    .from('visiting_cards')
+    .select('name, title, company')
+    .eq('public_slug', slug)
+    .single()
+
+  if (!card) {
+    return {
+      title: 'Card Not Found',
+      robots: { index: false, follow: false }
+    }
+  }
+
+  const title = card.title ? `${card.title} at ${card.company || 'Unknown'}` : 'Digital Business Card'
+
+  return {
+    title: `${card.name} - ${title} | Resume Unleashed`,
+    description: `Connect with ${card.name}. View digital business card and contact information.`,
+    robots: {
+      index: true,
+      follow: true,
+    },
+    openGraph: {
+      title: `${card.name} - Digital Business Card`,
+      description: `View ${card.name}'s digital visiting card.`,
+      type: 'profile',
+    },
+  }
 }
 
 export default async function PublicCardPage({ params }: PageProps) {

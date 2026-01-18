@@ -5,8 +5,17 @@ import { Calendar, CheckCircle2, Sparkles, Zap, Bug, ArrowUpCircle } from 'lucid
 
 export const metadata: Metadata = {
   title: 'Changelog - Product Updates | Resume Unleashed',
-  description: 'Stay updated with the latest features, improvements, and bug fixes in Resume Unleashed.',
-  keywords: 'changelog, updates, new features, product updates',
+  description: 'Stay updated with the latest features, improvements, and bug fixes in Resume Unleashed. See how we are constantly improving your resume building experience.',
+  keywords: 'changelog, updates, new features, product updates, resume builder updates',
+  openGraph: {
+    title: 'Changelog - Product Updates | Resume Unleashed',
+    description: 'Stay updated with the latest features, improvements, and bug fixes in Resume Unleashed.',
+    url: 'https://resumeunleashed.com/changelog',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://resumeunleashed.com/changelog',
+  },
   robots: {
     index: true,
     follow: true,
