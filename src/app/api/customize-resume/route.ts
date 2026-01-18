@@ -99,8 +99,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check usage limit using subscription-limits
-    const limitCheck = await canPerformAction('customizations')
+    // Check usage limit using subscription-limits (pass server client)
+    const limitCheck = await canPerformAction('customizations', supabase)
     if (!limitCheck.allowed) {
       return NextResponse.json(
         { 

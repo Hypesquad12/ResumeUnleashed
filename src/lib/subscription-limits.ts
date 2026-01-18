@@ -1,5 +1,6 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient as createClientSide } from '@/lib/supabase/client'
 import { SubscriptionTier, PricingPlan, getPricingByRegion } from '@/lib/pricing-config'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface UsageLimits {
   resumes: number
@@ -19,14 +20,15 @@ export interface CurrentUsage {
 
 /**
  * Get the current user's subscription tier and limits
+ * @param supabaseClient - Optional Supabase client (for server-side use)
  */
-export async function getUserSubscription(): Promise<{
+export async function getUserSubscription(supabaseClient?: SupabaseClient): Promise<{
   tier: SubscriptionTier | 'free'
   limits: UsageLimits
   region: 'india' | 'row'
   isTrialActive?: boolean
 } | null> {
-  const supabase = createClient()
+  const supabase = supabaseClient || createClientSide()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) return null
@@ -105,10 +107,11 @@ export async function getUserSubscription(): Promise<{
 }
 
 /**
- * Get current usage for the user (monthly counts)
+ * Get current usage for the logged-in user
+ * @param supabaseClient - Optional Supabase client (for server-side use)
  */
-export async function getCurrentUsage(): Promise<CurrentUsage> {
-  const supabase = createClient()
+export async function getCurrentUsage(supabaseClient?: SupabaseClient): Promise<CurrentUsage> {
+  const supabase = supabaseClient || createClientSide()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -171,8 +174,13 @@ export async function getCurrentUsage(): Promise<CurrentUsage> {
 
 /**
  * Check if user can perform an action based on their limits
+ * @param action - The action to check (e.g., 'customizations', 'interviews')
+ * @param supabaseClient - Optional Supabase client (for server-side use)
  */
-export async function canPerformAction(action: keyof UsageLimits): Promise<{
+export async function canPerformAction(
+  action: keyof UsageLimits,
+  supabaseClient?: SupabaseClient
+): Promise<{
   allowed: boolean
   reason?: string
   current: number
@@ -180,7 +188,7 @@ export async function canPerformAction(action: keyof UsageLimits): Promise<{
   tier: SubscriptionTier | 'free'
   isTrialActive?: boolean
 }> {
-  const subscription = await getUserSubscription()
+  const subscription = await getUserSubscription(supabaseClient)
   
   if (!subscription) {
     return {
@@ -192,7 +200,7 @@ export async function canPerformAction(action: keyof UsageLimits): Promise<{
     }
   }
 
-  const usage = await getCurrentUsage()
+  const usage = await getCurrentUsage(supabaseClient)
   const current = usage[action]
   const limit = subscription.limits[action]
 
@@ -245,7 +253,8 @@ export async function canPerformAction(action: keyof UsageLimits): Promise<{
  * Check if user is on free tier and needs to upgrade
  */
 export async function isFreeTierUser(): Promise<boolean> {
-  const subscription = await getUserSubscription()
+  const supabase = createClientSide()
+  const subscription = await getUserSubscription(supabase)
   return !subscription || subscription.tier === 'free'
 }
 
@@ -253,7 +262,7 @@ export async function isFreeTierUser(): Promise<boolean> {
  * Check if user has ever had a paid subscription (to determine trial eligibility)
  */
 export async function hasHadPaidSubscription(): Promise<boolean> {
-  const supabase = createClient()
+  const supabase = createClientSide()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) return false
