@@ -2,6 +2,7 @@ import Script from 'next/script'
 
 export function GoogleAnalytics() {
   const GA_MEASUREMENT_ID = 'G-VZBXDRC0QS'
+  const ADS_CONVERSION_ID = 'AW-16646030071'
 
   return (
     <>
@@ -18,6 +19,7 @@ export function GoogleAnalytics() {
             page_path: window.location.pathname,
             send_page_view: true
           });
+          gtag('config', '${ADS_CONVERSION_ID}');
         `}
       </Script>
     </>
