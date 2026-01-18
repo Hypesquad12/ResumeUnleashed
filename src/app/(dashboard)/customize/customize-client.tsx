@@ -479,9 +479,14 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       return
     }
 
+    console.log('[DEBUG] Starting customization flow...')
+
     // Check subscription limits
     const limitCheck = await canPerformAction('customizations')
+    console.log('[DEBUG] Limit check result:', limitCheck)
+    
     if (!limitCheck.allowed) {
+      console.log('[DEBUG] Limit check failed, showing upgrade modal')
       setUpgradeInfo({ 
         current: limitCheck.current, 
         limit: limitCheck.limit, 
@@ -496,19 +501,30 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
     const supabase = createClient()
     
     try {
-      const { data: sourceResume } = await supabase
+      console.log('[DEBUG] Fetching source resume:', selectedResume)
+      const { data: sourceResume, error: resumeError } = await supabase
         .from('resumes')
         .select('*')
         .eq('id', selectedResume)
         .single()
 
+      if (resumeError) {
+        console.error('[DEBUG] Resume fetch error:', resumeError)
+        throw new Error('Failed to fetch source resume: ' + resumeError.message)
+      }
+
       if (!sourceResume) {
+        console.error('[DEBUG] No resume data returned')
         toast.error('Source resume not found')
         setIsCustomizing(false)
         return
       }
 
       const jdText = jobDescription || jobUrl
+      console.log('[DEBUG] Calling /api/customize-resume with:', {
+        hasResume: !!sourceResume,
+        hasJobDesc: !!jdText
+      })
       
       // Call Next.js API route for AI customization
       const apiResponse = await fetch('/api/customize-resume', {
@@ -526,11 +542,15 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         }),
       })
 
+      console.log('[DEBUG] API response status:', apiResponse.status)
+      
       if (!apiResponse.ok) {
-        const errorData = await apiResponse.json()
+        const errorData = await apiResponse.json().catch(() => ({}))
+        console.error('[DEBUG] API error response:', errorData)
         
         // Check if trial limit reached - show activation modal
         if (errorData.errorCode === 'LIMIT_REACHED' && errorData.isTrialActive) {
+          console.log('[DEBUG] Trial limit reached, showing activation modal')
           setUpgradeInfo({
             current: 2,
             limit: 2,
@@ -542,13 +562,15 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           return
         }
         
-        throw new Error(errorData.error || 'Failed to customize resume')
+        throw new Error(errorData.error || `API returned ${apiResponse.status}: Failed to customize resume`)
       }
 
+      console.log('[DEBUG] Parsing API response...')
       const result = await apiResponse.json()
+      console.log('[DEBUG] API result:', { success: result?.success, hasData: !!result?.data })
       
       if (!result?.success) {
-        throw new Error(result?.error || 'Failed to customize resume')
+        throw new Error(result?.error || 'Failed to customize resume - no success flag')
       }
 
       const aiResult = result.data
@@ -650,9 +672,11 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       setCustomizationComplete(true)
       setShowOptionsStep(false)
     } catch (error) {
-      console.error('Customization error:', error)
-      toast.error('Failed to customize resume')
+      console.error('[DEBUG] Customization error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to customize resume'
+      toast.error(errorMessage)
     } finally {
+      console.log('[DEBUG] Customization flow ended')
       setIsCustomizing(false)
     }
   }
