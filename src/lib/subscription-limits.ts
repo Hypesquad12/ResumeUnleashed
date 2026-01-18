@@ -35,7 +35,7 @@ export async function getUserSubscription(): Promise<{
   const { data: profile } = await (supabase as any)
     .from('profiles')
     .select('subscription_tier, subscription_region')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single()
 
   if (!profile) return null
