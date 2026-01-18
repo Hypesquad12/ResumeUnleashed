@@ -48,6 +48,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get subscription details to extract tier
+    const { data: subscriptionData } = await supabase
+      .from('subscriptions')
+      .select('plan_id, billing_cycle')
+      .eq('user_id', user.id)
+      .single()
+
     // Update subscription status to authenticated
     const { error: updateError } = await supabase
       .from('subscriptions')
@@ -65,6 +72,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Extract tier from plan_id (format: plan_RyecfdilZvSwQR)
+    // We need to determine tier from the subscription notes stored during creation
+    // For now, set a default tier that will be updated by webhook
+    // The webhook will set the proper tier when subscription.activated event fires
+    
     console.log(`Subscription authenticated: ${razorpay_subscription_id} for user ${user.id}`)
 
     return NextResponse.json({ success: true })

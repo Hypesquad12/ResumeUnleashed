@@ -254,6 +254,23 @@ export async function canPerformAction(
  */
 export async function isFreeTierUser(): Promise<boolean> {
   const supabase = createClientSide()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) return true
+
+  // Check if user has an active, pending, or authenticated subscription
+  const { data: activeSubscription } = await supabase
+    .from('subscriptions')
+    .select('status')
+    .eq('user_id', user.id)
+    .in('status', ['pending', 'authenticated', 'active'])
+    .single()
+
+  // If user has any subscription in progress or active, don't show free tier prompt
+  if (activeSubscription) {
+    return false
+  }
+
   const subscription = await getUserSubscription(supabase)
   return !subscription || subscription.tier === 'free'
 }
