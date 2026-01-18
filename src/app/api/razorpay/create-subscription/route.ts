@@ -147,9 +147,6 @@ export async function POST(request: NextRequest) {
       customer_notify: 1,
       start_at: firstChargeTime, // When first charge will happen
       addons: [],
-      notify_info: {
-        notify_email: user.email || '',
-      },
       notes: {
         user_id: user.id,
         user_email: user.email || '',

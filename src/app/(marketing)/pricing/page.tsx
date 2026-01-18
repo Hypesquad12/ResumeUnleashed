@@ -157,7 +157,6 @@ function PricingPageContent() {
         name: 'Resume Unleashed',
         description: `${selectedPlanForCheckout.name} Plan`,
         image: '/logo.png',
-        callback_url: `${window.location.origin}/api/razorpay/subscription-callback`,
         prefill: {
           name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
           email: user.email || '',
@@ -167,6 +166,34 @@ function PricingPageContent() {
           email: false,
           contact: false,
           name: false,
+        },
+        handler: async (response: any) => {
+          try {
+            // Verify the payment signature
+            const verifyResponse = await fetch('/api/razorpay/verify-subscription', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            })
+
+            if (verifyResponse.ok) {
+              // Close modal and redirect to dashboard
+              setIsLoading(false)
+              setShowCheckoutModal(false)
+              router.push('/dashboard?subscription=success')
+            } else {
+              throw new Error('Payment verification failed')
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error)
+            alert('Payment verification failed. Please contact support.')
+            setIsLoading(false)
+            setShowCheckoutModal(false)
+          }
         },
         theme: {
           color: '#0ea5e9',
