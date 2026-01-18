@@ -69,8 +69,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
   const [aiSuggestions, setAiSuggestions] = useState<{
     keywords_added: string[]
     changes: string[]
-    ats_tips: string[]
-  }>({ keywords_added: [], changes: [], ats_tips: [] })
+  }>({ keywords_added: [], changes: [] })
   const [coverLetter, setCoverLetter] = useState<string>('')
   const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false)
   
@@ -172,7 +171,6 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       setAiSuggestions({
         keywords_added: option.keywords_added || [],
         changes: option.changes || [],
-        ats_tips: option.ats_tips || [],
       })
       
       // Set cover letter if provided
@@ -197,7 +195,6 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           ai_suggestions: {
             keywords_added: option.keywords_added || [],
             changes: option.changes || [],
-            ats_tips: option.ats_tips || [],
             job_description: jdText,
           },
           cover_letter: option.cover_letter || null,
@@ -269,6 +266,8 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       
       toast.success('Resume customization complete!')
       setCustomizationComplete(true)
+      // Scroll to top after customization
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (error) {
       console.error('Customization error:', error)
       toast.error('Failed to customize resume')
@@ -379,7 +378,6 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       setAiSuggestions({
         keywords_added: selectedOption.keywords_added || [],
         changes: selectedOption.changes || [],
-        ats_tips: selectedOption.ats_tips || [],
       })
 
       // Save to database
@@ -394,7 +392,6 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           ai_suggestions: {
             keywords_added: selectedOption.keywords_added || [],
             changes: selectedOption.changes || [],
-            ats_tips: selectedOption.ats_tips || [],
             job_description: jdText,
             job_description_summary: editedData.jobDescription,
           },
@@ -586,7 +583,6 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       setAiSuggestions({
         keywords_added: option.keywords_added || [],
         changes: option.changes || [],
-        ats_tips: option.ats_tips || [],
       })
       
       // Set cover letter if provided
@@ -605,7 +601,6 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           ai_suggestions: {
             keywords_added: option.keywords_added || [],
             changes: option.changes || [],
-            ats_tips: option.ats_tips || [],
             job_description: jdText,
             job_description_summary: option.job_description_summary,
           },
@@ -671,6 +666,8 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       toast.success('Resume customization complete!')
       setCustomizationComplete(true)
       setShowOptionsStep(false)
+      // Scroll to top after customization
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (error) {
       console.error('[DEBUG] Customization error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to customize resume'
@@ -1096,30 +1093,6 @@ ${name}`
           </Card>
         )}
 
-        {/* ATS Tips */}
-        {aiSuggestions.ats_tips.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-green-500" />
-                ATS Optimization Tips
-              </CardTitle>
-              <CardDescription>
-                Additional suggestions to improve your resume
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {aiSuggestions.ats_tips.map((tip, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm">
-                    <Sparkles className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Share Section */}
         <Card>
@@ -1347,9 +1320,8 @@ ${name}`
                   id="jobDescription"
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
-                  placeholder="Paste the full job description here..."
-                  rows={8}
-                  className="resize-none"
+                  placeholder="Paste the complete job description here..."
+                  className="resize-none h-60 max-h-60 overflow-y-auto"
                 />
                 <p className="text-xs text-muted-foreground">
                   Include the full job posting for best results
@@ -1492,11 +1464,9 @@ ${name}`
                       className="hover:bg-violet-50 hover:text-violet-700"
                       onClick={(e) => {
                         e.stopPropagation()
-                        if (item.source_resume_id) {
-                          window.location.href = `/resumes/${item.source_resume_id}/preview`
-                        }
+                        window.location.href = `/r/${item.id}`
                       }}
-                      title="View Resume"
+                      title="View Customized Resume"
                     >
                       <FileText className="h-4 w-4" />
                     </Button>
@@ -1522,11 +1492,9 @@ ${name}`
                       className="hover:bg-violet-50 hover:text-violet-700"
                       onClick={(e) => {
                         e.stopPropagation()
-                        if (item.source_resume_id) {
-                          window.open(`/resumes/${item.source_resume_id}/preview?download=true`, '_blank')
-                        }
+                        window.open(`/r/${item.id}?download=true`, '_blank')
                       }}
-                      title="Download Resume"
+                      title="Download Customized Resume"
                     >
                       <Download className="h-4 w-4" />
                     </Button>
