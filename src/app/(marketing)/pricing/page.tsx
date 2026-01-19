@@ -150,6 +150,9 @@ function PricingPageContent() {
 
       await loadRazorpay()
 
+      // Close checkout modal before opening Razorpay to prevent modal stacking
+      setShowCheckoutModal(false)
+
       // Open Razorpay Standard Checkout for subscription authentication
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
