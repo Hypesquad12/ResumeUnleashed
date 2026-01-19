@@ -56,28 +56,51 @@ export async function POST(request: NextRequest) {
     }
 
     // Get subscription details to extract tier
-    const { data: subscriptionData } = await supabase
+    const { data: subscriptionData, error: fetchError } = await supabase
       .from('subscriptions')
-      .select('plan_id, billing_cycle')
+      .select('*')
       .eq('user_id', user.id)
       .single()
 
+    if (fetchError) {
+      console.error('Failed to fetch subscription:', fetchError)
+      return NextResponse.json(
+        { error: `Failed to fetch subscription: ${fetchError.message}` },
+        { status: 500 }
+      )
+    }
+
+    if (!subscriptionData) {
+      console.error('No subscription found for user:', user.id)
+      return NextResponse.json(
+        { error: 'No subscription found for this user' },
+        { status: 404 }
+      )
+    }
+
+    console.log('Found subscription:', subscriptionData)
+
     // Update subscription status to authenticated
-    const { error: updateError } = await supabase
+    const { data: updatedData, error: updateError } = await supabase
       .from('subscriptions')
       .update({
         status: 'authenticated',
         razorpay_subscription_id: razorpay_subscription_id,
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id)
+      .select()
 
     if (updateError) {
       console.error('Failed to update subscription:', updateError)
+      console.error('Update error details:', JSON.stringify(updateError, null, 2))
       return NextResponse.json(
-        { error: 'Failed to update subscription' },
+        { error: `Failed to update subscription: ${updateError.message}` },
         { status: 500 }
       )
     }
+
+    console.log('Updated subscription:', updatedData)
 
     // Extract tier from plan_id (format: plan_RyecfdilZvSwQR)
     // We need to determine tier from the subscription notes stored during creation
