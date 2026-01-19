@@ -134,7 +134,7 @@ Even qualified candidates sabotage their applications with these errors:
 
 ## Take Action Today
 
-Ready to create a resume that gets noticed? **[Sign up for Resume Unleashed](/signup)** and try the **AI resume builder free** trial. As a **resume maker AI**, the platform analyzes job descriptions, suggests improvements, and helps keep your resume ATS-friendly—fast.
+Ready to create a resume that gets noticed? [Sign up for Resume Unleashed](/signup) and try the AI resume builder free trial. As a resume maker AI, the platform analyzes job descriptions, suggests improvements, and helps keep your resume ATS-friendly—fast.
 
 **[Start Building Your Resume Now →](/signup)**`,
     author: 'Sarah Chen',
@@ -151,11 +151,11 @@ Ready to create a resume that gets noticed? **[Sign up for Resume Unleashed](/si
     excerpt: 'Discover effective resume templates for your industry—from creative designs to ATS-friendly formats you can build quickly with a resume generator AI.',
     content: `# 15 Best Resume Templates for Every Industry
 
-Choosing the right **resume templates** can make or break your job application. Whether you use a **CV maker AI** or design it yourself, the template you select sends an immediate signal about your professionalism.
+Choosing the right resume templates can make or break your job application. Whether you use a CV maker AI or design it yourself, the template you select sends an immediate signal about your professionalism.
 
 ## Why Resume Templates Matter
 
-First impressions happen in milliseconds. A well-designed template guides the reader's eye through your qualifications. An **artificial intelligence resume** tool can help ensure your design doesn't break ATS parsers.
+First impressions happen in milliseconds. A well-designed template guides the reader's eye through your qualifications. An artificial intelligence resume tool can help ensure your design doesn't break ATS parsers.
 
 ## Top Templates by Industry
 
@@ -201,7 +201,7 @@ Regardless of industry, your template must pass **ats optimisation**:
 
 ## Get Started with Professional Templates
 
-Our **[AI resume creator](/signup)** offers professionally designed, ATS-compatible templates for every industry. Each one works seamlessly with our **resume generator AI** technology.
+Our [AI resume creator](/signup) offers professionally designed, ATS-compatible templates for every industry. Each one works seamlessly with our resume generator AI technology.
 
 **[Browse Our Template Library →](/signup)**
 
@@ -220,11 +220,11 @@ Don't let a poor template choice cost you your dream job. **[Sign up today](/sig
     excerpt: 'Master creating ATS-friendly resumes with ats optimisation techniques that pass automated screening.',
     content: `# ATS Resume Optimization Guide
 
-Over 75% of resumes are rejected by **ATS resume** systems before human eyes ever see them. Using a **resume ai** tool is often the best way to ensure compliance.
+Over 75% of resumes are rejected by ATS resume systems before human eyes ever see them. Using a resume ai tool is often the best way to ensure compliance.
 
 ## What is an ATS?
 
-An Applicant Tracking System (ATS) is software that companies use to manage their hiring process. It parses resumes, extracts information, and filters applications. **ATS optimisation** is critical for getting noticed.
+An Applicant Tracking System (ATS) is software that companies use to manage their hiring process. It parses resumes, extracts information, and filters applications. ATS optimisation is critical for getting noticed.
 
 ## Essential ATS Optimization Strategies
 
@@ -263,10 +263,10 @@ Keywords are the foundation of **ats optimisation**:
 
 ## Let AI Handle the Optimization
 
-Try an **[AI resume builder free](/signup)** trial to analyze job descriptions and optimize your content automatically. Resume Unleashed is an **artificial intelligence resume** platform that:
+Try an [AI resume builder free](/signup) trial to analyze job descriptions and optimize your content automatically. Resume Unleashed is an artificial intelligence resume platform that:
 
 - Scans job postings for critical keywords
-- Suggests improvements for **ats optimisation**
+- Suggests improvements for ats optimisation
 - Tests your resume against major ATS systems
 
 **[Create Your ATS-Optimized Resume →](/signup)**
@@ -358,7 +358,7 @@ The formula is simple: Who you are + What you do best + Proof it works = Compell
 
 ## Create Your Perfect Summary
 
-Our **[AI resume builder](/signup)** generates customized summaries based on your experience and target role. Simply input your background, and our AI crafts compelling summaries optimized for your industry.
+Our [AI resume builder](/signup) generates customized summaries based on your experience and target role. Simply input your background, and our AI crafts compelling summaries optimized for your industry.
 
 **[Generate Your Resume Summary →](/signup)**
 
@@ -448,7 +448,7 @@ Track applications and follow up appropriately. Use a spreadsheet or job trackin
 
 ## Your Job Search Toolkit
 
-A successful job search requires the right tools. Start with a **[professional resume](/signup)** that passes ATS systems and impresses recruiters.
+A successful job search requires the right tools. Start with a [professional resume](/signup) that passes ATS systems and impresses recruiters.
 
 **[Build Your Resume with Resume Unleashed →](/signup)**
 
@@ -516,7 +516,7 @@ Transform past roles to highlight relevant aspects.
 
 ## Make Your Career Change Easier
 
-An **[AI resume builder](/signup)** can identify transferable skills and suggest relevant keywords for your target industry. Resume Unleashed analyzes your background and helps you present your experience in the most compelling way for your new career path.
+An [AI resume builder](/signup) can identify transferable skills and suggest relevant keywords for your target industry. Resume Unleashed analyzes your background and helps you present your experience in the most compelling way for your new career path.
 
 **[Create Your Career Change Resume →](/signup)**
 
@@ -593,7 +593,7 @@ Wait the specified timeframe, then send polite follow-up.
 
 ## Prepare for Success
 
-Your interview starts with a great resume. Make sure yours showcases your achievements and passes ATS screening with **[Resume Unleashed](/signup)**.
+Your interview starts with a great resume. Make sure yours showcases your achievements and passes ATS screening with [Resume Unleashed](/signup).
 
 **[Build Your Interview-Ready Resume →](/signup)**
 
@@ -666,7 +666,7 @@ Transform duties into achievements with metrics.
 
 ## Complete Your Professional Presence
 
-Your LinkedIn profile works best when paired with a strong resume. Create a consistent personal brand across both with **[Resume Unleashed](/signup)**.
+Your LinkedIn profile works best when paired with a strong resume. Create a consistent personal brand across both with [Resume Unleashed](/signup).
 
 **[Build Your Professional Resume →](/signup)**
 
@@ -747,7 +747,7 @@ Financial modeling, Excel, ERP systems
 
 ## Let AI Optimize Your Skills Section
 
-An **[AI resume builder](/signup)** extracts **resume keywords** from job descriptions automatically. Resume Unleashed analyzes job postings and suggests the exact skills to include for maximum ATS compatibility.
+An [AI resume builder](/signup) extracts resume keywords from job descriptions automatically. Resume Unleashed analyzes job postings and suggests the exact skills to include for maximum ATS compatibility.
 
 **[Optimize Your Skills Section →](/signup)**
 
@@ -833,7 +833,7 @@ Clinical rotations, certifications, volunteer work
 
 ## Start Your Career with the Right Resume
 
-Use an **[AI resume builder](/signup)** to optimize your entry-level resume for each application. Resume Unleashed helps new graduates and career starters create professional resumes that compete with experienced candidates.
+Use an [AI resume builder](/signup) to optimize your entry-level resume for each application. Resume Unleashed helps new graduates and career starters create professional resumes that compete with experienced candidates.
 
 **[Build Your Entry-Level Resume →](/signup)**
 

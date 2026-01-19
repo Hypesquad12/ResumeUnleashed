@@ -61,9 +61,7 @@ export function HeroSection() {
 
             {/* Subtitle */}
             <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
-              Build a polished, ATS-ready resume in <span className="font-bold text-violet-600">under 60 seconds</span>.
-              Resume Unleashed is a <strong>resume maker AI</strong> and <strong>CV maker AI</strong> that helps you tailor your <strong>artificial intelligence resume</strong> to each role.
-              Try the <strong>AI resume builder free</strong> trial and join <span className="font-semibold text-slate-800">10,000+ professionals</span> using our <strong>resume generator AI</strong> to land interviews.
+              Create a job-winning resume in under 60 seconds. Our AI-powered resume builder helps you craft a professional, ATS-friendly resume tailored to any job description. Join over 10,000 professionals who have landed more interviews with Resume Unleashed.
             </p>
 
             {/* CTA */}
