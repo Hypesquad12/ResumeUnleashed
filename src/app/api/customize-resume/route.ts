@@ -129,9 +129,9 @@ ${JSON.stringify(resume, null, 2)}
 JOB DESCRIPTION:
 ${jobDescription}
 
-Please analyze this job description and provide 2-3 different interpretations/variations of the role, then AGGRESSIVELY customize the resume for each variation.
+Please analyze this job description and AGGRESSIVELY customize the resume to match it.
 
-MANDATORY REQUIREMENTS FOR EACH VARIATION:
+MANDATORY REQUIREMENTS:
 1. COMPLETELY REWRITE the professional summary (100% change) to directly address the job requirements
 2. MODIFY job titles/role names in experience section to align with target role terminology
 3. REWRITE at least 50% of experience bullet points using job description keywords and phrases
@@ -158,36 +158,31 @@ ROLE TITLE MODIFICATION:
 
 Return a JSON object with this exact structure:
 {
-  "options": [
-    {
-      "job_title": "Primary job title extracted from description",
-      "company_name": "Company name extracted from job description (or 'Not specified' if not found)",
-      "job_description_summary": "Brief 2-3 sentence summary of this interpretation",
-      "customized_resume": {
-        "contact": { ... },
-        "summary": "COMPLETELY REWRITTEN summary addressing job requirements",
-        "experience": [
-          {
-            "id": "...",
-            "company": "...",
-            "position": "MODIFIED to match target role terminology",
-            "location": "...",
-            "startDate": "...",
-            "endDate": "...",
-            "current": false,
-            "description": "REWRITTEN bullet points with JD keywords and quantifiable achievements"
-          }
-        ],
-        "education": [ ... ],
-        "skills": ["EXPANDED list with 5-10+ new skills from JD and industry standards"]
-      },
-      "cover_letter": "Professional 3-4 paragraph cover letter that INCLUDES THE ACTUAL COMPANY NAME extracted from the job description (use it 2-3 times), tailored to this specific job, addressing the role and candidate's qualifications. DO NOT use generic placeholders.",
-      "changes": ["list of 10+ specific changes made - be detailed"],
-      "keywords_added": ["comprehensive list of keywords from JD incorporated"],
-      "match_score": 92,
-      "ats_tips": ["additional suggestions"]
-    }
-  ]
+  "job_title": "Primary job title extracted from description",
+  "company_name": "Company name extracted from job description (or 'Not specified' if not found)",
+  "customized_resume": {
+    "contact": { ... },
+    "summary": "COMPLETELY REWRITTEN summary addressing job requirements",
+    "experience": [
+      {
+        "id": "...",
+        "company": "...",
+        "position": "MODIFIED to match target role terminology",
+        "location": "...",
+        "startDate": "...",
+        "endDate": "...",
+        "current": false,
+        "description": "REWRITTEN bullet points with JD keywords and quantifiable achievements"
+      }
+    ],
+    "education": [ ... ],
+    "skills": ["EXPANDED list with 5-10+ new skills from JD and industry standards"]
+  },
+  "cover_letter": "Professional 3-4 paragraph cover letter that INCLUDES THE ACTUAL COMPANY NAME extracted from the job description (use it 2-3 times), tailored to this specific job, addressing the role and candidate's qualifications. DO NOT use generic placeholders.",
+  "changes": ["list of 10+ specific changes made - be detailed"],
+  "keywords_added": ["comprehensive list of keywords from JD incorporated"],
+  "match_score": 92,
+  "ats_tips": ["additional suggestions"]
 }
 
 COVER LETTER REQUIREMENTS (CRITICAL):
@@ -203,7 +198,6 @@ COVER LETTER REQUIREMENTS (CRITICAL):
 - Use professional business letter format
 - DO NOT use generic placeholder like "[Company Name]" - extract actual company name from JD
 
-Generate 2-3 options with different emphasis (e.g., technical focus vs leadership focus, or different seniority levels if the JD is ambiguous).
 REMEMBER: Make substantial changes to at least 30% of the resume content!
 `
 

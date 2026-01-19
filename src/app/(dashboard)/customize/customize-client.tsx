@@ -147,35 +147,25 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
 
       const aiResult = edgeFnResult.data
       
-      // Check if we have multiple options
-      if (aiResult.options && Array.isArray(aiResult.options) && aiResult.options.length > 1) {
-        // Multiple options - show selection UI
-        setAiOptions(aiResult.options)
-        setShowOptionsStep(true)
-        setIsCustomizing(false)
-        return
-      }
-      
-      // Single option or old format - proceed directly
-      const option = aiResult.options?.[0] || aiResult
-      const jobTitle = option.job_title || 'Customized'
-      const companyName = option.company_name || 'Not specified'
+      // Always proceed directly with single customization
+      const jobTitle = aiResult.job_title || 'Customized'
+      const companyName = aiResult.company_name || 'Not specified'
       
       // Set optimization stats from AI response
       const stats = {
-        keywords: option.keywords_added?.length || 0,
-        sections: option.changes?.length || 0,
-        score: option.match_score || 85
+        keywords: aiResult.keywords_added?.length || 0,
+        sections: aiResult.changes?.length || 0,
+        score: aiResult.match_score || 85
       }
       setOptimizationStats(stats)
       setAiSuggestions({
-        keywords_added: option.keywords_added || [],
-        changes: option.changes || [],
+        keywords_added: aiResult.keywords_added || [],
+        changes: aiResult.changes || [],
       })
       
       // Set cover letter if provided
-      if (option.cover_letter) {
-        setCoverLetter(option.cover_letter)
+      if (aiResult.cover_letter) {
+        setCoverLetter(aiResult.cover_letter)
       }
 
       // Save to customized_resumes table with AI-customized content
@@ -185,7 +175,7 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
           user_id: user.id,
           source_resume_id: selectedResume,
           title: `${sourceResume.title} - ${jobTitle} - ${companyName}`,
-          customized_content: option.customized_resume || {
+          customized_content: aiResult.customized_resume || {
             contact: sourceResume.contact,
             summary: sourceResume.summary,
             experience: sourceResume.experience,
@@ -193,11 +183,11 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
             skills: sourceResume.skills,
           },
           ai_suggestions: {
-            keywords_added: option.keywords_added || [],
-            changes: option.changes || [],
+            keywords_added: aiResult.keywords_added || [],
+            changes: aiResult.changes || [],
             job_description: jdText,
           },
-          cover_letter: option.cover_letter || null,
+          cover_letter: aiResult.cover_letter || null,
           match_score: stats.score,
         })
         .select()
