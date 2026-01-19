@@ -17,12 +17,12 @@ export async function POST() {
       )
     }
 
-    // Get user's active subscription
+    // Get user's active subscription (includes authenticated status after mandate setup)
     const { data: subscription, error: subError } = await (supabase as any)
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .eq('status', 'active')
+      .in('status', ['active', 'authenticated'])
       .single()
 
     if (subError || !subscription) {
