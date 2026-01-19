@@ -55,7 +55,7 @@ export function HeroSection() {
               </span>
               <br />
               <span className="text-slate-700 text-2xl sm:text-4xl lg:text-5xl">
-                with our AI Resume Builder
+                with the AI Resume Builder
               </span>
             </h1>
 
