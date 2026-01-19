@@ -465,7 +465,8 @@ export default function NewResumePage() {
       setUploading(false)
 
       toast.success('Resume uploaded and parsed successfully!')
-      router.push('/resumes')
+      // Redirect to edit page for the newly created resume
+      router.push(`/resumes/${resumeData.id}`)
 
     } catch (error) {
       console.error('Upload error:', error)
