@@ -61,8 +61,9 @@ export function HeroSection() {
 
             {/* Subtitle */}
             <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
-              The ultimate <strong>resume maker AI</strong> and <strong>CV maker AI</strong>. Create a professional <strong>artificial intelligence resume</strong> in <span className="font-bold text-violet-600">under 60 seconds</span> using the <strong>AI resume builder free</strong> trial. 
-              <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who used the <strong>resume generator AI</strong> to land their dream jobs.
+              Build a polished, ATS-ready resume in <span className="font-bold text-violet-600">under 60 seconds</span>.
+              Resume Unleashed is a <strong>resume maker AI</strong> and <strong>CV maker AI</strong> that helps you tailor your <strong>artificial intelligence resume</strong> to each role.
+              Try the <strong>AI resume builder free</strong> trial and join <span className="font-semibold text-slate-800">10,000+ professionals</span> using our <strong>resume generator AI</strong> to land interviews.
             </p>
 
             {/* CTA */}
@@ -70,7 +71,7 @@ export function HeroSection() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link href="/signup" className="group">
                   <Button size="lg" className="w-full sm:w-auto text-base px-8 sm:px-10 h-12 sm:h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 text-white font-semibold transition-all duration-300 sm:hover:scale-105">
-                    Get Started Free
+                    Get Started for Free
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>

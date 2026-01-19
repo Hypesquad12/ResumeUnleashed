@@ -80,7 +80,7 @@ export function Navbar() {
               <Link href="/signup">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0 transition-all duration-300 text-white">
-                    Get Started Free
+                    Get Started for Free
                   </Button>
                 </motion.div>
               </Link>
@@ -140,7 +140,7 @@ export function Navbar() {
               </Link>
               <Link href="/signup" className="block">
                 <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 border-0 text-white">
-                  Get Started Free
+                  Get Started for Free
                 </Button>
               </Link>
             </div>

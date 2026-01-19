@@ -69,9 +69,9 @@ export function CTASection() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="text-lg sm:text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed"
               >
-                Join <span className="font-bold text-violet-600">10,000+ professionals</span> who transformed their job search with the **ai resume builder free** trial and **resume maker ai**. 
+                Join <span className="font-bold text-violet-600">10,000+ professionals</span> who transformed their job search with an <span className="font-semibold text-slate-900">AI resume builder free</span> trial.
                 <br className="hidden sm:block" />
-                Create your **cv maker ai** optimized resume in <span className="font-semibold text-slate-900">under 60 seconds</span> and start getting interviews.
+                Build faster with a <span className="font-semibold text-slate-900">resume maker AI</span> and <span className="font-semibold text-slate-900">CV maker AI</span>—and create an ATS-ready resume in <span className="font-semibold text-slate-900">under 60 seconds</span>.
               </motion.p>
 
               {/* CTA Buttons */}

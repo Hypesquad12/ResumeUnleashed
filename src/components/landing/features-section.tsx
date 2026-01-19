@@ -8,19 +8,19 @@ const features = [
   {
     icon: FileText,
     title: 'AI Resume Creator & CV Maker AI',
-    description: 'Create professional resumes with our intuitive resume ai builder and resume maker ai. Choose from dozens of ATS-friendly templates.',
+    description: 'Create a professional resume with an AI resume creator that works like a resume maker AI and CV maker AI—choose from ATS-friendly templates in minutes.',
     gradient: 'from-violet-500 to-indigo-500',
   },
   {
     icon: Sparkles,
     title: 'ATS Optimisation & Resume AI',
-    description: 'Let our resume generator ai analyze job descriptions and tailor your artificial intelligence resume with the right keywords to pass ATS systems.',
+    description: 'Use our resume generator AI for ATS optimisation—scan job descriptions and tailor your artificial intelligence resume with the right keywords to pass screening.',
     gradient: 'from-violet-500 to-purple-500',
   },
   {
     icon: Mic,
     title: 'AI Interview & Interview with AI',
-    description: 'Practice with AI-powered mock interviews. Experience a realistic interview with ai, getting real-time feedback and personalized questions.',
+    description: 'Practice with AI-powered mock interviews. Get a realistic interview with AI experience, plus real-time feedback and personalized questions.',
     gradient: 'from-emerald-500 to-teal-500',
   },
   {
