@@ -1,19 +1,20 @@
 # Resume Unleashed - AI-Powered Resume Builder
 
 ## Overview
-Resume Unleashed is a comprehensive AI-powered resume builder and career tools platform that helps job seekers create ATS-optimized resumes, customize them for specific job descriptions, and manage their professional brand.
+Resume Unleashed is the ultimate **resume maker AI** and **CV maker AI** platform. As a comprehensive **AI resume builder free** to try, it helps job seekers create professional **artificial intelligence resumes**, ensures **ATS optimisation**, and manages their professional brand.
 
 ## Core Features
 
 ### Resume Management
-- **AI Resume Customization**: Automatically tailor resumes to match specific job descriptions using AI
-- **ATS Optimization**: Ensure resumes pass Applicant Tracking Systems
-- **Multiple Templates**: Professional resume templates for various industries
+- **AI Resume Creator**: Automatically tailor resumes to match specific job descriptions using our **resume generator AI**
+- **ATS Optimisation**: Ensure resumes pass Applicant Tracking Systems with advanced **resume AI** analysis
+- **Multiple Templates**: Professional resume templates optimized for **artificial intelligence resume** scanning
 - **Resume Parser**: Upload and parse existing resumes
 - **Version Control**: Track different versions of customized resumes
 
 ### Career Tools
-- **Interview Preparation**: AI-powered interview prep based on job descriptions
+- **AI Interview Prep**: Practice with realistic **interview with ai** simulations based on job descriptions
+- **AI Interview**: Get real-time feedback on your responses
 - **Salary Estimation**: Get salary insights for different roles and locations
 - **Job Matching**: Match your skills with job requirements
 

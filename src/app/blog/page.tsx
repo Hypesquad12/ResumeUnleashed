@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { BlogClient } from './blog-client'
 
 export const metadata = {
-  title: 'Blog | Resume Unleashed - Resume Builder & Resume Maker Tips',
-  description: 'Expert tips on using our resume builder and resume maker, job search strategies, interview preparation, and career advice. Learn how to write a resume that gets noticed.',
-  keywords: 'resume builder, resume maker, how to write a resume, resume templates, job application tips, career advice, ATS resume, interview tips',
+  title: 'Blog | Resume Unleashed - AI Resume Builder & CV Maker AI Tips',
+  description: 'Expert tips on using our ai resume builder free tool, resume maker ai strategies, ats optimisation, and interview with ai preparation. Learn how to create an artificial intelligence resume that gets noticed.',
+  keywords: 'resume ai, ats optimisation, ai resume builder free, resume maker ai, cv maker ai, resume generator ai, ai resume creator, artificial intelligence resume, ai interview, interview with ai',
   alternates: {
     canonical: 'https://resumeunleashed.com/blog',
   },

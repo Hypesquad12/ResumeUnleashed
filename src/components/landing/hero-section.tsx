@@ -55,14 +55,14 @@ export function HeroSection() {
               </span>
               <br />
               <span className="text-slate-700 text-2xl sm:text-4xl lg:text-5xl">
-                with AI-Powered Resumes
+                with our AI Resume Builder
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
-              Our AI-powered resume builder transforms your resume in <span className="font-bold text-violet-600">under 60 seconds</span> with AI that understands what recruiters want. 
-              <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who landed their dream jobs.
+              The ultimate <strong>resume maker AI</strong> and <strong>CV maker AI</strong>. Create a professional <strong>artificial intelligence resume</strong> in <span className="font-bold text-violet-600">under 60 seconds</span> using our <strong>AI resume builder free</strong> trial. 
+              <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who used our <strong>resume generator AI</strong> to land their dream jobs.
             </p>
 
             {/* CTA */}

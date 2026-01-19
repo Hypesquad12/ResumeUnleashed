@@ -154,7 +154,7 @@ export function PreviewSection() {
               </span>
             </h2>
             <p className="mt-8 text-lg text-slate-600 leading-relaxed">
-              Our AI-powered platform analyzes job descriptions and optimizes your resume 
+              Our **resume ai** platform analyzes job descriptions and provides **ats optimisation** for your resume 
               to pass ATS systems and impress hiring managers. Get more interviews with less effort.
             </p>
 

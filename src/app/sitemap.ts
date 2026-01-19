@@ -71,5 +71,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...routes, ...resumeRoutes, ...cardRoutes]
+  return [...routes, ...blogRoutes, ...resumeRoutes, ...cardRoutes]
 }

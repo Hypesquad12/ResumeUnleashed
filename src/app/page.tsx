@@ -64,7 +64,7 @@ export default function Home() {
               "ratingValue": "4.8",
               "ratingCount": "1250"
             },
-            "description": "AI-powered resume builder helping job seekers create ATS-friendly resumes and get hired faster.",
+            "description": "The #1 AI resume builder free to try. Our resume maker ai and cv maker ai tools help you create an artificial intelligence resume with ats optimisation to get hired faster.",
             "featureList": "AI Resume Writing, ATS Optimization, Interview Prep, Job Matching",
             "screenshot": "https://resumeunleashed.com/images/og-image.png"
           })

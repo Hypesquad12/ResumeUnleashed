@@ -7,20 +7,20 @@ import { useState } from 'react'
 const features = [
   {
     icon: FileText,
-    title: 'Smart Resume Builder & Resume Maker',
-    description: 'Create professional resumes with our intuitive resume builder and resume maker. Choose from dozens of ATS-friendly templates.',
+    title: 'AI Resume Creator & CV Maker AI',
+    description: 'Create professional resumes with our intuitive resume ai builder and resume maker ai. Choose from dozens of ATS-friendly templates.',
     gradient: 'from-violet-500 to-indigo-500',
   },
   {
     icon: Sparkles,
-    title: 'AI-Powered Optimization',
-    description: 'Let AI analyze job descriptions and tailor your resume with the right keywords to pass ATS systems.',
+    title: 'ATS Optimisation & Resume AI',
+    description: 'Let our resume generator ai analyze job descriptions and tailor your artificial intelligence resume with the right keywords to pass ATS systems.',
     gradient: 'from-violet-500 to-purple-500',
   },
   {
     icon: Mic,
-    title: 'AI Interview Prep',
-    description: 'Practice with AI-powered mock interviews. Get real-time feedback, personalized questions based on your resume and job description.',
+    title: 'AI Interview & Interview with AI',
+    description: 'Practice with AI-powered mock interviews. Experience a realistic interview with ai, getting real-time feedback and personalized questions.',
     gradient: 'from-emerald-500 to-teal-500',
   },
   {
