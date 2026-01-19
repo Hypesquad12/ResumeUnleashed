@@ -41,7 +41,7 @@ export default function ManageSubscriptionPage() {
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
-          .in('status', ['active', 'authenticated', 'pending'])
+          .in('status', ['active', 'authenticated'])
           .single()
         
         if (subscriptionData) {
