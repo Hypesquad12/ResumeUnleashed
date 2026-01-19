@@ -69,7 +69,7 @@ export function CTASection() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="text-lg sm:text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed"
               >
-                Join <span className="font-bold text-violet-600">10,000+ professionals</span> who transformed their job search with our **ai resume builder free** trial and **resume maker ai**. 
+                Join <span className="font-bold text-violet-600">10,000+ professionals</span> who transformed their job search with the **ai resume builder free** trial and **resume maker ai**. 
                 <br className="hidden sm:block" />
                 Create your **cv maker ai** optimized resume in <span className="font-semibold text-slate-900">under 60 seconds</span> and start getting interviews.
               </motion.p>
@@ -116,10 +116,6 @@ export function CTASection() {
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500"
               >
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                  <span>No credit card required</span>
-                </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-emerald-500" />
                   <span>Setup in 2 minutes</span>

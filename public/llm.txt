@@ -6,7 +6,7 @@ Resume Unleashed is the ultimate **resume maker AI** and **CV maker AI** platfor
 ## Core Features
 
 ### Resume Management
-- **AI Resume Creator**: Automatically tailor resumes to match specific job descriptions using our **resume generator AI**
+- **AI Resume Creator**: Automatically tailor resumes to match specific job descriptions using the **resume generator AI**
 - **ATS Optimisation**: Ensure resumes pass Applicant Tracking Systems with advanced **resume AI** analysis
 - **Multiple Templates**: Professional resume templates optimized for **artificial intelligence resume** scanning
 - **Resume Parser**: Upload and parse existing resumes

@@ -6,15 +6,15 @@ import Link from 'next/link'
 
 // Company logos for social proof - using actual logos
 const companyLogos = [
+  { name: 'Deloitte', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Deloitte.svg' },
+  { name: 'PwC', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/PwC_Logo.svg' },
+  { name: 'EY', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/07/EY_logo_2019.svg' },
+  { name: 'KPMG', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/KPMG_logo.svg' },
   { name: 'Google', logo: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png' },
   { name: 'Microsoft', logo: 'https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31' },
   { name: 'Amazon', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg' },
   { name: 'Meta', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg' },
   { name: 'Apple', logo: 'https://www.apple.com/ac/structured-data/images/knowledge_graph_logo.png' },
-  { name: 'Deloitte', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Deloitte.svg' },
-  { name: 'PwC', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/PwC_Logo.svg' },
-  { name: 'EY', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/07/EY_logo_2019.svg' },
-  { name: 'KPMG', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/KPMG_logo.svg' },
   { name: 'McKinsey', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/9e/McKinsey_and_Company_Logo.svg' },
   { name: 'BCG', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d8/Boston_Consulting_Group_2020_logo.svg' },
   { name: 'Bain', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Bain_and_Company_logo.svg' },
@@ -61,8 +61,8 @@ export function HeroSection() {
 
             {/* Subtitle */}
             <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
-              The ultimate <strong>resume maker AI</strong> and <strong>CV maker AI</strong>. Create a professional <strong>artificial intelligence resume</strong> in <span className="font-bold text-violet-600">under 60 seconds</span> using our <strong>AI resume builder free</strong> trial. 
-              <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who used our <strong>resume generator AI</strong> to land their dream jobs.
+              The ultimate <strong>resume maker AI</strong> and <strong>CV maker AI</strong>. Create a professional <strong>artificial intelligence resume</strong> in <span className="font-bold text-violet-600">under 60 seconds</span> using the <strong>AI resume builder free</strong> trial. 
+              <span className="font-semibold text-slate-800"> Join 10,000+ professionals</span> who used the <strong>resume generator AI</strong> to land their dream jobs.
             </p>
 
             {/* CTA */}
@@ -70,7 +70,7 @@ export function HeroSection() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link href="/signup" className="group">
                   <Button size="lg" className="w-full sm:w-auto text-base px-8 sm:px-10 h-12 sm:h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 text-white font-semibold transition-all duration-300 sm:hover:scale-105">
-                    Get Started Free - No Credit Card
+                    Get Started Free
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -78,10 +78,6 @@ export function HeroSection() {
               
               {/* Microcopy */}
               <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                  No credit card required
-                </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4 text-emerald-500" />
                   Ready in 2 minutes
