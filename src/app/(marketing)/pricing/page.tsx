@@ -161,12 +161,10 @@ function PricingPageContent() {
         description: `${selectedPlanForCheckout.name} Plan`,
         image: '/logo.png',
         prefill: {
-          name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
-          email: user.email || '',
+          name: user.user_metadata?.full_name || '',
           contact: user.user_metadata?.phone || '',
         },
         readonly: {
-          email: false,
           contact: false,
           name: false,
         },

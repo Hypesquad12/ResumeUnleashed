@@ -149,7 +149,6 @@ export async function POST(request: NextRequest) {
       addons: [],
       notes: {
         user_id: user.id,
-        user_email: user.email || '',
         plan_id: planId,
         region,
         tier,

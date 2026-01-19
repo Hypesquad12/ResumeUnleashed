@@ -116,7 +116,6 @@ export async function POST(request: NextRequest) {
       receipt: `order_${user.id}_${Date.now()}`,
       notes: {
         user_id: user.id,
-        user_email: user.email || '',
         plan_id: planId,
         region,
         tier,
@@ -178,9 +177,8 @@ export async function POST(request: NextRequest) {
       amount: finalAmount,
       currency: 'INR',
       keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      userName: user.email?.split('@')[0] || 'User',
-      userEmail: user.email || '',
-      userPhone: '', // Add phone if available
+      userName: user.user_metadata?.full_name || 'User',
+      userPhone: user.user_metadata?.phone || '',
       couponApplied: couponDetails !== null,
       discountAmount,
       originalAmount: planAmount,
