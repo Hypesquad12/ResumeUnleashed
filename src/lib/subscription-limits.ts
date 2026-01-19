@@ -33,6 +33,14 @@ export async function getUserSubscription(supabaseClient?: SupabaseClient): Prom
   
   if (!user) return null
 
+  // Check for active subscriptions first
+  const { data: subscription } = await (supabase as any)
+    .from('subscriptions')
+    .select('trial_active, status, plan_id, tier, region')
+    .eq('user_id', user.id)
+    .in('status', ['active', 'authenticated', 'pending'])
+    .single()
+
   // Check user's subscription in profiles table
   const { data: profile } = await (supabase as any)
     .from('profiles')
@@ -42,11 +50,12 @@ export async function getUserSubscription(supabaseClient?: SupabaseClient): Prom
 
   if (!profile) return null
 
-  const tier = profile.subscription_tier || 'free'
-  const region = profile.subscription_region || 'india'
+  // Determine tier: use subscription tier if available, otherwise profile tier
+  let tier: SubscriptionTier | 'free' = subscription?.tier || profile.subscription_tier || 'free'
+  const region = subscription?.region || profile.subscription_region || 'india'
 
   // Get limits based on tier
-  if (tier === 'free') {
+  if (tier === 'free' && !subscription) {
     return {
       tier: 'free',
       region,
@@ -61,14 +70,7 @@ export async function getUserSubscription(supabaseClient?: SupabaseClient): Prom
     }
   }
 
-  // Check if user is in trial period (for paid plans)
-  const { data: subscription } = await (supabase as any)
-    .from('subscriptions')
-    .select('trial_active, status')
-    .eq('user_id', user.id)
-    .single()
-
-  const isTrialActive = subscription?.trial_active === true && subscription?.status === 'active'
+  const isTrialActive = subscription?.trial_active === true && ['active', 'authenticated'].includes(subscription?.status)
 
   // During trial period, enforce trial limits for all paid plans
   if (isTrialActive) {

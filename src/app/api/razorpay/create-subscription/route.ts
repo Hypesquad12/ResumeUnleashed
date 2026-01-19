@@ -198,6 +198,9 @@ export async function POST(request: NextRequest) {
         billing_cycle: billingCycle,
         current_period_start: periodStart.toISOString(),
         current_period_end: periodEnd.toISOString(),
+        tier: tier,
+        region: region,
+        trial_active: trialDays > 0,
       }, {
         onConflict: 'user_id' // Specify which column to use for upsert conflict resolution
       })
