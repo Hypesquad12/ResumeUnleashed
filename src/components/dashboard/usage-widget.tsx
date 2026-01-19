@@ -40,6 +40,34 @@ export function UsageWidget() {
     if (!user) return
 
     try {
+      // Get usage for current period - use actual counts from tables (for all users)
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+
+      // Count customizations from current month
+      const { count: customizationCount } = await supabase
+        .from('customized_resumes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', startOfMonth.toISOString())
+
+      // Count interviews from current month
+      const { count: interviewCount } = await (supabase as any)
+        .from('interview_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', startOfMonth.toISOString())
+
+      // Build usage data array
+      const usageData: UsageData[] = [
+        { feature_type: 'ai_customization', usage_count: customizationCount || 0 },
+        { feature_type: 'interview_prep', usage_count: interviewCount || 0 },
+        { feature_type: 'job_matching', usage_count: 0 },
+      ]
+
+      setUsage(usageData)
+
       // Get active subscription with plan details
       const { data: subscription } = await supabase
         .from('subscriptions')
@@ -55,37 +83,9 @@ export function UsageWidget() {
         const planData = subscription.plan as any
         setLimits(planData.limits as PlanLimits)
         setTier(planData.tier || 'free')
-
-        // Get usage for current period - use actual counts from tables
-        const startOfMonth = new Date()
-        startOfMonth.setDate(1)
-        startOfMonth.setHours(0, 0, 0, 0)
-
-        // Count customizations from current month
-        const { count: customizationCount } = await supabase
-          .from('customized_resumes')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .gte('created_at', startOfMonth.toISOString())
-
-        // Count interviews from current month
-        const { count: interviewCount } = await (supabase as any)
-          .from('interview_sessions')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .gte('created_at', startOfMonth.toISOString())
-
-        // Build usage data array
-        const usageData: UsageData[] = [
-          { feature_type: 'ai_customization', usage_count: customizationCount || 0 },
-          { feature_type: 'interview_prep', usage_count: interviewCount || 0 },
-          { feature_type: 'job_matching', usage_count: 0 },
-        ]
-
-        setUsage(usageData)
       } else {
-        // Free tier - set default limits
-        setLimits({ resumes: 1, customizations: 0, interviews: 0, job_matching: 0 })
+        // Free tier - set default limits (matches subscription-limits.ts)
+        setLimits({ resumes: 1, customizations: 2, interviews: 1, job_matching: 0 })
         setTier('free')
       }
 
