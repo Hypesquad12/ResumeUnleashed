@@ -170,7 +170,7 @@ function PricingPageContent() {
         },
         handler: async (response: any) => {
           try {
-            // Verify the payment signature
+            // Verify the payment/mandate signature
             const verifyResponse = await fetch('/api/razorpay/verify-subscription', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -182,18 +182,27 @@ function PricingPageContent() {
             })
 
             if (verifyResponse.ok) {
-              // Close modal and redirect to dashboard
+              const data = await verifyResponse.json()
               setIsLoading(false)
-              setShowCheckoutModal(false)
-              router.push('/dashboard?subscription=success')
+              
+              // Show success message
+              if (data.isAuthentication) {
+                alert('✓ Mandate authenticated successfully! Your subscription is now active.')
+              } else {
+                alert('✓ Payment verified successfully!')
+              }
+              
+              // Redirect to settings page where subscription details will be visible
+              router.push('/settings')
             } else {
-              throw new Error('Payment verification failed')
+              const errorData = await verifyResponse.json()
+              throw new Error(errorData.error || 'Verification failed')
             }
           } catch (error) {
             console.error('Payment verification error:', error)
-            alert('Payment verification failed. Please contact support.')
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+            alert(`Payment verification failed: ${errorMessage}. Please contact support if the issue persists.`)
             setIsLoading(false)
-            setShowCheckoutModal(false)
           }
         },
         theme: {

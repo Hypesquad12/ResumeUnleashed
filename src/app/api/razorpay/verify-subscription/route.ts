@@ -7,7 +7,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } = body
 
-    if (!razorpay_payment_id || !razorpay_subscription_id || !razorpay_signature) {
+    // For mandate authentication, payment_id may not be present yet
+    if (!razorpay_subscription_id || !razorpay_signature) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
@@ -24,9 +25,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // For mandate authentication (no payment yet), signature is just subscription_id
+    // For actual payment, signature includes payment_id|subscription_id
+    const signaturePayload = razorpay_payment_id 
+      ? `${razorpay_payment_id}|${razorpay_subscription_id}`
+      : razorpay_subscription_id
+
     const generatedSignature = crypto
       .createHmac('sha256', secret)
-      .update(`${razorpay_payment_id}|${razorpay_subscription_id}`)
+      .update(signaturePayload)
       .digest('hex')
 
     if (generatedSignature !== razorpay_signature) {
@@ -77,9 +84,14 @@ export async function POST(request: NextRequest) {
     // For now, set a default tier that will be updated by webhook
     // The webhook will set the proper tier when subscription.activated event fires
     
-    console.log(`Subscription authenticated: ${razorpay_subscription_id} for user ${user.id}`)
+    const isAuthentication = !razorpay_payment_id
+    console.log(`Subscription ${isAuthentication ? 'authenticated' : 'payment verified'}: ${razorpay_subscription_id} for user ${user.id}`)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ 
+      success: true,
+      isAuthentication,
+      message: isAuthentication ? 'Mandate authenticated successfully' : 'Payment verified successfully'
+    })
   } catch (error) {
     console.error('Subscription verification error:', error)
     return NextResponse.json(
