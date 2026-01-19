@@ -135,7 +135,21 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
       })
 
       if (!apiResponse.ok) {
-        const errorData = await apiResponse.json()
+        const errorData = await apiResponse.json().catch(() => ({}))
+        
+        // Check if limit reached (403 status or LIMIT_REACHED code) - show upgrade modal
+        if (apiResponse.status === 403 || errorData.errorCode === 'LIMIT_REACHED') {
+          setUpgradeInfo({
+            current: 0,
+            limit: 0,
+            tier: errorData.tier || 'free',
+            isTrialActive: errorData.isTrialActive || false,
+          })
+          setShowUpgradeModal(true)
+          setIsCustomizing(false)
+          return
+        }
+        
         throw new Error(errorData.error || 'Failed to customize resume')
       }
 
@@ -535,8 +549,8 @@ export function CustomizeClient({ resumes, history = [] }: CustomizeClientProps)
         const errorData = await apiResponse.json().catch(() => ({}))
         console.error('[DEBUG] API error response:', errorData)
         
-        // Check if limit reached - show upgrade/activation modal
-        if (errorData.errorCode === 'LIMIT_REACHED') {
+        // Check if limit reached (403 status or LIMIT_REACHED code) - show upgrade modal
+        if (apiResponse.status === 403 || errorData.errorCode === 'LIMIT_REACHED') {
           console.log('[DEBUG] Limit reached, showing upgrade modal')
           setUpgradeInfo({
             current: limitCheck.current,
