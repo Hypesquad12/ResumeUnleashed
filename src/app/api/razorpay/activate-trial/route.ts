@@ -45,6 +45,49 @@ export async function POST() {
     const razorpayApiSecret = process.env.RAZORPAY_KEY_SECRET!
     const auth = Buffer.from(`${razorpayApiKey}:${razorpayApiSecret}`).toString('base64')
 
+    // Verify Razorpay subscription status first
+    const statusResponse = await fetch(
+      `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${auth}`,
+        },
+      }
+    )
+
+    if (!statusResponse.ok) {
+      console.error('Failed to fetch Razorpay subscription status')
+      return NextResponse.json(
+        { error: 'Failed to verify subscription status' },
+        { status: 500 }
+      )
+    }
+
+    const razorpaySubscription = await statusResponse.json()
+    
+    // Check if mandate is authenticated
+    if (razorpaySubscription.status === 'created') {
+      return NextResponse.json(
+        { 
+          error: 'Please complete the mandate authentication first. Click the payment link sent to your email or visit your subscription settings.',
+          errorCode: 'MANDATE_NOT_AUTHENTICATED',
+          shortUrl: razorpaySubscription.short_url
+        },
+        { status: 400 }
+      )
+    }
+
+    if (razorpaySubscription.status !== 'authenticated' && razorpaySubscription.status !== 'active') {
+      return NextResponse.json(
+        { 
+          error: `Subscription is ${razorpaySubscription.status}. Cannot activate trial at this time.`,
+          errorCode: 'INVALID_SUBSCRIPTION_STATUS'
+        },
+        { status: 400 }
+      )
+    }
+
     // Charge the subscription immediately (skip remaining trial days)
     const chargeResponse = await fetch(
       `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/charge`,
