@@ -111,7 +111,7 @@ export function UsageStats() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {usageItems.map((item) => {
+        {usageItems.filter(item => item.limit !== 0).map((item) => {
           const percentage = getPercentage(item.current, item.limit)
           const isUnlimited = item.limit === -1
           const Icon = item.icon

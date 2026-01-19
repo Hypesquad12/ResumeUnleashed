@@ -45,12 +45,12 @@ export default function SettingsPage() {
           setFullName(profileData.full_name || '')
         }
 
-        // Fetch subscription
+        // Fetch subscription (including authenticated/pending for mandate setup)
         const { data: subscriptionData } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
-          .eq('status', 'active')
+          .in('status', ['active', 'authenticated', 'pending'])
           .single()
         
         if (subscriptionData) {
