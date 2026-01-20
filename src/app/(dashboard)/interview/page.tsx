@@ -1199,6 +1199,21 @@ export default function InterviewCoachPage() {
       saveSession(allAnswers, avgScore)
     }
   }
+  
+  // Auto-submit when recording stops
+  useEffect(() => {
+    let submitTimer: NodeJS.Timeout
+    if (!isRecording && currentAnswer.trim()) {
+      // Wait 500ms after recording stops to auto-submit
+      submitTimer = setTimeout(() => {
+        if (currentAnswer.trim() && !isGeneratingFeedback && !isFetchingNextQuestion) {
+          stopSpeaking()
+          submitAnswer()
+        }
+      }, 500)
+    }
+    return () => clearTimeout(submitTimer)
+  }, [isRecording, currentAnswer, isGeneratingFeedback, isFetchingNextQuestion])
 
   const restartPractice = () => {
     setStep('setup')
@@ -1809,77 +1824,87 @@ export default function InterviewCoachPage() {
                     </motion.div>
                   )}
 
-                  {/* Answer Input with Voice */}
-                  <div className="space-y-2">
+                  {/* Voice Answer Input */}
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="flex items-center gap-2">
-                        Your Answer
-                        {isRecording && (
-                          <span className="flex items-center gap-1 text-red-500 text-xs font-normal">
-                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                            Recording...
-                          </span>
-                        )}
-                      </Label>
-                      <div className="flex items-center gap-2">
-                        {recognitionSupported && (
-                          <Button
-                            variant={isRecording ? 'destructive' : 'outline'}
-                            size="sm"
-                            onClick={() => isRecording ? stopRecording() : startRecording()}
-                          >
-                            {isRecording ? (
-                              <>
-                                <MicOff className="mr-1 h-4 w-4" />
-                                Stop
-                              </>
-                            ) : (
-                              <>
-                                <Mic className="mr-1 h-4 w-4" />
-                                Speak
-                              </>
-                            )}
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowTips(!showTips)}
-                        >
-                          {showTips ? 'Hide Tips' : 'Show Tips'}
-                        </Button>
-                      </div>
+                      <Label>Your Answer</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTips(!showTips)}
+                      >
+                        {showTips ? 'Hide Tips' : 'Show Tips'}
+                      </Button>
                     </div>
+                    
                     {isRecording ? (
-                      <div className="flex items-center justify-center gap-3 py-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
-                        <div className="flex items-center gap-2">
-                          <Mic className="h-5 w-5 text-red-500 animate-pulse" />
-                          <span className="text-sm font-medium text-red-600 dark:text-red-400">Listening</span>
-                        </div>
-                        <div className="flex items-end gap-1 h-8">
-                          <span className="w-1 bg-red-400 rounded-full animate-pulse" style={{ height: '20%', animationDelay: '0ms' }} />
-                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '40%', animationDelay: '100ms' }} />
-                          <span className="w-1 bg-red-600 rounded-full animate-pulse" style={{ height: '60%', animationDelay: '200ms' }} />
-                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '80%', animationDelay: '300ms' }} />
-                          <span className="w-1 bg-red-600 rounded-full animate-pulse" style={{ height: '100%', animationDelay: '400ms' }} />
-                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '80%', animationDelay: '500ms' }} />
-                          <span className="w-1 bg-red-600 rounded-full animate-pulse" style={{ height: '60%', animationDelay: '600ms' }} />
-                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '40%', animationDelay: '700ms' }} />
-                          <span className="w-1 bg-red-400 rounded-full animate-pulse" style={{ height: '20%', animationDelay: '800ms' }} />
-                        </div>
-                      </div>
+                      <Card className="border-2 border-red-500 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30">
+                        <CardContent className="p-8">
+                          <div className="flex flex-col items-center justify-center gap-6">
+                            <div className="relative">
+                              <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20" />
+                              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center shadow-lg">
+                                <Mic className="h-10 w-10 text-white" />
+                              </div>
+                            </div>
+                            <div className="text-center space-y-2">
+                              <p className="text-lg font-semibold text-red-600 dark:text-red-400 flex items-center gap-2 justify-center">
+                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                Recording Your Answer
+                              </p>
+                              <p className="text-sm text-slate-600 dark:text-slate-400">Speak clearly and naturally</p>
+                            </div>
+                            <div className="flex items-end gap-2 h-16">
+                              <span className="w-2 bg-gradient-to-t from-red-400 to-red-600 rounded-full animate-pulse" style={{ height: '30%', animationDelay: '0ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '50%', animationDelay: '100ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-600 to-red-800 rounded-full animate-pulse" style={{ height: '70%', animationDelay: '200ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '90%', animationDelay: '300ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-600 to-red-800 rounded-full animate-pulse" style={{ height: '100%', animationDelay: '400ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '90%', animationDelay: '500ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-600 to-red-800 rounded-full animate-pulse" style={{ height: '70%', animationDelay: '600ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '50%', animationDelay: '700ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-red-400 to-red-600 rounded-full animate-pulse" style={{ height: '30%', animationDelay: '800ms', animationDuration: '1s' }} />
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="lg"
+                              onClick={stopRecording}
+                              className="mt-4"
+                            >
+                              <MicOff className="mr-2 h-5 w-5" />
+                              Stop & Submit
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ) : (
-                      <div className="space-y-2">
-                        <Textarea
-                          placeholder="Type your answer... Be specific and use examples from your experience."
-                          value={currentAnswer}
-                          onChange={(e) => setCurrentAnswer(e.target.value)}
-                          rows={6}
-                          className="resize-none"
-                          disabled={isFetchingNextQuestion}
-                        />
-                        <p className="text-xs text-slate-500 text-center">Or click 'Speak' to use voice input</p>
-                      </div>
+                      <Card className="border-2 border-dashed border-violet-300 dark:border-violet-700 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30">
+                        <CardContent className="p-8">
+                          <div className="flex flex-col items-center justify-center gap-4 text-center">
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900 dark:to-purple-900 flex items-center justify-center">
+                              <Mic className="h-8 w-8 text-violet-600 dark:text-violet-400" />
+                            </div>
+                            <div className="space-y-2">
+                              <h3 className="font-semibold text-lg text-slate-800 dark:text-slate-200">Ready to Answer</h3>
+                              <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md">
+                                Click the button below to start recording your answer. Speak naturally and the interview will automatically move to the next question.
+                              </p>
+                            </div>
+                            <Button
+                              size="lg"
+                              onClick={startRecording}
+                              className="mt-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+                              disabled={!recognitionSupported || isFetchingNextQuestion}
+                            >
+                              <Mic className="mr-2 h-5 w-5" />
+                              Start Recording
+                            </Button>
+                            {!recognitionSupported && (
+                              <p className="text-xs text-amber-600 dark:text-amber-400">Voice input not supported in this browser</p>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
                     )}
                   </div>
 
