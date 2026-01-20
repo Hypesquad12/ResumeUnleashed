@@ -623,14 +623,18 @@ export default function InterviewCoachPage() {
     // Cancel any ongoing speech
     synthRef.current.cancel()
     
-    const utterance = new SpeechSynthesisUtterance(text)
-    // Optimized settings for natural, calm speech
-    utterance.rate = 0.9  // Slightly slower for clarity
-    utterance.pitch = 1.0
-    utterance.volume = 1.0
-    
-    // Select the best available voice
-    const voices = synthRef.current.getVoices()
+    // Add small delay after cancel to prevent cutting off initial words
+    setTimeout(() => {
+      if (!synthRef.current) return
+      
+      const utterance = new SpeechSynthesisUtterance(text)
+      // Optimized settings for natural, calm speech
+      utterance.rate = 0.9  // Slightly slower for clarity
+      utterance.pitch = 1.0
+      utterance.volume = 1.0
+      
+      // Select the best available voice
+      const voices = synthRef.current.getVoices()
     
     // Priority order for interview-style voices
     const preferredVoiceNames = [
@@ -670,7 +674,8 @@ export default function InterviewCoachPage() {
       onComplete?.()
     }
     
-    synthRef.current.speak(utterance)
+      synthRef.current.speak(utterance)
+    }, 100)
   }, [speechSupported, audioEnabled])
   
   // Stop speaking
@@ -1818,7 +1823,7 @@ export default function InterviewCoachPage() {
                     <div className="relative">
                       <Textarea
                         placeholder={isRecording ? "Listening... speak your answer" : "Type or speak your answer... Be specific and use examples from your experience."}
-                        value={currentAnswer + (interimTranscript ? ` ${interimTranscript}` : '')}
+                        value={currentAnswer}
                         onChange={(e) => setCurrentAnswer(e.target.value)}
                         rows={6}
                         className={`resize-none ${isRecording ? 'border-red-300 bg-red-50/50' : ''}`}
@@ -1880,8 +1885,8 @@ export default function InterviewCoachPage() {
                         </>
                       ) : (
                         <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Submit & Get Feedback
+                          <ChevronRight className="mr-2 h-4 w-4" />
+                          Next Question
                         </>
                       )}
                     </Button>
