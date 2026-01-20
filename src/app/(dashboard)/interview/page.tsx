@@ -722,15 +722,24 @@ export default function InterviewCoachPage() {
     }
     
     recognitionRef.current.onend = () => {
-      // Restart if still recording
-      if (isRecording && recognitionRef.current) {
-        recognitionRef.current.start()
+      // Auto-restart on end to keep continuous recording
+      // Check if recognitionRef is still set (not manually stopped)
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start()
+        } catch (e) {
+          console.log('Recognition restart ended')
+        }
       }
     }
     
-    recognitionRef.current.start()
-    setIsRecording(true)
-  }, [recognitionSupported, isRecording])
+    try {
+      recognitionRef.current.start()
+      setIsRecording(true)
+    } catch (error) {
+      console.error('Failed to start recording:', error)
+    }
+  }, [recognitionSupported])
   
   const stopRecording = useCallback(() => {
     if (recognitionRef.current) {
@@ -1841,28 +1850,7 @@ export default function InterviewCoachPage() {
                         </Button>
                       </div>
                     </div>
-                    <div className="relative">
-                      <Textarea
-                        placeholder={isRecording ? "Listening... speak your answer" : "Type or speak your answer... Be specific and use examples from your experience."}
-                        value={currentAnswer}
-                        onChange={(e) => setCurrentAnswer(e.target.value)}
-                        rows={6}
-                        className={`resize-none ${isRecording ? 'border-red-300 bg-red-50/50' : ''}`}
-                        disabled={isFetchingNextQuestion}
-                      />
-                      {isRecording && (
-                        <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                          <div className="flex gap-0.5">
-                            <span className="w-1 h-3 bg-red-400 rounded animate-pulse" />
-                            <span className="w-1 h-4 bg-red-500 rounded animate-pulse delay-75" />
-                            <span className="w-1 h-3 bg-red-400 rounded animate-pulse delay-150" />
-                            <span className="w-1 h-5 bg-red-500 rounded animate-pulse delay-200" />
-                            <span className="w-1 h-3 bg-red-400 rounded animate-pulse delay-300" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    {isRecording && (
+                    {isRecording ? (
                       <div className="flex items-center justify-center gap-3 py-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
                         <div className="flex items-center gap-2">
                           <Mic className="h-5 w-5 text-red-500 animate-pulse" />
@@ -1879,6 +1867,18 @@ export default function InterviewCoachPage() {
                           <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '40%', animationDelay: '700ms' }} />
                           <span className="w-1 bg-red-400 rounded-full animate-pulse" style={{ height: '20%', animationDelay: '800ms' }} />
                         </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Textarea
+                          placeholder="Type your answer... Be specific and use examples from your experience."
+                          value={currentAnswer}
+                          onChange={(e) => setCurrentAnswer(e.target.value)}
+                          rows={6}
+                          className="resize-none"
+                          disabled={isFetchingNextQuestion}
+                        />
+                        <p className="text-xs text-slate-500 text-center">Or click 'Speak' to use voice input</p>
                       </div>
                     )}
                   </div>
