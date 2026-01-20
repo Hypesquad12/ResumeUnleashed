@@ -239,17 +239,17 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
           {filteredCustomizedResumes.map((resume) => (
             <Card key={resume.id} className="group border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 overflow-hidden flex flex-col h-full">
               <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+              <Badge variant="secondary" className="absolute top-3 right-3 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs z-10">
+                AI Customized
+              </Badge>
               <CardHeader className="flex flex-row items-start justify-between space-y-0 relative">
                 <div className="flex items-start gap-3">
                   <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-50 dark:from-emerald-900 dark:to-teal-900 flex items-center justify-center border border-emerald-200 dark:border-emerald-700 group-hover:border-emerald-300 dark:group-hover:border-emerald-600 transition-colors">
                     <Sparkles className="h-5 w-5 text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-500 transition-colors" />
                   </div>
                   <div>
-                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-200">
                       {resume.title}
-                      <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs">
-                        AI Customized
-                      </Badge>
                     </CardTitle>
                     <CardDescription className="flex items-center gap-1 text-xs mt-1">
                       <Clock className="h-3 w-3" />

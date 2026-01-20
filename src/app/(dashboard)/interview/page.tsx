@@ -1093,9 +1093,30 @@ export default function InterviewCoachPage() {
           return
         }
 
+        // Extract question text, handling JSON markdown blocks
+        let questionText = data.question || 'Please continue.'
+        
+        // Check if response is wrapped in markdown code block
+        if (typeof questionText === 'string' && questionText.includes('```json')) {
+          try {
+            // Extract JSON from markdown code block
+            const jsonMatch = questionText.match(/```json\s*(\{[\s\S]*?\})\s*```/)
+            if (jsonMatch) {
+              const parsed = JSON.parse(jsonMatch[1])
+              questionText = parsed.question || questionText
+            }
+          } catch (e) {
+            // If parsing fails, try to extract question directly
+            const questionMatch = questionText.match(/"question":\s*"([^"]+)"/)
+            if (questionMatch) {
+              questionText = questionMatch[1]
+            }
+          }
+        }
+        
         const nextQuestion: Question = {
           id: data.questionNumber || (questions[currentQuestion]?.id || currentQuestion + 1) + 1,
-          question: data.question || 'Please continue.',
+          question: questionText,
           type: (data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral',
           difficulty: interviewLevel === 'easy' ? 'easy' : interviewLevel === 'medium' ? 'medium' : 'hard',
           tips: getTipsForType((data.questionType === 'technical' || data.questionType === 'situational' || data.questionType === 'behavioral') ? data.questionType : 'behavioral'),
@@ -1841,10 +1862,25 @@ export default function InterviewCoachPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex justify-between text-sm text-slate-500">
-                      <span>{currentAnswer.split(' ').filter(w => w).length} words</span>
-                      <span>Aim for 50-150 words</span>
-                    </div>
+                    {isRecording && (
+                      <div className="flex items-center justify-center gap-3 py-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
+                        <div className="flex items-center gap-2">
+                          <Mic className="h-5 w-5 text-red-500 animate-pulse" />
+                          <span className="text-sm font-medium text-red-600 dark:text-red-400">Listening</span>
+                        </div>
+                        <div className="flex items-end gap-1 h-8">
+                          <span className="w-1 bg-red-400 rounded-full animate-pulse" style={{ height: '20%', animationDelay: '0ms' }} />
+                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '40%', animationDelay: '100ms' }} />
+                          <span className="w-1 bg-red-600 rounded-full animate-pulse" style={{ height: '60%', animationDelay: '200ms' }} />
+                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '80%', animationDelay: '300ms' }} />
+                          <span className="w-1 bg-red-600 rounded-full animate-pulse" style={{ height: '100%', animationDelay: '400ms' }} />
+                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '80%', animationDelay: '500ms' }} />
+                          <span className="w-1 bg-red-600 rounded-full animate-pulse" style={{ height: '60%', animationDelay: '600ms' }} />
+                          <span className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: '40%', animationDelay: '700ms' }} />
+                          <span className="w-1 bg-red-400 rounded-full animate-pulse" style={{ height: '20%', animationDelay: '800ms' }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions */}
