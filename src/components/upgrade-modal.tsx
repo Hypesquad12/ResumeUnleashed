@@ -43,9 +43,9 @@ export function UpgradeModal({ open, onClose, feature, current, limit, tier, isT
       }
 
       toast.success('🎉 Payment successful! Your subscription is now active.')
-      // Redirect to conversion page for Google Ads tracking, then to dashboard
+      // Redirect to success page with payment type for Google Ads conversion tracking
       setTimeout(() => {
-        window.location.href = '/conversion/mandate-success'
+        window.location.href = '/conversion/mandate-success?type=payment'
       }, 1500)
     } catch (error) {
       console.error('Activation error:', error)

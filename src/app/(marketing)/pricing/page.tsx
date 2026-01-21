@@ -187,9 +187,8 @@ function PricingPageContent() {
               
               // Show success message and redirect
               if (data.isAuthentication) {
-                alert('✓ Mandate authenticated successfully! Your subscription is now active.')
-                // Redirect to static conversion tracking page for Google Ads
-                router.push('/conversion/mandate-success')
+                // Redirect to success page with mandate type for Google Ads conversion tracking
+                router.push('/conversion/mandate-success?type=mandate')
               } else {
                 alert('✓ Payment verified successfully!')
                 router.push('/settings')
