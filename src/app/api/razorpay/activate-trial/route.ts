@@ -122,25 +122,41 @@ export async function POST() {
       )
     }
 
-    // Charge the subscription immediately (skip remaining trial days)
-    const chargeResponse = await fetch(
-      `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/charge`,
+    // Update subscription to start immediately (this triggers the first charge)
+    // For authenticated subscriptions with future charge_at, we need to update start_at to now
+    console.log('[ACTIVATE-TRIAL] Updating subscription to start immediately...')
+    const currentTimestamp = Math.floor(Date.now() / 1000)
+    
+    const updateResponse = await fetch(
+      `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}`,
       {
-        method: 'POST',
+        method: 'PATCH',
         headers: {
           'Authorization': `Basic ${auth}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          start_at: currentTimestamp,
+          schedule_change_at: 'now'
+        })
       }
     )
 
-    if (!chargeResponse.ok) {
-      const errorData = await chargeResponse.json()
-      console.error('Razorpay charge error:', errorData)
-      throw new Error(errorData.error?.description || 'Failed to charge subscription')
+    console.log('[ACTIVATE-TRIAL] Update response status:', updateResponse.status)
+
+    if (!updateResponse.ok) {
+      const errorData = await updateResponse.json()
+      console.error('[ACTIVATE-TRIAL] Razorpay update error:', errorData)
+      throw new Error(errorData.error?.description || 'Failed to activate subscription')
     }
 
-    const chargeData = await chargeResponse.json()
+    const updatedSubscription = await updateResponse.json()
+    console.log('[ACTIVATE-TRIAL] Subscription updated successfully:', {
+      id: updatedSubscription.id,
+      status: updatedSubscription.status,
+      start_at: updatedSubscription.start_at,
+      charge_at: updatedSubscription.charge_at
+    })
 
     // Update subscription to mark trial as inactive
     const { error: updateError } = await supabase
@@ -158,7 +174,8 @@ export async function POST() {
     return NextResponse.json({
       success: true,
       message: 'Subscription activated successfully',
-      paymentId: chargeData.id
+      subscriptionId: updatedSubscription.id,
+      status: updatedSubscription.status
     })
 
   } catch (error) {

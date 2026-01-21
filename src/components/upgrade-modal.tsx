@@ -42,9 +42,10 @@ export function UpgradeModal({ open, onClose, feature, current, limit, tier, isT
         throw new Error(data.error || 'Failed to activate subscription')
       }
 
-      toast.success('Subscription activated! Redirecting...')
+      toast.success('🎉 Payment successful! Your subscription is now active.')
+      // Redirect to conversion page for Google Ads tracking, then to dashboard
       setTimeout(() => {
-        window.location.href = '/dashboard'
+        window.location.href = '/conversion/mandate-success'
       }, 1500)
     } catch (error) {
       console.error('Activation error:', error)
