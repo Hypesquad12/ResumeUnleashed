@@ -185,16 +185,11 @@ function PricingPageContent() {
               const data = await verifyResponse.json()
               setIsLoading(false)
               
-              // Show success message
+              // Show success message and redirect
               if (data.isAuthentication) {
                 alert('✓ Mandate authenticated successfully! Your subscription is now active.')
-                
-                // Redirect to conversion tracking page for Google Ads tracking
-                if (data.conversionToken) {
-                  router.push(`/api/conversion/track?token=${data.conversionToken}`)
-                } else {
-                  router.push('/settings')
-                }
+                // Redirect to static conversion tracking page for Google Ads
+                router.push('/conversion/mandate-success')
               } else {
                 alert('✓ Payment verified successfully!')
                 router.push('/settings')

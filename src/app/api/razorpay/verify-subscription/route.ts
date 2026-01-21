@@ -102,23 +102,6 @@ export async function POST(request: NextRequest) {
 
     console.log('Updated subscription:', updatedData)
 
-    // Generate one-time conversion tracking token for Google Ads
-    const conversionToken = crypto.randomUUID()
-    const { error: tokenError } = await (supabase as any)
-      .from('conversion_tokens')
-      .insert({
-        token: conversionToken,
-        user_id: user.id,
-        subscription_id: subscriptionData.id,
-        event_type: 'mandate_setup',
-        expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour expiry
-      })
-
-    if (tokenError) {
-      console.error('Failed to create conversion token:', tokenError)
-      // Don't fail the request if token creation fails
-    }
-
     // Extract tier from plan_id (format: plan_RyecfdilZvSwQR)
     // We need to determine tier from the subscription notes stored during creation
     // For now, set a default tier that will be updated by webhook
@@ -130,8 +113,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true,
       isAuthentication,
-      message: isAuthentication ? 'Mandate authenticated successfully' : 'Payment verified successfully',
-      conversionToken: isAuthentication ? conversionToken : undefined
+      message: isAuthentication ? 'Mandate authenticated successfully' : 'Payment verified successfully'
     })
   } catch (error) {
     console.error('Subscription verification error:', error)
