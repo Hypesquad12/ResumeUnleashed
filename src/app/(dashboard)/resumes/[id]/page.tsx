@@ -236,9 +236,9 @@ export default function ResumeEditorPage() {
       setSaving(false)
     } else {
       toast.success('Resume saved! Redirecting to AI Customize...')
-      // Redirect to customize page after successful save
+      // Redirect to customize page with resume ID
       setTimeout(() => {
-        router.push('/customize')
+        router.push(`/customize?resume=${resumeId}`)
       }, 1000)
     }
   }
