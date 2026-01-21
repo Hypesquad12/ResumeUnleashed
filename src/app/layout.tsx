@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -116,17 +113,6 @@ export default function RootLayout({
             `
           }}
         />
-        {/* Google Tag Manager */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-M29CFSBQ');`
-          }}
-        />
-        {/* End Google Tag Manager */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" href="/images/logo.png" />
         <link rel="apple-touch-icon" href="/images/logo.png" />
@@ -157,9 +143,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <GoogleAnalytics />
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
