@@ -1188,9 +1188,19 @@ export default function InterviewCoachPage() {
     setAnswers([...answers, newAnswer])
 
     if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1)
+      const nextQ = currentQuestion + 1
+      setCurrentQuestion(nextQ)
       setCurrentAnswer('')
       setTimer(0)
+      setIsTimerRunning(true)
+
+      setTimeout(() => {
+        speakText(questions[nextQ].question, () => {
+          if (recognitionSupported) {
+            setTimeout(() => startRecording(), 800)
+          }
+        })
+      }, 500)
     } else {
       const allAnswers = [...answers, newAnswer]
       const avgScore = computeAverageScore(allAnswers)
