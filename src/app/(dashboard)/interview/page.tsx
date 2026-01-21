@@ -353,7 +353,7 @@ export default function InterviewCoachPage() {
   
   // Upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free' })
+  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free', isTrialActive: false })
   
   // Audio states
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -853,7 +853,8 @@ export default function InterviewCoachPage() {
                 setUpgradeInfo({ 
                   current: 1, 
                   limit: 1, 
-                  tier: sub.tier 
+                  tier: sub.tier,
+                  isTrialActive: sub.isTrialActive || false
                 })
                 setShowUpgradeModal(true)
               }
@@ -890,7 +891,8 @@ export default function InterviewCoachPage() {
       setUpgradeInfo({ 
         current: limitCheck.current, 
         limit: limitCheck.limit, 
-        tier: limitCheck.tier 
+        tier: limitCheck.tier,
+        isTrialActive: limitCheck.isTrialActive || false
       })
       setShowUpgradeModal(true)
       return
@@ -1195,8 +1197,11 @@ export default function InterviewCoachPage() {
       setOverallScore(avgScore)
       setStep('review')
       
-      // Save session to database
-      saveSession(allAnswers, avgScore)
+      // Only save session if user answered at least one question (don't count skips toward usage limit)
+      const hasAnsweredAnyQuestion = allAnswers.some(a => a.answer && a.answer.trim().length > 0)
+      if (hasAnsweredAnyQuestion) {
+        saveSession(allAnswers, avgScore)
+      }
     }
   }
   
@@ -1838,38 +1843,37 @@ export default function InterviewCoachPage() {
                     </div>
                     
                     {isRecording ? (
-                      <Card className="border-2 border-red-500 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30">
+                      <Card className="border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30">
                         <CardContent className="p-8">
                           <div className="flex flex-col items-center justify-center gap-6">
                             <div className="relative">
-                              <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20" />
-                              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center shadow-lg">
+                              <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-20" />
+                              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
                                 <Mic className="h-10 w-10 text-white" />
                               </div>
                             </div>
                             <div className="text-center space-y-2">
-                              <p className="text-lg font-semibold text-red-600 dark:text-red-400 flex items-center gap-2 justify-center">
-                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                              <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-2 justify-center">
+                                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                                 Recording Your Answer
                               </p>
                               <p className="text-sm text-slate-600 dark:text-slate-400">Speak clearly and naturally</p>
                             </div>
                             <div className="flex items-end gap-2 h-16">
-                              <span className="w-2 bg-gradient-to-t from-red-400 to-red-600 rounded-full animate-pulse" style={{ height: '30%', animationDelay: '0ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '50%', animationDelay: '100ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-600 to-red-800 rounded-full animate-pulse" style={{ height: '70%', animationDelay: '200ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '90%', animationDelay: '300ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-600 to-red-800 rounded-full animate-pulse" style={{ height: '100%', animationDelay: '400ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '90%', animationDelay: '500ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-600 to-red-800 rounded-full animate-pulse" style={{ height: '70%', animationDelay: '600ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-500 to-red-700 rounded-full animate-pulse" style={{ height: '50%', animationDelay: '700ms', animationDuration: '1s' }} />
-                              <span className="w-2 bg-gradient-to-t from-red-400 to-red-600 rounded-full animate-pulse" style={{ height: '30%', animationDelay: '800ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-400 to-emerald-600 rounded-full animate-pulse" style={{ height: '30%', animationDelay: '0ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-500 to-emerald-700 rounded-full animate-pulse" style={{ height: '50%', animationDelay: '100ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-600 to-green-800 rounded-full animate-pulse" style={{ height: '70%', animationDelay: '200ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-500 to-emerald-700 rounded-full animate-pulse" style={{ height: '90%', animationDelay: '300ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-600 to-green-800 rounded-full animate-pulse" style={{ height: '100%', animationDelay: '400ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-500 to-emerald-700 rounded-full animate-pulse" style={{ height: '90%', animationDelay: '500ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-600 to-green-800 rounded-full animate-pulse" style={{ height: '70%', animationDelay: '600ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-500 to-emerald-700 rounded-full animate-pulse" style={{ height: '50%', animationDelay: '700ms', animationDuration: '1s' }} />
+                              <span className="w-2 bg-gradient-to-t from-emerald-400 to-emerald-600 rounded-full animate-pulse" style={{ height: '30%', animationDelay: '800ms', animationDuration: '1s' }} />
                             </div>
                             <Button
-                              variant="destructive"
                               size="lg"
                               onClick={stopRecording}
-                              className="mt-4"
+                              className="mt-4 bg-emerald-600 hover:bg-emerald-700"
                             >
                               <MicOff className="mr-2 h-5 w-5" />
                               Stop & Submit
@@ -2436,6 +2440,7 @@ export default function InterviewCoachPage() {
       current={upgradeInfo.current}
       limit={upgradeInfo.limit}
       tier={upgradeInfo.tier}
+      isTrialActive={upgradeInfo.isTrialActive}
     />
     </>
   )

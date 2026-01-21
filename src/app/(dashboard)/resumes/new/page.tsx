@@ -88,7 +88,7 @@ export default function NewResumePage() {
   
   // Upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free' })
+  const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free', isTrialActive: false })
 
   const handleCreateResume = async () => {
     setLoading(true)
@@ -1176,6 +1176,7 @@ export default function NewResumePage() {
         current={upgradeInfo.current}
         limit={upgradeInfo.limit}
         tier={upgradeInfo.tier}
+        isTrialActive={upgradeInfo.isTrialActive}
       />
     </div>
   )
