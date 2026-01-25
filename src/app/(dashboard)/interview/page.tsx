@@ -343,6 +343,7 @@ export default function InterviewCoachPage() {
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [showTips, setShowTips] = useState(true)
   const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [overallScore, setOverallScore] = useState(0)
   const [aiThreadId, setAiThreadId] = useState<string | null>(null)
   const [aiMessages, setAiMessages] = useState<any[]>([])
@@ -705,6 +706,12 @@ export default function InterviewCoachPage() {
   const startRecording = useCallback(() => {
     if (!recognitionSupported) return
     
+    // Prevent duplicate instances
+    if (isRecordingRef.current || recognitionRef.current) {
+      console.log('Recording already active, skipping start')
+      return
+    }
+    
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     recognitionRef.current = new SpeechRecognition()
     
@@ -1007,7 +1014,14 @@ export default function InterviewCoachPage() {
     }, 300)
   }
 
-  const submitAnswer = async () => {
+  const submitAnswer = useCallback(async () => {
+    // Prevent double submissions
+    if (isSubmitting || isGeneratingFeedback) {
+      console.log('Already submitting, skipping')
+      return
+    }
+    
+    setIsSubmitting(true)
     setIsGeneratingFeedback(true)
     setIsTimerRunning(false)
     stopRecording()
@@ -1126,6 +1140,7 @@ export default function InterviewCoachPage() {
           setStep('review')
           saveSession(allAnswers, avgScore)
           setIsFetchingNextQuestion(false)
+          setIsSubmitting(false)
           return
         }
 
@@ -1201,16 +1216,23 @@ export default function InterviewCoachPage() {
       setStep('review')
       saveSession(allAnswers, avgScore)
     }
-  }
+    
+    // Reset submitting flag
+    setIsSubmitting(false)
+  }, [isSubmitting, isGeneratingFeedback, stopRecording, currentAnswer, questions, currentQuestion, timer, supabase, jobTitle, jobDescription, selectedResumeData, aiMode, aiThreadId, aiMessages, interviewRound, interviewLevel, answers, recognitionSupported, startRecording, saveSession])
 
-  const skipQuestion = () => {
+  const skipQuestion = useCallback(() => {
+    // Stop recording and speech first
+    stopRecording()
+    stopSpeaking()
+    
     const newAnswer: Answer = {
       questionId: questions[currentQuestion].id,
       answer: '',
       duration: 0,
       feedback: { score: 0, strengths: [], improvements: ['Question was skipped'], sampleAnswer: '' },
     }
-    setAnswers([...answers, newAnswer])
+    setAnswers(prev => [...prev, newAnswer])
 
     if (currentQuestion < questions.length - 1) {
       const nextQ = currentQuestion + 1
@@ -1238,22 +1260,23 @@ export default function InterviewCoachPage() {
         saveSession(allAnswers, avgScore)
       }
     }
-  }
+  }, [stopRecording, stopSpeaking, questions, currentQuestion, answers, recognitionSupported, startRecording, saveSession, speakText])
+
   
   // Auto-submit when recording stops
   useEffect(() => {
     let submitTimer: NodeJS.Timeout
-    if (!isRecording && currentAnswer.trim()) {
+    if (!isRecording && currentAnswer.trim() && !isSubmitting && !isGeneratingFeedback && !isFetchingNextQuestion) {
       // Wait 500ms after recording stops to auto-submit
       submitTimer = setTimeout(() => {
-        if (currentAnswer.trim() && !isGeneratingFeedback && !isFetchingNextQuestion) {
+        if (currentAnswer.trim() && !isSubmitting && !isGeneratingFeedback && !isFetchingNextQuestion) {
           stopSpeaking()
           submitAnswer()
         }
       }, 500)
     }
     return () => clearTimeout(submitTimer)
-  }, [isRecording, currentAnswer, isGeneratingFeedback, isFetchingNextQuestion])
+  }, [isRecording, currentAnswer, isSubmitting, isGeneratingFeedback, isFetchingNextQuestion, stopSpeaking, submitAnswer])
 
   const restartPractice = () => {
     setStep('setup')
@@ -1975,10 +1998,10 @@ export default function InterviewCoachPage() {
                         stopSpeaking()
                         submitAnswer()
                       }}
-                      disabled={!currentAnswer.trim() || isGeneratingFeedback || isFetchingNextQuestion}
+                      disabled={!currentAnswer.trim() || isSubmitting || isGeneratingFeedback || isFetchingNextQuestion}
                       className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
                     >
-                      {isGeneratingFeedback ? (
+                      {isSubmitting || isGeneratingFeedback ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Analyzing...
