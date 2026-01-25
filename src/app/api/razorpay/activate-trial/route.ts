@@ -153,12 +153,20 @@ export async function POST() {
     console.log('[ACTIVATE-TRIAL] Creating new subscription with immediate charge...')
     const currentTimestamp = Math.floor(Date.now() / 1000) + 60 // Start in 1 minute
     
+    // Get callback URL for redirect after payment
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://resumeunleashed.com'
+    
     const subscriptionBody: any = {
       plan_id: subscription.plan_id,
       total_count: subscription.billing_cycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
       start_at: currentTimestamp,
+      callback_url: `${baseUrl}/conversion/mandate-success?type=payment`,
+      notify_info: {
+        notify_email: user.email,
+        notify_phone: user.phone || undefined
+      },
       notes: {
         user_id: user.id,
         plan_id: subscription.tier === 'premium' ? 'india-premium' : 'india-pro',

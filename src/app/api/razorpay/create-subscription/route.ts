@@ -146,6 +146,7 @@ export async function POST(request: NextRequest) {
       quantity: 1,
       customer_notify: 1,
       start_at: firstChargeTime, // When first charge will happen
+      callback_url: `${baseUrl}/conversion/mandate-success?type=mandate`,
       addons: [],
       notes: {
         user_id: user.id,
