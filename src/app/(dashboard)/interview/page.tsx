@@ -385,6 +385,7 @@ export default function InterviewCoachPage() {
   const voicesLoadedRef = useRef<boolean>(false)
   const practiceSetupRef = useRef<HTMLDivElement | null>(null)
   const isRecordingRef = useRef<boolean>(false)
+  const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const supabase = createClient()
   
@@ -621,11 +622,17 @@ export default function InterviewCoachPage() {
       return
     }
     
+    // Clear any pending speech timeout
+    if (speechTimeoutRef.current) {
+      clearTimeout(speechTimeoutRef.current)
+      speechTimeoutRef.current = null
+    }
+    
     // Cancel any ongoing speech
     synthRef.current.cancel()
     
     // Add small delay after cancel to prevent cutting off initial words
-    setTimeout(() => {
+    speechTimeoutRef.current = setTimeout(() => {
       if (!synthRef.current) return
       
       const utterance = new SpeechSynthesisUtterance(text)
@@ -676,11 +683,18 @@ export default function InterviewCoachPage() {
     }
     
       synthRef.current.speak(utterance)
+      speechTimeoutRef.current = null
     }, 100)
   }, [speechSupported, audioEnabled])
   
   // Stop speaking
   const stopSpeaking = useCallback(() => {
+    // Clear pending speech timeout
+    if (speechTimeoutRef.current) {
+      clearTimeout(speechTimeoutRef.current)
+      speechTimeoutRef.current = null
+    }
+    
     if (synthRef.current) {
       synthRef.current.cancel()
       setIsSpeaking(false)
@@ -823,6 +837,13 @@ export default function InterviewCoachPage() {
   useEffect(() => {
     return () => {
       isRecordingRef.current = false
+      
+      // Clear pending speech timeout
+      if (speechTimeoutRef.current) {
+        clearTimeout(speechTimeoutRef.current)
+        speechTimeoutRef.current = null
+      }
+      
       if (recognitionRef.current) {
         recognitionRef.current.stop()
         recognitionRef.current = null
