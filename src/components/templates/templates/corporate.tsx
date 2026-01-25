@@ -58,7 +58,7 @@ export function CorporateTemplate({ data, className }: TemplateProps) {
                     {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
                   </span>
                 </div>
-                {exp.description && (
+                {exp.description && typeof exp.description === 'string' && (
                   <ul className="mt-2 text-sm text-gray-600 space-y-1">
                     {exp.description.split('\n').filter(b => b.trim()).map((bullet, i) => (
                       <li key={i} className="flex gap-2">

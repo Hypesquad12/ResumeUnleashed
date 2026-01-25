@@ -77,7 +77,9 @@ export const ExperienceItem = ({
   showBullets?: boolean
   className?: string 
 }) => {
-  const bullets = exp.description.split('\n').filter(b => b.trim())
+  const bullets = (exp.description && typeof exp.description === 'string' 
+    ? exp.description.split('\n') 
+    : []).filter(b => b.trim())
   
   return (
     <div className={cn('mb-4', className)}>
