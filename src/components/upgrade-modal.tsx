@@ -42,7 +42,15 @@ export function UpgradeModal({ open, onClose, feature, current, limit, tier, isT
         throw new Error(data.error || 'Failed to activate subscription')
       }
 
-      toast.success('🎉 Payment successful! Your subscription is now active.')
+      // If new subscription requires authentication, open payment link
+      if (data.requiresAuthentication && data.shortUrl) {
+        toast.success('Opening payment authentication...')
+        window.location.href = data.shortUrl
+        return
+      }
+
+      // If mandate is already authenticated, show success and redirect
+      toast.success('🎉 Payment activated! Your subscription will be charged shortly.')
       // Redirect to success page with payment type for Google Ads conversion tracking
       setTimeout(() => {
         window.location.href = '/conversion/mandate-success?type=payment'

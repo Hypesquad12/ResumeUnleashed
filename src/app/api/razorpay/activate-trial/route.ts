@@ -122,73 +122,109 @@ export async function POST() {
       )
     }
 
-    // Update subscription to start immediately (this triggers the first charge)
-    // For authenticated subscriptions with future charge_at, we need to update start_at to now
-    console.log('[ACTIVATE-TRIAL] Updating subscription to start immediately...')
-    const currentTimestamp = Math.floor(Date.now() / 1000)
+    // Cancel existing subscription and create new one with immediate charge
+    // This approach avoids "payment mode is up" errors from Razorpay
+    console.log('[ACTIVATE-TRIAL] Cancelling existing subscription:', subscription.razorpay_subscription_id)
     
-    const updateResponse = await fetch(
-      `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}`,
+    const cancelResponse = await fetch(
+      `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/cancel`,
       {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
           'Authorization': `Basic ${auth}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          start_at: currentTimestamp,
-          schedule_change_at: 'now'
+          cancel_at_cycle_end: 0 // Cancel immediately
         })
       }
     )
 
-    console.log('[ACTIVATE-TRIAL] Update response status:', updateResponse.status)
-
-    if (!updateResponse.ok) {
-      const errorData = await updateResponse.json()
-      console.error('[ACTIVATE-TRIAL] Razorpay update error:', errorData)
-      
-      // Handle specific Razorpay errors
-      const errorDescription = errorData.error?.description || ''
-      if (errorDescription.includes('payment mode')) {
-        return NextResponse.json(
-          { 
-            error: 'Your subscription is currently processing a payment. Please wait a few minutes and try again.',
-            errorCode: 'PAYMENT_IN_PROGRESS'
-          },
-          { status: 400 }
-        )
-      }
-      
-      throw new Error(errorDescription || 'Failed to activate subscription')
+    if (!cancelResponse.ok) {
+      const errorData = await cancelResponse.json()
+      console.error('[ACTIVATE-TRIAL] Cancel error:', errorData)
+      // Continue anyway - we'll try to create a new subscription
+    } else {
+      console.log('[ACTIVATE-TRIAL] Subscription cancelled successfully')
     }
 
-    const updatedSubscription = await updateResponse.json()
-    console.log('[ACTIVATE-TRIAL] Subscription updated successfully:', {
-      id: updatedSubscription.id,
-      status: updatedSubscription.status,
-      start_at: updatedSubscription.start_at,
-      charge_at: updatedSubscription.charge_at
+    // Create new subscription with immediate charge (start_at = now + 1 minute)
+    // Pass customer_id to reuse existing mandate and avoid re-authentication
+    console.log('[ACTIVATE-TRIAL] Creating new subscription with immediate charge...')
+    const currentTimestamp = Math.floor(Date.now() / 1000) + 60 // Start in 1 minute
+    
+    const subscriptionBody: any = {
+      plan_id: subscription.plan_id,
+      total_count: subscription.billing_cycle === 'annual' ? 1 : 12,
+      quantity: 1,
+      customer_notify: 1,
+      start_at: currentTimestamp,
+      notes: {
+        user_id: user.id,
+        plan_id: subscription.tier === 'premium' ? 'india-premium' : 'india-pro',
+        region: subscription.region,
+        tier: subscription.tier,
+        billing_cycle: subscription.billing_cycle,
+        trial_days: '0',
+        returning_customer: 'true',
+        activated_early: 'true'
+      }
+    }
+    
+    // Add customer_id if available to reuse existing mandate
+    if (razorpaySubscription.customer_id) {
+      subscriptionBody.customer_id = razorpaySubscription.customer_id
+      console.log('[ACTIVATE-TRIAL] Reusing customer_id:', razorpaySubscription.customer_id)
+    }
+    
+    const newSubResponse = await fetch(
+      'https://api.razorpay.com/v1/subscriptions',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(subscriptionBody)
+      }
+    )
+
+    if (!newSubResponse.ok) {
+      const errorData = await newSubResponse.json()
+      console.error('[ACTIVATE-TRIAL] Create new subscription error:', errorData)
+      throw new Error(errorData.error?.description || 'Failed to create new subscription')
+    }
+
+    const newSubscription = await newSubResponse.json()
+    console.log('[ACTIVATE-TRIAL] New subscription created:', {
+      id: newSubscription.id,
+      status: newSubscription.status,
+      start_at: newSubscription.start_at,
+      short_url: newSubscription.short_url
     })
 
-    // Update subscription to mark trial as inactive
+    // Update database with new subscription ID and mark trial as inactive
     const { error: updateError } = await supabase
       .from('subscriptions')
       .update({ 
+        razorpay_subscription_id: newSubscription.id,
+        status: 'authenticated',
         trial_active: false,
         updated_at: new Date().toISOString()
       })
       .eq('id', subscription.id)
 
     if (updateError) {
-      console.error('Failed to update trial status:', updateError)
+      console.error('Failed to update subscription in database:', updateError)
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Subscription activated successfully',
-      subscriptionId: updatedSubscription.id,
-      status: updatedSubscription.status
+      message: 'Subscription activated successfully. Please complete mandate authentication.',
+      subscriptionId: newSubscription.id,
+      status: newSubscription.status,
+      shortUrl: newSubscription.short_url,
+      requiresAuthentication: newSubscription.status === 'created'
     })
 
   } catch (error) {
