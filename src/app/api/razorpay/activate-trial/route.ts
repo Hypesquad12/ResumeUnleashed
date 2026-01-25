@@ -148,10 +148,10 @@ export async function POST() {
       console.log('[ACTIVATE-TRIAL] Subscription cancelled successfully')
     }
 
-    // Create new subscription with immediate charge (start_at = now + 1 minute)
+    // Create new subscription with immediate charge (start_at = now + 5 seconds)
     // Pass customer_id to reuse existing mandate and avoid re-authentication
     console.log('[ACTIVATE-TRIAL] Creating new subscription with immediate charge...')
-    const currentTimestamp = Math.floor(Date.now() / 1000) + 60 // Start in 1 minute
+    const currentTimestamp = Math.floor(Date.now() / 1000) + 5 // Start in 5 seconds
     
     // Get callback URL for redirect after payment
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://resumeunleashed.com'
