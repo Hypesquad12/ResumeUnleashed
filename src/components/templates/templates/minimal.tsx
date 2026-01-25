@@ -39,8 +39,15 @@ export function MinimalTemplate({ data, className }: TemplateProps) {
                   {formatDate(exp.startDate)} — {exp.current ? 'Present' : formatDate(exp.endDate)}
                 </span>
               </div>
-              {exp.description && (
-                <p className="mt-2 text-sm text-gray-600">{exp.description}</p>
+              {exp.description && typeof exp.description === 'string' && (
+                <ul className="mt-2 text-sm text-gray-600 space-y-1 list-none">
+                  {exp.description.split('\n').filter(b => b.trim()).map((bullet, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="text-gray-400">•</span>
+                      <span>{bullet.replace(/^[-•]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           ))}

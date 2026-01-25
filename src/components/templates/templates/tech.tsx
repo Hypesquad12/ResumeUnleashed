@@ -55,8 +55,15 @@ export function TechTemplate({ data, className }: TemplateProps) {
                       {formatDate(exp.startDate)} → {exp.current ? 'present' : formatDate(exp.endDate)}
                     </span>
                   </div>
-                  {exp.description && (
-                    <p className="mt-3 text-sm text-gray-400">{exp.description}</p>
+                  {exp.description && typeof exp.description === 'string' && (
+                    <ul className="mt-3 text-sm text-gray-400 space-y-1 list-none">
+                      {exp.description.split('\n').filter(b => b.trim()).map((bullet, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="text-green-400 font-mono">›</span>
+                          <span>{bullet.replace(/^[-•]\s*/, '')}</span>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
               ))}

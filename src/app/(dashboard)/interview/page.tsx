@@ -1188,10 +1188,12 @@ export default function InterviewCoachPage() {
             }
           })
         }, 500)
+        setIsSubmitting(false)
         return
       } catch (error) {
         console.error('Interview respond error (fallback flow):', error)
         setIsFetchingNextQuestion(false)
+        setIsSubmitting(false)
       }
     }
 
