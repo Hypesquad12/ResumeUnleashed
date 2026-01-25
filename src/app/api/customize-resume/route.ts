@@ -135,16 +135,18 @@ Please analyze this job description and AGGRESSIVELY customize the resume to mat
 MANDATORY REQUIREMENTS:
 1. COMPLETELY REWRITE the professional summary (100% change) to directly address the job requirements
 2. MODIFY job titles/role names in experience section to align with target role terminology
-3. REWRITE at least 50% of experience bullet points using job description keywords and phrases
-4. ADD 5-10 new relevant skills from the job description and common industry skills for this role
-5. EXPAND the skills section to include:
+3. FORMAT each experience description as 3-5 BULLET POINTS (start with "• " and separate with "\n")
+4. ENSURE proper spacing after periods in all text. Every period should be followed by a space
+5. REWRITE at least 50% of experience bullet points using job description keywords and phrases
+6. ADD 5-10 new relevant skills from the job description and common industry skills for this role
+7. EXPAND the skills section to include:
    - All technical skills, tools, and technologies mentioned in the JD
    - Related skills commonly required for this role
    - Both technical and soft skills from the JD
-6. Use exact terminology and buzzwords from the job description throughout
-7. Add quantifiable metrics to achievements where possible
-8. SET match_score between 90-98% (NEVER below 90%)
-9. GENERATE a professional cover letter (3-4 paragraphs) tailored to this specific job and company - MUST extract and use the actual company name from the job description (use it 2-3 times, never use placeholders like "[Company Name]")
+8. Use exact terminology and buzzwords from the job description throughout
+9. Add quantifiable metrics to achievements in bullet points (numbers, percentages, scale)
+10. SET match_score between 90-98% (NEVER below 90%)
+11. GENERATE a professional cover letter (3-4 paragraphs) tailored to this specific job and company - MUST extract and use the actual company name from the job description (use it 2-3 times, never use placeholders like "[Company Name]")
 
 SKILLS EXTRACTION:
 - Extract EVERY skill, tool, technology, and qualification mentioned in the job description
@@ -156,6 +158,15 @@ ROLE TITLE MODIFICATION:
 - If the candidate's title is similar but not exact, change it to match the target role
 - Examples: "Developer" → "Software Engineer", "Analyst" → "Data Scientist", "Manager" → "Senior Manager"
 - Ensure the modified title is justified by their actual responsibilities
+
+EXPERIENCE DESCRIPTION FORMATTING (CRITICAL):
+- Format each experience description as BULLET POINTS separated by newlines (\n)
+- Start each bullet with "• " (bullet character followed by space)
+- Write 3-5 bullet points per experience
+- Ensure proper spacing after periods. Add a space after every period followed by text
+- Each bullet should be a complete, professional statement with proper grammar
+- Include quantifiable metrics where possible (numbers, percentages, scale)
+- Example format: "• Managed team of 5 developers. Delivered 10+ projects on time. Increased efficiency by 30%"
 
 Return a JSON object with this exact structure:
 {
@@ -173,7 +184,7 @@ Return a JSON object with this exact structure:
         "startDate": "...",
         "endDate": "...",
         "current": false,
-        "description": "REWRITTEN bullet points with JD keywords and quantifiable achievements"
+        "description": "• Bullet point 1 with JD keywords and quantifiable achievements\n• Bullet point 2 with proper spacing after periods. Each sentence should flow naturally\n• Bullet point 3 showcasing specific accomplishments"
       }
     ],
     "education": [ ... ],

@@ -384,6 +384,7 @@ export default function InterviewCoachPage() {
   const synthRef = useRef<SpeechSynthesis | null>(null)
   const voicesLoadedRef = useRef<boolean>(false)
   const practiceSetupRef = useRef<HTMLDivElement | null>(null)
+  const isRecordingRef = useRef<boolean>(false)
 
   const supabase = createClient()
   
@@ -723,8 +724,8 @@ export default function InterviewCoachPage() {
     
     recognitionRef.current.onend = () => {
       // Auto-restart on end to keep continuous recording
-      // Check if recognitionRef is still set (not manually stopped)
-      if (recognitionRef.current) {
+      // Only restart if we're still supposed to be recording
+      if (recognitionRef.current && isRecordingRef.current) {
         try {
           recognitionRef.current.start()
         } catch (e) {
@@ -736,12 +737,14 @@ export default function InterviewCoachPage() {
     try {
       recognitionRef.current.start()
       setIsRecording(true)
+      isRecordingRef.current = true
     } catch (error) {
       console.error('Failed to start recording:', error)
     }
   }, [recognitionSupported])
   
   const stopRecording = useCallback(() => {
+    isRecordingRef.current = false
     if (recognitionRef.current) {
       recognitionRef.current.stop()
       recognitionRef.current = null
@@ -819,6 +822,7 @@ export default function InterviewCoachPage() {
   // Cleanup mic and speech on unmount or navigation
   useEffect(() => {
     return () => {
+      isRecordingRef.current = false
       if (recognitionRef.current) {
         recognitionRef.current.stop()
         recognitionRef.current = null
