@@ -147,7 +147,20 @@ export async function POST() {
     if (!updateResponse.ok) {
       const errorData = await updateResponse.json()
       console.error('[ACTIVATE-TRIAL] Razorpay update error:', errorData)
-      throw new Error(errorData.error?.description || 'Failed to activate subscription')
+      
+      // Handle specific Razorpay errors
+      const errorDescription = errorData.error?.description || ''
+      if (errorDescription.includes('payment mode')) {
+        return NextResponse.json(
+          { 
+            error: 'Your subscription is currently processing a payment. Please wait a few minutes and try again.',
+            errorCode: 'PAYMENT_IN_PROGRESS'
+          },
+          { status: 400 }
+        )
+      }
+      
+      throw new Error(errorDescription || 'Failed to activate subscription')
     }
 
     const updatedSubscription = await updateResponse.json()

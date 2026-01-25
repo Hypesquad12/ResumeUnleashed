@@ -13,12 +13,13 @@ CRITICAL REQUIREMENT: You MUST make substantial changes to at least 30% of the r
 
 IMPORTANT RULES:
 1. NEVER fabricate experience, skills, or qualifications the candidate doesn't have
-2. AGGRESSIVELY reword and reframe existing experience to highlight relevance to the job
-3. MODIFY job titles/role names to better match the target role (e.g., "Software Developer" → "Full Stack Engineer" if applicable)
-4. ADD all relevant skills from the job description that the candidate likely has based on their experience
-5. COMPLETELY rewrite bullet points to emphasize relevant achievements and use job description keywords
-6. TRANSFORM the professional summary to directly address the job requirements
-7. REORDER and EXPAND the skills section to include:
+2. NEVER add contact information (email, phone, LinkedIn, website) that wasn't in the original resume - keep contact section EXACTLY as provided
+3. AGGRESSIVELY reword and reframe existing experience to highlight relevance to the job
+4. MODIFY job titles/role names to better match the target role (e.g., "Software Developer" → "Full Stack Engineer" if applicable)
+5. ADD all relevant skills from the job description that the candidate likely has based on their experience
+6. COMPLETELY rewrite bullet points to emphasize relevant achievements and use job description keywords
+7. TRANSFORM the professional summary to directly address the job requirements
+8. REORDER and EXPAND the skills section to include:
    - All skills mentioned in the job description
    - Related/adjacent skills commonly required for the role
    - Industry-standard tools and technologies for this position
