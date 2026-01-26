@@ -262,12 +262,35 @@ export async function POST() {
       })
     }
 
-    // FLOW 2: UPI - Use Payment Link for immediate payment
-    // Payment Links support callback_url and charge full amount immediately
-    console.log('[ACTIVATE-TRIAL] Using UPI flow - creating payment link for immediate charge')
+    // FLOW 2: UPI/All - Cancel existing subscription and create new one with upfront_amount
+    // upfront_amount charges the full amount during mandate setup (not just ₹5 token)
+    console.log('[ACTIVATE-TRIAL] Using upfront charge flow - cancel and recreate with upfront_amount')
     
-    const paymentLinkResponse = await fetch(
-      'https://api.razorpay.com/v1/payment_links',
+    // Cancel existing subscription first (if not already cancelled)
+    if (razorpaySubscription.status !== 'cancelled') {
+      const cancelResponse = await fetch(
+        `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/cancel`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ cancel_at_cycle_end: 0 })
+        }
+      )
+      if (cancelResponse.ok) {
+        console.log('[ACTIVATE-TRIAL] Existing subscription cancelled')
+      } else {
+        console.log('[ACTIVATE-TRIAL] Cancel response:', await cancelResponse.text())
+      }
+    }
+
+    // Create new subscription with upfront_amount for immediate full charge
+    const currentTimestamp = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60) // Next charge in 30 days
+    
+    const newSubResponse = await fetch(
+      'https://api.razorpay.com/v1/subscriptions',
       {
         method: 'POST',
         headers: {
@@ -275,49 +298,45 @@ export async function POST() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: planAmount,
-          currency: 'INR',
-          accept_partial: false,
-          description: `Subscription activation - ${subscription.tier} plan (${subscription.billing_cycle})`,
-          customer: {
-            email: user.email,
-            contact: user.phone || undefined,
-          },
-          notify: {
-            email: true,
-            sms: true,
-          },
-          reminder_enable: true,
-          callback_url: `${baseUrl}/conversion/mandate-success?type=payment`,
-          callback_method: 'get',
+          plan_id: subscription.plan_id,
+          total_count: subscription.billing_cycle === 'annual' ? 1 : 12,
+          quantity: 1,
+          customer_notify: 1,
+          start_at: currentTimestamp,
+          upfront_amount: planAmount, // Charge full amount during mandate setup
           notes: {
             user_id: user.id,
-            subscription_id: subscription.id,
+            plan_id: subscription.tier === 'premium' ? 'india-premium' : `india-${subscription.tier}`,
+            region: subscription.region,
             tier: subscription.tier,
             billing_cycle: subscription.billing_cycle,
+            trial_days: '0',
+            returning_customer: 'true',
             activated_early: 'true',
           }
         })
       }
     )
 
-    if (!paymentLinkResponse.ok) {
-      const errorData = await paymentLinkResponse.json()
-      console.error('[ACTIVATE-TRIAL] Payment link creation error:', errorData)
-      throw new Error(errorData.error?.description || 'Failed to create payment link')
+    if (!newSubResponse.ok) {
+      const errorData = await newSubResponse.json()
+      console.error('[ACTIVATE-TRIAL] Create subscription error:', errorData)
+      throw new Error(errorData.error?.description || 'Failed to create subscription')
     }
 
-    const paymentLink = await paymentLinkResponse.json()
-    console.log('[ACTIVATE-TRIAL] Payment link created:', {
-      id: paymentLink.id,
-      short_url: paymentLink.short_url,
-      amount: paymentLink.amount
+    const newSubscription = await newSubResponse.json()
+    console.log('[ACTIVATE-TRIAL] New subscription created with upfront charge:', {
+      id: newSubscription.id,
+      status: newSubscription.status,
+      short_url: newSubscription.short_url,
+      upfront_amount: planAmount
     })
 
-    // Update database - mark trial as pending payment
+    // Update database with new subscription ID
     const { error: updateError } = await supabase
       .from('subscriptions')
       .update({ 
+        razorpay_subscription_id: newSubscription.id,
         trial_active: false,
         updated_at: new Date().toISOString()
       })
@@ -329,10 +348,10 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: 'Payment link created. Please complete payment.',
-      paymentLinkId: paymentLink.id,
-      shortUrl: paymentLink.short_url,
-      amount: paymentLink.amount / 100,
+      message: 'Subscription created. Please complete payment to activate.',
+      subscriptionId: newSubscription.id,
+      shortUrl: newSubscription.short_url,
+      amount: planAmount / 100,
       paymentMethod: 'upi'
     })
 
