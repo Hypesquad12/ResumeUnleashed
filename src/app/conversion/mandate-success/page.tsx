@@ -25,11 +25,9 @@ export default function MandateSuccessPage() {
     // Track Google Ads conversion for mandate setup
     if (isMandateSetup && typeof window !== 'undefined') {
       // Google Ads Conversion Tracking
-      // TODO: Replace 'MANDATE_SETUP_LABEL' with actual conversion label from Google Ads
-      // Get label from: Google Ads > Tools & Settings > Conversions > Create/Select "Mandate Setup" action
       if (typeof window.gtag === 'function') {
         window.gtag('event', 'conversion', {
-          'send_to': 'AW-17885779962/MANDATE_SETUP_LABEL',
+          'send_to': 'AW-17885779962/GT-K4V88KTM',
           'transaction_id': ''
         })
         console.log('[CONVERSION] Mandate setup conversion tracked')
