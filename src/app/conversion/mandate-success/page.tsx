@@ -5,6 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { CheckCircle, Zap } from 'lucide-react'
 
+// Extend Window interface for tracking scripts
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void
+    fbq?: (...args: any[]) => void
+  }
+}
+
 export default function MandateSuccessPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -14,13 +22,53 @@ export default function MandateSuccessPage() {
   const isPaymentComplete = type === 'payment'
 
   useEffect(() => {
+    // Track Google Ads conversion for mandate setup
+    if (isMandateSetup && typeof window !== 'undefined') {
+      // Google Ads Conversion Tracking
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'conversion', {
+          'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL', // Replace with actual conversion ID
+          'transaction_id': ''
+        })
+        console.log('[CONVERSION] Mandate setup conversion tracked')
+      }
+
+      // Facebook Pixel tracking (if needed)
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'Subscribe', {
+          value: 0, // Trial setup - no immediate value
+          currency: 'INR'
+        })
+      }
+    }
+
+    // Track payment conversion
+    if (isPaymentComplete && typeof window !== 'undefined') {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'purchase', {
+          'send_to': 'AW-CONVERSION_ID/PURCHASE_LABEL', // Replace with actual conversion ID
+          'value': 899,
+          'currency': 'INR',
+          'transaction_id': searchParams.get('subscription_id') || ''
+        })
+        console.log('[CONVERSION] Payment conversion tracked')
+      }
+
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'Purchase', {
+          value: 899,
+          currency: 'INR'
+        })
+      }
+    }
+
     // Redirect to dashboard after 3 seconds
     const timer = setTimeout(() => {
       router.push('/dashboard')
     }, 3000)
 
     return () => clearTimeout(timer)
-  }, [router])
+  }, [router, isMandateSetup, isPaymentComplete, searchParams])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
