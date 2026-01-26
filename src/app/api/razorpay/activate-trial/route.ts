@@ -286,8 +286,9 @@ export async function POST() {
       }
     }
 
-    // Create new subscription with upfront_amount for immediate full charge
-    const currentTimestamp = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60) // Next charge in 30 days
+    // Create new subscription with addons for upfront charge (per Razorpay docs)
+    // addons array is the correct way to charge upfront amount during authentication
+    const currentTimestamp = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60) // Next recurring charge in 30 days
     
     const newSubResponse = await fetch(
       'https://api.razorpay.com/v1/subscriptions',
@@ -303,7 +304,16 @@ export async function POST() {
           quantity: 1,
           customer_notify: 1,
           start_at: currentTimestamp,
-          upfront_amount: planAmount, // Charge full amount during mandate setup
+          // Use addons array for upfront charge (NOT upfront_amount)
+          addons: [
+            {
+              item: {
+                name: `${subscription.tier} Plan - First Payment`,
+                amount: planAmount,
+                currency: 'INR'
+              }
+            }
+          ],
           notes: {
             user_id: user.id,
             plan_id: subscription.tier === 'premium' ? 'india-premium' : `india-${subscription.tier}`,
