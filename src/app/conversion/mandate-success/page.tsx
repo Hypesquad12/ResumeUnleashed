@@ -35,36 +35,16 @@ export default function MandateSuccessPage() {
         console.log('[CONVERSION] Mandate setup conversion tracked')
       }
 
-      // Facebook Pixel tracking (if needed)
+      // Optional: Facebook Pixel tracking for mandate setup
       if (typeof window.fbq === 'function') {
         window.fbq('track', 'Subscribe', {
-          value: 0, // Trial setup - no immediate value
+          value: 0,
           currency: 'INR'
         })
       }
     }
 
-    // Track payment conversion
-    if (isPaymentComplete && typeof window !== 'undefined') {
-      // TODO: Replace 'PURCHASE_LABEL' with actual conversion label from Google Ads
-      // Get label from: Google Ads > Tools & Settings > Conversions > Create/Select "Purchase" action
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', 'purchase', {
-          'send_to': 'AW-17885779962/PURCHASE_LABEL',
-          'value': 899,
-          'currency': 'INR',
-          'transaction_id': searchParams.get('subscription_id') || ''
-        })
-        console.log('[CONVERSION] Payment conversion tracked')
-      }
-
-      if (typeof window.fbq === 'function') {
-        window.fbq('track', 'Purchase', {
-          value: 899,
-          currency: 'INR'
-        })
-      }
-    }
+    // Payment conversion tracking removed - only tracking mandate setup
 
     // Redirect to dashboard after 3 seconds
     const timer = setTimeout(() => {
