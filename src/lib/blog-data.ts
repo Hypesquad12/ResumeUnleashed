@@ -62,6 +62,51 @@ const authorImages = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'how-to-beat-the-ats',
+    title: 'How to Beat the ATS: A Guide to ATS-Friendly Resumes',
+    excerpt: 'Learn how to create a resume that gets past Applicant Tracking Systems and into the hands of a human recruiter.',
+    content: `# How to Beat the ATS: A Guide to ATS-Friendly Resumes
+
+## What is an Applicant Tracking System (ATS)?
+
+An Applicant Tracking System (ATS) is a software application that enables the electronic handling of recruitment needs. An ATS can be implemented or accessed online on an enterprise or small business level, depending on the needs of the organization. The ATS is a gatekeeper, and your first step to landing an interview is to get past it.
+
+## How to create an ATS-Friendly Resume
+
+### 1. Use a Clean and Simple Format
+
+Avoid using tables, columns, or other complex formatting. A simple, single-column layout is the most ATS-friendly. Use standard fonts like Arial, Helvetica, or Times New Roman.
+
+### 2. Include Relevant Keywords
+
+Keywords are the most important part of an ATS-friendly resume. Scan the job description for keywords related to the skills and qualifications the employer is looking for. Use a tool like our **[AI Resume Builder](/signup)** to automatically identify and incorporate these keywords into your resume.
+
+### 3. Use Standard Section Headers
+
+Use standard section headers like "Work Experience," "Education," and "Skills." Avoid using creative or non-standard headers, as the ATS may not recognize them.
+
+### 4. Don't Use a Header or Footer
+
+Information in the header and footer of your resume may not be read by the ATS. It's best to put all of your contact information and other important details in the body of your resume.
+
+### 5. Save Your Resume as a PDF or .docx File
+
+Most ATS systems can parse PDF and .docx files. Avoid using other file formats, as they may not be compatible with the ATS.
+
+## Take Action Today
+
+By following these tips, you can create an ATS-friendly resume that will get past the gatekeeper and in front of a human recruiter. Our **[free AI resume builder](/signup)** can help you create a professional, ATS-friendly resume in minutes.
+
+**[Start Building Your Resume Now →](/signup)**`,
+    author: 'Resume Unleashed',
+    publishedAt: '2026-01-26',
+    readTime: '5 min',
+    category: 'Resume Writing',
+    tags: ['ats-friendly resume', 'resume keywords', 'beat the ats', 'applicant tracking system', 'ats resume builder'],
+    image: blogImages.ats,
+    authorImage: authorImages.david
+  },
+  {
     slug: 'how-to-write-a-resume-that-gets-noticed',
     title: 'How to Write a Resume That Gets Noticed in 2024',
     excerpt: 'Learn essential tips for creating a professional resume that stands out to recruiters and passes ATS systems.',

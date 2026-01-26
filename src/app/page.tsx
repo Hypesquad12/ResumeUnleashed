@@ -51,7 +51,7 @@ export default function Home() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": "Resume Unleashed",
+            "name": "Resume Unleashed - AI Resume Builder",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web",
             "offers": {
@@ -62,11 +62,15 @@ export default function Home() {
             "aggregateRating": {
               "@type": "AggregateRating",
               "ratingValue": "4.8",
-              "ratingCount": "1250"
+              "reviewCount": "1250"
             },
-            "description": "The #1 AI resume builder free to try. Our resume maker ai and cv maker ai tools help you create an artificial intelligence resume with ats optimisation to get hired faster.",
-            "featureList": "AI Resume Writing, ATS Optimization, Interview Prep, Job Matching",
-            "screenshot": "https://resumeunleashed.com/images/og-image.png"
+            "description": "Build a job-winning resume in minutes with our free AI resume builder. Our online resume maker is designed to create professional, ATS-friendly resumes that land interviews.",
+            "featureList": "AI Resume Builder, ATS Resume Templates, Free Resume Maker, CV Maker, Interview Prep, Job Search Tools",
+            "screenshot": "https://resumeunleashed.com/images/og-image.png",
+            "creator": {
+              "@type": "Organization",
+              "name": "Resume Unleashed"
+            }
           })
         }}
       />

@@ -7,14 +7,14 @@ import { useState } from 'react'
 const features = [
   {
     icon: FileText,
-    title: 'AI Resume & CV Creator',
-    description: 'Build a professional resume or CV in minutes. Our AI-powered creator offers ATS-friendly templates to get you started.',
+    title: 'Free AI Resume & CV Creator',
+    description: 'Build a professional resume or CV in minutes with our free AI resume builder. Our online resume maker offers a variety of ATS-friendly resume templates to get you started.',
     gradient: 'from-violet-500 to-indigo-500',
   },
   {
     icon: Sparkles,
-    title: 'ATS Optimization with AI',
-    description: 'Scan job descriptions and let our AI tailor your resume with the right keywords to ensure you get past automated screening systems.',
+    title: 'ATS Resume Checker & Optimizer',
+    description: 'Scan job descriptions and let our AI tailor your resume with the right keywords to ensure you get past applicant tracking systems.',
     gradient: 'from-violet-500 to-purple-500',
   },
   {

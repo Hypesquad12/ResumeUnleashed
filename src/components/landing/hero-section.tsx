@@ -49,19 +49,15 @@ export function HeroSection() {
 
             {/* Headline */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 tracking-tight leading-[1.1]">
-              Land Your Dream Job{' '}
+              Free AI Resume Builder:{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
-                3x Faster
-              </span>
-              <br />
-              <span className="text-slate-700 text-2xl sm:text-4xl lg:text-5xl">
-                with the AI Resume Builder
+                Create a Job-Winning Resume in Minutes
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
-              Create a job-winning resume in under 60 seconds. Our AI-powered resume builder helps you craft a professional, ATS-friendly resume tailored to any job description. Join over 10,000 professionals who have landed more interviews with Resume Unleashed.
+              Use our online resume maker to build a professional, ATS-friendly resume that gets past applicant tracking systems and lands you more interviews. Our free resume builder is the perfect tool to create a resume that stands out.
             </p>
 
             {/* CTA */}
