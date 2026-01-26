@@ -11,30 +11,73 @@ export async function POST(request: Request) {
 
     const supabase = await createClient()
 
-    // Update user's trial status
-    const { data, error } = await supabase
+    // First, get the user ID from profiles
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .update({
-        trial_active: true,
-        trial_ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
-      })
+      .select('id')
       .eq('email', email)
-      .select()
+      .single()
 
-    if (error) {
-      console.error('Error updating trial:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    if (!data || data.length === 0) {
+    if (profileError || !profile) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: `Trial activated for ${email}`,
-      data: data[0]
-    })
+    // Check if subscription exists
+    const { data: existingSub } = await supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', profile.id)
+      .single()
+
+    if (existingSub) {
+      // Update existing subscription
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .update({
+          trial_active: true,
+          current_period_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        })
+        .eq('user_id', profile.id)
+        .select()
+        .single()
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+
+      return NextResponse.json({ 
+        success: true, 
+        message: `Trial activated for ${email}`,
+        data
+      })
+    } else {
+      // Create new subscription
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_id: profile.id,
+          status: 'active',
+          billing_cycle: 'monthly',
+          tier: 'professional',
+          region: 'india',
+          plan_id: 'india-professional',
+          trial_active: true,
+          current_period_start: new Date().toISOString(),
+          current_period_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        })
+        .select()
+        .single()
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+
+      return NextResponse.json({ 
+        success: true, 
+        message: `Trial created for ${email}`,
+        data
+      })
+    }
   } catch (error: any) {
     console.error('Error in set-trial API:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
