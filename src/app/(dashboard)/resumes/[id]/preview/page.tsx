@@ -46,8 +46,8 @@ export default function ResumePreviewPage() {
   // Set document title for PDF downloads
   useEffect(() => {
     if (resume) {
-      const resumeName = resume.contact?.name || 'Resume'
-      document.title = `${resumeName} - Free AI Resume Builder | Online Resume Maker | Resume Unleashed`
+      // Use resume.title which contains the format: "Name's Resume - Role - Company"
+      document.title = resume.title
     }
     return () => {
       document.title = 'Resume Unleashed'
