@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { indiaPricing } from '@/lib/pricing-config'
 
 /**
  * Detect payment method (card or upi) from subscription and customer data
@@ -182,11 +183,16 @@ export async function POST() {
     // Get base URL for callbacks
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://resumeunleashed.com'
 
+    // Get correct pricing based on tier
+    const tierPricing = indiaPricing.find(p => p.tier === subscription.tier)
+    const monthlyPrice = tierPricing?.priceMonthly || 799
+    const annualPrice = tierPricing?.priceAnnual || 7191
+    const planAmount = subscription.billing_cycle === 'annual' ? annualPrice * 100 : monthlyPrice * 100 // Amount in paise
+    console.log('[ACTIVATE-TRIAL] Using pricing:', { tier: subscription.tier, monthlyPrice, annualPrice, planAmount })
+
     // FLOW 1: CARDS - Create invoice and charge on existing mandate
     if (paymentMethod === 'card') {
       console.log('[ACTIVATE-TRIAL] Using Cards flow - creating invoice for immediate charge')
-      
-      const planAmount = subscription.billing_cycle === 'annual' ? 899 * 12 * 100 : 899 * 100 // Amount in paise
       
       // Create invoice to charge on existing card mandate
       const invoiceResponse = await fetch(
@@ -204,10 +210,6 @@ export async function POST() {
             currency: 'INR',
             description: `Subscription activation - ${subscription.tier} plan (${subscription.billing_cycle})`,
             subscription_id: subscription.razorpay_subscription_id,
-            callback_url: `${baseUrl}/conversion/mandate-success?type=payment`,
-            notify_info: {
-              notify_email: user.email,
-            },
           })
         }
       )
@@ -246,104 +248,62 @@ export async function POST() {
       })
     }
 
-    // FLOW 2: UPI - Cancel existing subscription and create new one with immediate charge
-    // This approach avoids "payment mode is up" errors from Razorpay
-    console.log('[ACTIVATE-TRIAL] Using UPI flow - cancel and recreate subscription:', subscription.razorpay_subscription_id)
+    // FLOW 2: UPI - Use Payment Link for immediate payment
+    // Payment Links support callback_url and charge full amount immediately
+    console.log('[ACTIVATE-TRIAL] Using UPI flow - creating payment link for immediate charge')
     
-    // Skip cancellation if subscription is already cancelled
-    if (razorpaySubscription.status !== 'cancelled') {
-      const cancelResponse = await fetch(
-        `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/cancel`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${auth}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            cancel_at_cycle_end: 0 // Cancel immediately
-          })
-        }
-      )
-
-      if (!cancelResponse.ok) {
-        const errorData = await cancelResponse.json()
-        console.error('[ACTIVATE-TRIAL] Cancel error:', errorData)
-        // Continue anyway - we'll try to create a new subscription
-      } else {
-        console.log('[ACTIVATE-TRIAL] Subscription cancelled successfully')
-      }
-    } else {
-      console.log('[ACTIVATE-TRIAL] Subscription already cancelled, skipping cancel step')
-    }
-
-    // Create new subscription with upfront charge (mandate + first payment together)
-    // This charges the full amount during mandate setup - no token charge/refund
-    console.log('[ACTIVATE-TRIAL] Creating new subscription with upfront charge...')
-    const currentTimestamp = Math.floor(Date.now() / 1000) + 60 // Recurring starts in 1 min
-    const planAmount = subscription.billing_cycle === 'annual' ? 899 * 12 * 100 : 899 * 100 // Amount in paise
-    
-    const subscriptionBody: any = {
-      plan_id: subscription.plan_id,
-      total_count: subscription.billing_cycle === 'annual' ? 1 : 12,
-      quantity: 1,
-      customer_notify: 1,
-      start_at: currentTimestamp, // When recurring charges start (after first payment)
-      notify_info: {
-        notify_email: user.email,
-        notify_phone: user.phone || undefined
-      },
-      notes: {
-        user_id: user.id,
-        plan_id: subscription.tier === 'premium' ? 'india-premium' : 'india-pro',
-        region: subscription.region,
-        tier: subscription.tier,
-        billing_cycle: subscription.billing_cycle,
-        trial_days: '0',
-        returning_customer: 'true',
-        activated_early: 'true',
-        payment_method: 'upi'
-      }
-    }
-    
-    // Add customer_id if available to reuse existing mandate
-    if (razorpaySubscription.customer_id) {
-      subscriptionBody.customer_id = razorpaySubscription.customer_id
-      console.log('[ACTIVATE-TRIAL] Reusing customer_id:', razorpaySubscription.customer_id)
-    }
-    
-    const newSubResponse = await fetch(
-      'https://api.razorpay.com/v1/subscriptions',
+    const paymentLinkResponse = await fetch(
+      'https://api.razorpay.com/v1/payment_links',
       {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${auth}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(subscriptionBody)
+        body: JSON.stringify({
+          amount: planAmount,
+          currency: 'INR',
+          accept_partial: false,
+          description: `Subscription activation - ${subscription.tier} plan (${subscription.billing_cycle})`,
+          customer: {
+            email: user.email,
+            contact: user.phone || undefined,
+          },
+          notify: {
+            email: true,
+            sms: true,
+          },
+          reminder_enable: true,
+          callback_url: `${baseUrl}/conversion/mandate-success?type=payment`,
+          callback_method: 'get',
+          notes: {
+            user_id: user.id,
+            subscription_id: subscription.id,
+            tier: subscription.tier,
+            billing_cycle: subscription.billing_cycle,
+            activated_early: 'true',
+          }
+        })
       }
     )
 
-    if (!newSubResponse.ok) {
-      const errorData = await newSubResponse.json()
-      console.error('[ACTIVATE-TRIAL] Create new subscription error:', errorData)
-      throw new Error(errorData.error?.description || 'Failed to create new subscription')
+    if (!paymentLinkResponse.ok) {
+      const errorData = await paymentLinkResponse.json()
+      console.error('[ACTIVATE-TRIAL] Payment link creation error:', errorData)
+      throw new Error(errorData.error?.description || 'Failed to create payment link')
     }
 
-    const newSubscription = await newSubResponse.json()
-    console.log('[ACTIVATE-TRIAL] New subscription created:', {
-      id: newSubscription.id,
-      status: newSubscription.status,
-      start_at: newSubscription.start_at,
-      short_url: newSubscription.short_url
+    const paymentLink = await paymentLinkResponse.json()
+    console.log('[ACTIVATE-TRIAL] Payment link created:', {
+      id: paymentLink.id,
+      short_url: paymentLink.short_url,
+      amount: paymentLink.amount
     })
 
-    // Update database with new subscription ID and mark trial as inactive
+    // Update database - mark trial as pending payment
     const { error: updateError } = await supabase
       .from('subscriptions')
       .update({ 
-        razorpay_subscription_id: newSubscription.id,
-        status: 'authenticated',
         trial_active: false,
         updated_at: new Date().toISOString()
       })
@@ -355,11 +315,10 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: 'Subscription activated successfully. Please complete mandate authentication.',
-      subscriptionId: newSubscription.id,
-      status: newSubscription.status,
-      shortUrl: newSubscription.short_url,
-      requiresAuthentication: newSubscription.status === 'created',
+      message: 'Payment link created. Please complete payment.',
+      paymentLinkId: paymentLink.id,
+      shortUrl: paymentLink.short_url,
+      amount: paymentLink.amount / 100,
       paymentMethod: 'upi'
     })
 
