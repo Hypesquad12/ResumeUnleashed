@@ -2,6 +2,52 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 /**
+ * Detect payment method (card or upi) from subscription and customer data
+ * This determines which upgrade flow to use
+ */
+async function detectPaymentMethod(razorpaySubscription: any, auth: string): Promise<'card' | 'upi'> {
+  try {
+    // Check subscription notes first
+    if (razorpaySubscription.notes?.payment_method) {
+      return razorpaySubscription.notes.payment_method === 'card' ? 'card' : 'upi'
+    }
+
+    // Fetch customer tokens to determine payment method
+    if (razorpaySubscription.customer_id) {
+      const tokensResponse = await fetch(
+        `https://api.razorpay.com/v1/customers/${razorpaySubscription.customer_id}/tokens`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Basic ${auth}`,
+          },
+        }
+      )
+
+      if (tokensResponse.ok) {
+        const tokensData = await tokensResponse.json()
+        if (tokensData.items && tokensData.items.length > 0) {
+          const token = tokensData.items[0]
+          // Check token method - card or vpa (UPI)
+          if (token.method === 'card') {
+            return 'card'
+          } else if (token.method === 'upi' || token.vpa) {
+            return 'upi'
+          }
+        }
+      }
+    }
+
+    // Default to UPI (safer - uses cancel+recreate which works for both)
+    console.log('[DETECT-PAYMENT-METHOD] Could not determine payment method, defaulting to UPI flow')
+    return 'upi'
+  } catch (error) {
+    console.error('[DETECT-PAYMENT-METHOD] Error detecting payment method:', error)
+    return 'upi' // Fallback to UPI flow
+  }
+}
+
+/**
  * Activate trial subscription by charging the mandate immediately
  * This is called when trial users hit their limit and want to activate full plan
  */
@@ -97,7 +143,8 @@ export async function POST() {
     const razorpaySubscription = await statusResponse.json()
     console.log('[ACTIVATE-TRIAL] Razorpay subscription data:', { 
       status: razorpaySubscription.status,
-      id: razorpaySubscription.id 
+      id: razorpaySubscription.id,
+      customer_id: razorpaySubscription.customer_id
     })
     
     // Check if mandate is authenticated
@@ -122,9 +169,82 @@ export async function POST() {
       )
     }
 
-    // Cancel existing subscription and create new one with immediate charge
+    // Detect payment method to determine upgrade flow
+    // Cards: Use Invoice API for immediate charge (no cancel/recreate)
+    // UPI: Use cancel+recreate (UPI limitation - cannot charge manually)
+    const paymentMethod = await detectPaymentMethod(razorpaySubscription, auth)
+    console.log('[ACTIVATE-TRIAL] Detected payment method:', paymentMethod)
+
+    // Get base URL for callbacks
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://resumeunleashed.com'
+
+    // FLOW 1: CARDS - Create invoice and charge on existing mandate
+    if (paymentMethod === 'card') {
+      console.log('[ACTIVATE-TRIAL] Using Cards flow - creating invoice for immediate charge')
+      
+      const planAmount = subscription.billing_cycle === 'annual' ? 899 * 12 * 100 : 899 * 100 // Amount in paise
+      
+      // Create invoice to charge on existing card mandate
+      const invoiceResponse = await fetch(
+        'https://api.razorpay.com/v1/invoices',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'invoice',
+            customer_id: razorpaySubscription.customer_id,
+            amount: planAmount,
+            currency: 'INR',
+            description: `Subscription activation - ${subscription.tier} plan (${subscription.billing_cycle})`,
+            subscription_id: subscription.razorpay_subscription_id,
+            callback_url: `${baseUrl}/conversion/mandate-success?type=payment`,
+            notify_info: {
+              notify_email: user.email,
+            },
+          })
+        }
+      )
+
+      if (!invoiceResponse.ok) {
+        const errorData = await invoiceResponse.json()
+        console.error('[ACTIVATE-TRIAL] Invoice creation error:', errorData)
+        return NextResponse.json(
+          { error: errorData.error?.description || 'Failed to create payment invoice' },
+          { status: 500 }
+        )
+      }
+
+      const invoice = await invoiceResponse.json()
+      console.log('[ACTIVATE-TRIAL] Invoice created:', invoice.id)
+
+      // Update database - mark trial as inactive
+      const { error: updateError } = await supabase
+        .from('subscriptions')
+        .update({ 
+          trial_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subscription.id)
+
+      if (updateError) {
+        console.error('[ACTIVATE-TRIAL] Database update error:', updateError)
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Payment initiated. Charging your card now.',
+        invoiceId: invoice.id,
+        shortUrl: invoice.short_url,
+        paymentMethod: 'card'
+      })
+    }
+
+    // FLOW 2: UPI - Cancel existing subscription and create new one with immediate charge
     // This approach avoids "payment mode is up" errors from Razorpay
-    console.log('[ACTIVATE-TRIAL] Cancelling existing subscription:', subscription.razorpay_subscription_id)
+    console.log('[ACTIVATE-TRIAL] Using UPI flow - cancel and recreate subscription:', subscription.razorpay_subscription_id)
     
     const cancelResponse = await fetch(
       `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/cancel`,
@@ -152,9 +272,6 @@ export async function POST() {
     // Pass customer_id to reuse existing mandate and avoid re-authentication
     console.log('[ACTIVATE-TRIAL] Creating new subscription with immediate charge...')
     const currentTimestamp = Math.floor(Date.now() / 1000) + 5 // Start in 5 seconds
-    
-    // Get callback URL for redirect after payment
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://resumeunleashed.com'
     
     const subscriptionBody: any = {
       plan_id: subscription.plan_id,
@@ -232,7 +349,8 @@ export async function POST() {
       subscriptionId: newSubscription.id,
       status: newSubscription.status,
       shortUrl: newSubscription.short_url,
-      requiresAuthentication: newSubscription.status === 'created'
+      requiresAuthentication: newSubscription.status === 'created',
+      paymentMethod: 'upi'
     })
 
   } catch (error) {
