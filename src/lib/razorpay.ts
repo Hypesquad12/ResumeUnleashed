@@ -61,8 +61,8 @@ export const RAZORPAY_PLAN_IDS = {
   india: {
     professional_monthly: 'plan_RyebhKyadxFPUY', // ₹499
     professional_annual: 'plan_Ryebi5wDrJgrsE',   // ₹4,491
-    premium_monthly: 'plan_RyecfdilZvSwQR',       // ₹899
-    premium_annual: 'plan_RyecgHuskKvivp',        // ₹8,091
+    premium_monthly: 'plan_S8WW9X48HZ5ABt',       // ₹799 (updated)
+    premium_annual: 'plan_S8WWJ033Hj88pa',        // ₹7,191 (updated)
     ultimate_monthly: 'plan_Ryech70IbCoVES',      // ₹1,199
     ultimate_annual: 'plan_RyechtDpt6uWcu',       // ₹10,791
   },
