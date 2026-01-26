@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { indiaPricing } from '@/lib/pricing-config'
+import { indiaPricing, rowPricing } from '@/lib/pricing-config'
+import { getUsdToInrRate } from '@/lib/currency'
 
 /**
  * Detect payment method (card or upi) from subscription and customer data
@@ -183,12 +184,25 @@ export async function POST() {
     // Get base URL for callbacks
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://resumeunleashed.com'
 
-    // Get correct pricing based on tier
-    const tierPricing = indiaPricing.find(p => p.tier === subscription.tier)
-    const monthlyPrice = tierPricing?.priceMonthly || 799
-    const annualPrice = tierPricing?.priceAnnual || 7191
-    const planAmount = subscription.billing_cycle === 'annual' ? annualPrice * 100 : monthlyPrice * 100 // Amount in paise
-    console.log('[ACTIVATE-TRIAL] Using pricing:', { tier: subscription.tier, monthlyPrice, annualPrice, planAmount })
+    // Get correct pricing based on tier and region
+    let planAmount: number
+    if (subscription.region === 'row') {
+      // ROW: Get USD price and convert to INR
+      const tierPricing = rowPricing.find(p => p.tier === subscription.tier)
+      const monthlyPriceUsd = tierPricing?.priceMonthly || 12.99
+      const annualPriceUsd = tierPricing?.priceAnnual || 116.91
+      const exchangeRate = await getUsdToInrRate()
+      const priceUsd = subscription.billing_cycle === 'annual' ? annualPriceUsd : monthlyPriceUsd
+      planAmount = Math.round(priceUsd * exchangeRate * 100) // Convert to paise
+      console.log('[ACTIVATE-TRIAL] ROW pricing:', { tier: subscription.tier, priceUsd, exchangeRate, planAmount })
+    } else {
+      // India: Use INR price directly
+      const tierPricing = indiaPricing.find(p => p.tier === subscription.tier)
+      const monthlyPrice = tierPricing?.priceMonthly || 799
+      const annualPrice = tierPricing?.priceAnnual || 7191
+      planAmount = subscription.billing_cycle === 'annual' ? annualPrice * 100 : monthlyPrice * 100 // Amount in paise
+      console.log('[ACTIVATE-TRIAL] India pricing:', { tier: subscription.tier, monthlyPrice, annualPrice, planAmount })
+    }
 
     // FLOW 1: CARDS - Create invoice and charge on existing mandate
     if (paymentMethod === 'card') {
