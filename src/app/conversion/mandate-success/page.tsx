@@ -25,9 +25,11 @@ export default function MandateSuccessPage() {
     // Track Google Ads conversion for mandate setup
     if (isMandateSetup && typeof window !== 'undefined') {
       // Google Ads Conversion Tracking
+      // TODO: Replace 'MANDATE_SETUP_LABEL' with actual conversion label from Google Ads
+      // Get label from: Google Ads > Tools & Settings > Conversions > Create/Select "Mandate Setup" action
       if (typeof window.gtag === 'function') {
         window.gtag('event', 'conversion', {
-          'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL', // Replace with actual conversion ID
+          'send_to': 'AW-17885779962/MANDATE_SETUP_LABEL',
           'transaction_id': ''
         })
         console.log('[CONVERSION] Mandate setup conversion tracked')
@@ -44,9 +46,11 @@ export default function MandateSuccessPage() {
 
     // Track payment conversion
     if (isPaymentComplete && typeof window !== 'undefined') {
+      // TODO: Replace 'PURCHASE_LABEL' with actual conversion label from Google Ads
+      // Get label from: Google Ads > Tools & Settings > Conversions > Create/Select "Purchase" action
       if (typeof window.gtag === 'function') {
         window.gtag('event', 'purchase', {
-          'send_to': 'AW-CONVERSION_ID/PURCHASE_LABEL', // Replace with actual conversion ID
+          'send_to': 'AW-17885779962/PURCHASE_LABEL',
           'value': 899,
           'currency': 'INR',
           'transaction_id': searchParams.get('subscription_id') || ''
