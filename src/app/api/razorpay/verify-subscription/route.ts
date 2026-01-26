@@ -102,13 +102,13 @@ export async function POST(request: NextRequest) {
 
     console.log('Updated subscription:', updatedData)
 
-    // Extract tier from plan_id (format: plan_RyecfdilZvSwQR)
-    // We need to determine tier from the subscription notes stored during creation
-    // For now, set a default tier that will be updated by webhook
-    // The webhook will set the proper tier when subscription.activated event fires
+    // Determine if this is mandate authentication (initial setup) or actual payment
+    // Check if subscription has trial_active = true (indicates new signup mandate setup)
+    // Razorpay may pass payment_id even during mandate authentication with token amount
+    const isAuthentication = subscriptionData.trial_active === true
     
-    const isAuthentication = !razorpay_payment_id
-    console.log(`Subscription ${isAuthentication ? 'authenticated' : 'payment verified'}: ${razorpay_subscription_id} for user ${user.id}`)
+    console.log(`Subscription ${isAuthentication ? 'authenticated (mandate setup)' : 'payment verified'}: ${razorpay_subscription_id} for user ${user.id}`)
+    console.log(`Trial active: ${subscriptionData.trial_active}, Payment ID present: ${!!razorpay_payment_id}`)
 
     return NextResponse.json({ 
       success: true,
