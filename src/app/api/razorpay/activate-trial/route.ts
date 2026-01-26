@@ -289,8 +289,6 @@ export async function POST() {
       quantity: 1,
       customer_notify: 1,
       start_at: currentTimestamp, // When recurring charges start (after first payment)
-      upfront_amount: planAmount, // Charge full amount during mandate setup
-      callback_url: `${baseUrl}/conversion/mandate-success?type=payment`,
       notify_info: {
         notify_email: user.email,
         notify_phone: user.phone || undefined
