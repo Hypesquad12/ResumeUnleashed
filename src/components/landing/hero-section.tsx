@@ -57,7 +57,7 @@ export function HeroSection() {
 
             {/* Subtitle */}
             <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
-              Use our online resume maker to build a professional, ATS-friendly resume that gets past applicant tracking systems and lands you more interviews. Our free resume builder is the perfect tool to create a resume that stands out.
+              Use the online resume maker to build a professional, ATS-friendly resume that gets past applicant tracking systems and lands you more interviews. The free resume builder is the perfect tool to create a resume that stands out.
             </p>
 
             {/* CTA */}
@@ -89,8 +89,8 @@ export function HeroSection() {
               <p className="text-xs text-slate-500 uppercase tracking-wide font-medium mb-4">
                 Our users landed jobs at
               </p>
-              <div className="flex items-center gap-6 overflow-hidden">
-                <div className="flex items-center gap-6 animate-scroll">
+              <div className="flex items-center gap-6 overflow-hidden relative">
+                <div className="flex items-center gap-6 animate-scroll will-change-transform">
                   {companyLogos.map((company) => (
                     <div
                       key={company.name}

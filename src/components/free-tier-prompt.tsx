@@ -65,10 +65,10 @@ export function FreeTierPrompt() {
             <Sparkles className="h-8 w-8 text-white" />
           </div>
           <DialogTitle className="text-center text-2xl">
-            Welcome! Let's Get You Started
+            Welcome to Resume Unleashed! 🎉
           </DialogTitle>
           <DialogDescription className="text-center text-base">
-            To access all features, you must choose a subscription plan and set up payment. Your card will be charged after the free trial period ends.
+            Start your 7-day free trial to unlock all features. Choose a plan that works for you—cancel anytime during the trial at no cost.
           </DialogDescription>
         </DialogHeader>
 
