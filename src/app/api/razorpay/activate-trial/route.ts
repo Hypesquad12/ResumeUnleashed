@@ -268,17 +268,19 @@ export async function POST() {
       console.log('[ACTIVATE-TRIAL] Subscription cancelled successfully')
     }
 
-    // Create new subscription with immediate charge (start_at = now + 5 seconds)
-    // Pass customer_id to reuse existing mandate and avoid re-authentication
-    console.log('[ACTIVATE-TRIAL] Creating new subscription with immediate charge...')
-    const currentTimestamp = Math.floor(Date.now() / 1000) + 5 // Start in 5 seconds
+    // Create new subscription with upfront charge (mandate + first payment together)
+    // This charges the full amount during mandate setup - no token charge/refund
+    console.log('[ACTIVATE-TRIAL] Creating new subscription with upfront charge...')
+    const currentTimestamp = Math.floor(Date.now() / 1000) + 60 // Recurring starts in 1 min
+    const planAmount = subscription.billing_cycle === 'annual' ? 899 * 12 * 100 : 899 * 100 // Amount in paise
     
     const subscriptionBody: any = {
       plan_id: subscription.plan_id,
       total_count: subscription.billing_cycle === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
-      start_at: currentTimestamp,
+      start_at: currentTimestamp, // When recurring charges start (after first payment)
+      upfront_amount: planAmount, // Charge full amount during mandate setup
       callback_url: `${baseUrl}/conversion/mandate-success?type=payment`,
       notify_info: {
         notify_email: user.email,
@@ -292,7 +294,8 @@ export async function POST() {
         billing_cycle: subscription.billing_cycle,
         trial_days: '0',
         returning_customer: 'true',
-        activated_early: 'true'
+        activated_early: 'true',
+        payment_method: 'upi'
       }
     }
     
