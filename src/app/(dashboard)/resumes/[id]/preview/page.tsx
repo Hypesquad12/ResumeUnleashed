@@ -43,6 +43,17 @@ export default function ResumePreviewPage() {
     loadResume()
   }, [resumeId])
 
+  // Set document title for PDF downloads
+  useEffect(() => {
+    if (resume) {
+      const resumeName = resume.contact?.name || 'Resume'
+      document.title = `${resumeName} - Free AI Resume Builder | Online Resume Maker | Resume Unleashed`
+    }
+    return () => {
+      document.title = 'Resume Unleashed'
+    }
+  }, [resume])
+
   const loadResume = async () => {
     const supabase = createClient()
     

@@ -977,11 +977,7 @@ export default function InterviewCoachPage() {
 
       setIsStartingInterview(false)
       setTimeout(() => {
-        speakText(q.question, () => {
-          if (recognitionSupported) {
-            setTimeout(() => startRecording(), 800)
-          }
-        })
+        speakText(q.question)
       }, 300)
       return
     } catch (error) {
@@ -1003,11 +999,7 @@ export default function InterviewCoachPage() {
       speakText(introText, () => {
         setTimeout(() => {
           if (generatedQuestions.length > 0) {
-            speakText(generatedQuestions[0].question, () => {
-              if (recognitionSupported) {
-                setTimeout(() => startRecording(), 800)
-              }
-            })
+            speakText(generatedQuestions[0].question)
           }
         }, 500)
       })
@@ -1182,11 +1174,7 @@ export default function InterviewCoachPage() {
         setIsFetchingNextQuestion(false)
 
         setTimeout(() => {
-          speakText(nextQuestion.question, () => {
-            if (recognitionSupported) {
-              setTimeout(() => startRecording(), 800)
-            }
-          })
+          speakText(nextQuestion.question)
         }, 500)
         setIsSubmitting(false)
         return
