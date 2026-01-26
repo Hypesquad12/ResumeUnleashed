@@ -4,20 +4,20 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, CheckCircle2, Shield, Clock, Star, FileText, Sparkles, Target } from 'lucide-react'
 import Link from 'next/link'
 
-// Company logos for social proof - using actual logos
+// Company names for social proof - using text-based display for reliability
 const companyLogos = [
-  { name: 'Deloitte', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Deloitte.svg' },
-  { name: 'PwC', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/PwC_Logo.svg' },
-  { name: 'EY', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/07/EY_logo_2019.svg' },
-  { name: 'KPMG', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/KPMG_logo.svg' },
-  { name: 'Google', logo: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png' },
-  { name: 'Microsoft', logo: 'https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31' },
-  { name: 'Amazon', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg' },
-  { name: 'Meta', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg' },
-  { name: 'Apple', logo: 'https://www.apple.com/ac/structured-data/images/knowledge_graph_logo.png' },
-  { name: 'McKinsey', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/9e/McKinsey_and_Company_Logo.svg' },
-  { name: 'BCG', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d8/Boston_Consulting_Group_2020_logo.svg' },
-  { name: 'Bain', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Bain_and_Company_logo.svg' },
+  { name: 'Deloitte', color: '#86BC25' },
+  { name: 'PwC', color: '#DC6900' },
+  { name: 'EY', color: '#FFE600' },
+  { name: 'KPMG', color: '#00338D' },
+  { name: 'Google', color: '#4285F4' },
+  { name: 'Microsoft', color: '#00A4EF' },
+  { name: 'Amazon', color: '#FF9900' },
+  { name: 'Meta', color: '#0081FB' },
+  { name: 'Apple', color: '#555555' },
+  { name: 'McKinsey', color: '#00A0D2' },
+  { name: 'BCG', color: '#0A8A37' },
+  { name: 'Accenture', color: '#A100FF' },
 ]
 
 export function HeroSection() {
@@ -90,32 +90,34 @@ export function HeroSection() {
                 Our users landed jobs at
               </p>
               <div className="flex items-center gap-6 overflow-hidden relative">
-                <div className="flex items-center gap-6 animate-scroll will-change-transform">
+                <div className="flex items-center gap-8 animate-scroll will-change-transform">
                   {companyLogos.map((company) => (
                     <div
                       key={company.name}
-                      className="flex-shrink-0 h-8 w-auto grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
+                      className="flex-shrink-0 opacity-60 hover:opacity-100 transition-all duration-300"
                       title={company.name}
                     >
-                      <img 
-                        src={company.logo} 
-                        alt={`${company.name} logo`}
-                        className="h-8 w-auto object-contain"
-                      />
+                      <span 
+                        className="text-lg font-bold tracking-tight"
+                        style={{ color: company.color }}
+                      >
+                        {company.name}
+                      </span>
                     </div>
                   ))}
                   {/* Duplicate for seamless scroll */}
                   {companyLogos.map((company) => (
                     <div
                       key={`${company.name}-duplicate`}
-                      className="flex-shrink-0 h-8 w-auto grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
+                      className="flex-shrink-0 opacity-60 hover:opacity-100 transition-all duration-300"
                       title={company.name}
                     >
-                      <img 
-                        src={company.logo} 
-                        alt={`${company.name} logo`}
-                        className="h-8 w-auto object-contain"
-                      />
+                      <span 
+                        className="text-lg font-bold tracking-tight"
+                        style={{ color: company.color }}
+                      >
+                        {company.name}
+                      </span>
                     </div>
                   ))}
                 </div>
