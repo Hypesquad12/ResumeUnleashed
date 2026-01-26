@@ -159,7 +159,11 @@ export async function POST() {
       )
     }
 
-    if (razorpaySubscription.status !== 'authenticated' && razorpaySubscription.status !== 'active') {
+    // If subscription is cancelled, we'll create a new one below
+    // For other invalid statuses, return error
+    if (razorpaySubscription.status !== 'authenticated' && 
+        razorpaySubscription.status !== 'active' && 
+        razorpaySubscription.status !== 'cancelled') {
       return NextResponse.json(
         { 
           error: `Subscription is ${razorpaySubscription.status}. Cannot activate trial at this time.`,
@@ -246,26 +250,31 @@ export async function POST() {
     // This approach avoids "payment mode is up" errors from Razorpay
     console.log('[ACTIVATE-TRIAL] Using UPI flow - cancel and recreate subscription:', subscription.razorpay_subscription_id)
     
-    const cancelResponse = await fetch(
-      `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/cancel`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${auth}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cancel_at_cycle_end: 0 // Cancel immediately
-        })
-      }
-    )
+    // Skip cancellation if subscription is already cancelled
+    if (razorpaySubscription.status !== 'cancelled') {
+      const cancelResponse = await fetch(
+        `https://api.razorpay.com/v1/subscriptions/${subscription.razorpay_subscription_id}/cancel`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            cancel_at_cycle_end: 0 // Cancel immediately
+          })
+        }
+      )
 
-    if (!cancelResponse.ok) {
-      const errorData = await cancelResponse.json()
-      console.error('[ACTIVATE-TRIAL] Cancel error:', errorData)
-      // Continue anyway - we'll try to create a new subscription
+      if (!cancelResponse.ok) {
+        const errorData = await cancelResponse.json()
+        console.error('[ACTIVATE-TRIAL] Cancel error:', errorData)
+        // Continue anyway - we'll try to create a new subscription
+      } else {
+        console.log('[ACTIVATE-TRIAL] Subscription cancelled successfully')
+      }
     } else {
-      console.log('[ACTIVATE-TRIAL] Subscription cancelled successfully')
+      console.log('[ACTIVATE-TRIAL] Subscription already cancelled, skipping cancel step')
     }
 
     // Create new subscription with upfront charge (mandate + first payment together)
