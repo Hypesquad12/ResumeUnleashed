@@ -260,15 +260,16 @@ export async function isFreeTierUser(): Promise<boolean> {
   
   if (!user) return true
 
-  // Check if user has an active, pending, or authenticated subscription
+  // Check if user has an authenticated or active subscription
+  // Note: 'pending' status means mandate setup not completed, so we still show the prompt
   const { data: activeSubscription } = await supabase
     .from('subscriptions')
     .select('status')
     .eq('user_id', user.id)
-    .in('status', ['pending', 'authenticated', 'active'])
+    .in('status', ['authenticated', 'active'])
     .single()
 
-  // If user has any subscription in progress or active, don't show free tier prompt
+  // If user has active or authenticated subscription, don't show free tier prompt
   if (activeSubscription) {
     return false
   }
