@@ -151,6 +151,34 @@ export function FreeTierPrompt() {
           </div>
         </div>
 
+        {/* Billing Summary */}
+        <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-emerald-800">Due Today: {region === 'india' ? '₹0' : '$0'}</p>
+                <p className="text-xs text-emerald-600">No payment required now</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                <Calendar className="h-4 w-4" />
+                <span>First charge on</span>
+              </div>
+              <p className="font-semibold text-slate-800">
+                {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Plan Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {plans.map((plan) => {
@@ -236,34 +264,6 @@ export function FreeTierPrompt() {
               </div>
             )
           })}
-        </div>
-
-        {/* Billing Summary */}
-        <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-emerald-800">Due Today: {region === 'india' ? '₹0' : '$0'}</p>
-                <p className="text-xs text-emerald-600">No payment required now</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                <Calendar className="h-4 w-4" />
-                <span>First charge on</span>
-              </div>
-              <p className="font-semibold text-slate-800">
-                {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric', 
-                  year: 'numeric' 
-                })}
-              </p>
-            </div>
-          </div>
         </div>
 
         <p className="text-center text-xs text-slate-500 mt-3">
