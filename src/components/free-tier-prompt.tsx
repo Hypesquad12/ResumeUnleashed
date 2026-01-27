@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Sparkles, Check, Loader2, Crown } from 'lucide-react'
+import { Sparkles, Check, Loader2, Crown, Calendar, Shield } from 'lucide-react'
 import { indiaPricing, rowPricing, formatPrice, calculateSavings, type BillingCycle, type PricingPlan } from '@/lib/pricing-config'
 
 /**
@@ -160,7 +160,7 @@ export function FreeTierPrompt() {
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-xl border-2 p-4 transition-all ${
+                className={`relative rounded-xl border-2 p-4 transition-all flex flex-col ${
                   plan.popular
                     ? 'border-violet-500 bg-violet-50/50'
                     : 'border-slate-200 hover:border-violet-300'
@@ -196,7 +196,7 @@ export function FreeTierPrompt() {
                   )}
                 </div>
 
-                <ul className="space-y-1.5 text-xs text-slate-600 mb-4">
+                <ul className="space-y-1.5 text-xs text-slate-600 mb-4 flex-grow">
                   <li className="flex items-center gap-1.5">
                     <Check className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                     {plan.features.templates === 'all' ? 'All templates' : `${plan.features.templates} templates`}
@@ -209,18 +209,16 @@ export function FreeTierPrompt() {
                     <Check className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                     {plan.limits.interviews} interview sessions
                   </li>
-                  {plan.features.coverLetter && (
-                    <li className="flex items-center gap-1.5">
-                      <Check className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
-                      Cover letters
-                    </li>
-                  )}
+                  <li className="flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
+                    {plan.features.coverLetter ? 'Cover letters included' : 'Basic features'}
+                  </li>
                 </ul>
 
                 <Button
                   onClick={() => handleSelectPlan(plan)}
                   disabled={isLoading}
-                  className={`w-full text-sm ${
+                  className={`w-full text-sm mt-auto ${
                     plan.popular
                       ? 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600'
                       : 'bg-slate-900 hover:bg-slate-800'
@@ -240,8 +238,36 @@ export function FreeTierPrompt() {
           })}
         </div>
 
+        {/* Billing Summary */}
+        <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-emerald-800">Due Today: {region === 'india' ? '₹0' : '$0'}</p>
+                <p className="text-xs text-emerald-600">No payment required now</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                <Calendar className="h-4 w-4" />
+                <span>First charge on</span>
+              </div>
+              <p className="font-semibold text-slate-800">
+                {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <p className="text-center text-xs text-slate-500 mt-3">
-          7-day free trial • No charge until trial ends • Cancel anytime
+          7-day free trial • Cancel anytime before trial ends to avoid charges
         </p>
       </DialogContent>
     </Dialog>
