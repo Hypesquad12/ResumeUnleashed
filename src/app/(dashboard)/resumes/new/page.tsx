@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { 
   FileText, Upload, ArrowLeft, ArrowRight, Loader2, Plus, Trash2, Check,
-  User, Briefcase, GraduationCap, Wrench, File, X, AlertCircle
+  User, Briefcase, GraduationCap, Wrench, File, X, AlertCircle, Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -89,6 +89,12 @@ export default function NewResumePage() {
   // Upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState({ current: 0, limit: 0, tier: 'free', isTrialActive: false })
+  
+  // AI generation state
+  const [generatingSummary, setGeneratingSummary] = useState(false)
+  const [generatingDescription, setGeneratingDescription] = useState<string | null>(null)
+  const [suggestingSkills, setSuggestingSkills] = useState(false)
+  const [aiSuggestedSkills, setAiSuggestedSkills] = useState<string[]>([])
 
   const handleCreateResume = async () => {
     setLoading(true)
@@ -496,6 +502,92 @@ export default function NewResumePage() {
     }
   }
 
+  const handleGenerateSummary = async () => {
+    if (!contact.name) {
+      toast.error('Please enter your name first')
+      return
+    }
+
+    setGeneratingSummary(true)
+    try {
+      const response = await fetch('/api/generate-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact, experience, education })
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+
+      setSummary(data.summary)
+      toast.success('Professional summary generated!')
+    } catch (error) {
+      console.error('Summary generation error:', error)
+      toast.error('Failed to generate summary')
+    } finally {
+      setGeneratingSummary(false)
+    }
+  }
+
+  const handleGenerateDescription = async (expId: string) => {
+    const exp = experience.find(e => e.id === expId)
+    if (!exp?.company || !exp?.position) {
+      toast.error('Please fill in company and position first')
+      return
+    }
+
+    setGeneratingDescription(expId)
+    try {
+      const response = await fetch('/api/generate-experience-description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          ...exp, 
+          contact, 
+          experience: experience.filter(e => e.id !== expId),
+          education 
+        })
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+
+      updateExperience(expId, 'description', data.description)
+      toast.success('Description generated!')
+    } catch (error) {
+      console.error('Description generation error:', error)
+      toast.error('Failed to generate description')
+    } finally {
+      setGeneratingDescription(null)
+    }
+  }
+
+  const handleSuggestSkills = async () => {
+    setSuggestingSkills(true)
+    try {
+      const response = await fetch('/api/suggest-skills', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact, experience, education, currentSkills: skills })
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+
+      if (data.skills && data.skills.length > 0) {
+        setAiSuggestedSkills(data.skills)
+        toast.success(`Suggested ${data.skills.length} skills based on your profile`)
+      } else {
+        toast.info('No new skills to suggest')
+      }
+    } catch (error) {
+      console.error('Skills suggestion error:', error)
+      toast.error('Failed to suggest skills')
+    } finally {
+      setSuggestingSkills(false)
+    }
+  }
+
   // Choose mode screen
   if (mode === 'choose') {
     return (
@@ -840,7 +932,29 @@ export default function NewResumePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="summary">Professional Summary</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="summary">Professional Summary</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateSummary}
+                    disabled={generatingSummary || !contact.name}
+                    className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                  >
+                    {generatingSummary ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                        Generate with AI
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <Textarea
                   id="summary"
                   value={summary}
@@ -848,6 +962,9 @@ export default function NewResumePage() {
                   placeholder="A brief summary of your professional background and career objectives..."
                   rows={4}
                 />
+                <p className="text-xs text-muted-foreground">
+                  AI can generate a professional summary based on your experience and education
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -954,13 +1071,38 @@ export default function NewResumePage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Description</Label>
+                      <div className="flex items-center justify-between">
+                        <Label>Description</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleGenerateDescription(exp.id)}
+                          disabled={generatingDescription === exp.id || !exp.company || !exp.position}
+                          className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                        >
+                          {generatingDescription === exp.id ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                              Generate with AI
+                            </>
+                          )}
+                        </Button>
+                      </div>
                       <Textarea
                         value={exp.description}
                         onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
                         placeholder="Describe your responsibilities and achievements..."
                         rows={4}
                       />
+                      <p className="text-xs text-muted-foreground">
+                        AI can generate bullet points based on your role and company
+                      </p>
                     </div>
                   </div>
                 ))
@@ -1075,10 +1217,34 @@ export default function NewResumePage() {
         {currentStep === 3 && (
           <Card>
             <CardHeader>
-              <CardTitle>Skills</CardTitle>
-              <CardDescription>
-                Add your technical and soft skills
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Skills</CardTitle>
+                  <CardDescription>
+                    Add your technical and soft skills
+                  </CardDescription>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSuggestSkills}
+                  disabled={suggestingSkills}
+                  className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                >
+                  {suggestingSkills ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                      Suggesting...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                      Suggest Skills
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
@@ -1117,8 +1283,28 @@ export default function NewResumePage() {
                 </div>
               )}
 
+              {aiSuggestedSkills.length > 0 && (
+                <div className="pt-4">
+                  <Label className="text-muted-foreground flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-violet-600" />
+                    AI Suggested Skills (based on your profile)
+                  </Label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {aiSuggestedSkills.filter(s => !skills.includes(s)).map((skill) => (
+                      <button
+                        key={skill}
+                        onClick={() => addSkill(skill)}
+                        className="px-3 py-1 bg-violet-50 border border-violet-200 text-violet-700 rounded-full text-sm hover:bg-violet-100 transition-colors"
+                      >
+                        + {skill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="pt-4">
-                <Label className="text-muted-foreground">Suggested Skills</Label>
+                <Label className="text-muted-foreground">Common Skills</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {SKILL_SUGGESTIONS.filter(s => !skills.includes(s)).slice(0, 12).map((skill) => (
                     <button
