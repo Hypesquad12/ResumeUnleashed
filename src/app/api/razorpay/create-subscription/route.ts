@@ -38,6 +38,17 @@ export async function POST(request: NextRequest) {
 
     const razorpay = getRazorpayInstance()
 
+    // Get user profile data for contact details
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email, phone, full_name')
+      .eq('id', user.id)
+      .single()
+
+    const userEmail = profile?.email || user.email || ''
+    const userPhone = profile?.phone || ''
+    const userName = profile?.full_name || user.user_metadata?.full_name || 'Customer'
+
     // For ROW region, calculate amount using live exchange rate
     let planAmount = 0
     let exchangeRate = 0
@@ -144,6 +155,10 @@ export async function POST(request: NextRequest) {
       customer_notify: 1,
       start_at: firstChargeTime, // When first charge will happen
       addons: [],
+      notify_info: {
+        notify_email: userEmail,
+        ...(userPhone && { notify_phone: userPhone }),
+      },
       notes: {
         user_id: user.id,
         plan_id: planId,
@@ -152,6 +167,9 @@ export async function POST(request: NextRequest) {
         billing_cycle: billingCycle,
         trial_days: trialDays.toString(),
         returning_customer: hadPaidSubscription.toString(),
+        customer_name: userName,
+        customer_email: userEmail,
+        ...(userPhone && { customer_phone: userPhone }),
         ...(couponCode && {
           coupon_code: couponCode.toUpperCase(),
           coupon_note: 'Manual discount required - create offer in Razorpay Dashboard',
