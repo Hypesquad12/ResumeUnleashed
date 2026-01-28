@@ -38,6 +38,46 @@ export async function POST(request: NextRequest) {
 
     const razorpay = getRazorpayInstance()
 
+    // Get user email for customer creation
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', user.id)
+      .single()
+
+    const userEmail = profile?.email || user.email
+
+    // Create or fetch Razorpay customer (helps with payment method filtering)
+    let razorpayCustomerId: string | null = null
+    try {
+      // Check if customer already exists in our DB
+      const { data: existingSub } = await supabase
+        .from('subscriptions')
+        .select('razorpay_customer_id')
+        .eq('user_id', user.id)
+        .not('razorpay_customer_id', 'is', null)
+        .single()
+
+      if (existingSub?.razorpay_customer_id) {
+        razorpayCustomerId = existingSub.razorpay_customer_id
+      } else {
+        // Create new customer
+        const customer = await razorpay.customers.create({
+          name: user.user_metadata?.full_name || 'Customer',
+          email: userEmail,
+          notes: {
+            user_id: user.id,
+            region: region,
+          }
+        }) as any
+        razorpayCustomerId = customer.id
+        console.log('Created Razorpay customer:', razorpayCustomerId)
+      }
+    } catch (error) {
+      console.error('Customer creation error:', error)
+      // Continue without customer - not critical
+    }
+
     // For ROW region, calculate amount using live exchange rate
     let planAmount = 0
     let exchangeRate = 0
@@ -144,6 +184,7 @@ export async function POST(request: NextRequest) {
       customer_notify: 1,
       start_at: firstChargeTime, // When first charge will happen
       addons: [],
+      ...(razorpayCustomerId && { customer_id: razorpayCustomerId }), // Add customer for better payment method filtering
       notes: {
         user_id: user.id,
         plan_id: planId,
@@ -190,7 +231,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         plan_id: razorpayPlanId, // Use Razorpay plan ID, not frontend plan ID
         razorpay_subscription_id: subscription.id,
-        razorpay_customer_id: null, // Will be updated by webhook after authentication
+        razorpay_customer_id: razorpayCustomerId, // Store customer ID if created
         status: 'pending',
         billing_cycle: billingCycle,
         current_period_start: periodStart.toISOString(),
