@@ -230,8 +230,14 @@ REMEMBER: Make substantial changes to at least 30% of the resume content!
 
     const result = JSON.parse(responseText)
 
-    // Usage is tracked automatically by subscription-limits.ts via getCurrentUsage
-    // which counts from customized_resumes table
+    // Increment usage counter for AI customization
+    const { incrementUsage } = await import('@/lib/usage-control')
+    try {
+      await incrementUsage(user.id, 'ai_customization')
+    } catch (error) {
+      console.error('Failed to increment usage:', error)
+      // Don't fail the request if usage tracking fails
+    }
 
     return NextResponse.json({
       success: true,

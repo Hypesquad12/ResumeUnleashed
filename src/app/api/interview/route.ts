@@ -39,9 +39,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Check usage limit for interview prep when starting a new interview
+    if (action === 'start') {
+      const { checkUsageLimit } = await import('@/lib/usage-control')
+      const hasQuota = await checkUsageLimit(user.id, 'interview_prep')
+      
+      if (!hasQuota) {
+        return NextResponse.json(
+          { 
+            error: 'Interview prep limit reached. Please upgrade your plan.',
+            errorCode: 'LIMIT_REACHED'
+          },
+          { status: 403 }
+        )
+      }
+    }
+
     switch (action) {
       case 'start':
-        return await startInterview(jobTitle, jobDescription, resumeData, interviewRound, interviewLevel)
+        return await startInterview(user.id, jobTitle, jobDescription, resumeData, interviewRound, interviewLevel)
       
       case 'respond':
         return await continueInterview(threadId, message, interviewContext, messages)
@@ -155,6 +171,7 @@ async function runInterviewModel(turns: InterviewTurn[]) {
 }
 
 async function startInterview(
+  userId: string,
   jobTitle: string,
   jobDescription: string,
   resumeData: any,
@@ -267,6 +284,14 @@ Return as JSON:
       evaluation: evaluation,
       status: 'completed'
     })
+
+    // Increment usage counter for interview prep
+    const { incrementUsage } = await import('@/lib/usage-control')
+    try {
+      await incrementUsage(userId, 'interview_prep')
+    } catch (error) {
+      console.error('Failed to increment interview usage:', error)
+    }
   } catch (e) {
     console.error('Failed saving interview session evaluation:', e)
   }
