@@ -105,6 +105,9 @@ export function FreeTierPrompt() {
 
       await loadRazorpay()
 
+      // Close trial popup before opening Razorpay to prevent overlay blocking
+      setShowModal(false)
+
       // Open Razorpay Standard Checkout modal for subscription authentication
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
