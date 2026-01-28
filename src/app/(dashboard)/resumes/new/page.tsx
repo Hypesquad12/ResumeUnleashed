@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Json } from '@/types/database'
@@ -587,6 +587,16 @@ export default function NewResumePage() {
       setSuggestingSkills(false)
     }
   }
+
+  // Auto-generate AI skills when Skills tab loads
+  useEffect(() => {
+    if (currentStep === 3 && aiSuggestedSkills.length === 0 && !suggestingSkills) {
+      // Only auto-generate if there's some profile data
+      if (contact.name || experience.length > 0 || education.length > 0) {
+        handleSuggestSkills()
+      }
+    }
+  }, [currentStep])
 
   // Choose mode screen
   if (mode === 'choose') {
