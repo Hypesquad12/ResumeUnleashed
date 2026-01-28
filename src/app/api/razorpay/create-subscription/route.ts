@@ -197,7 +197,8 @@ export async function POST(request: NextRequest) {
         current_period_end: periodEnd.toISOString(),
         tier: tier,
         region: region,
-        trial_active: trialDays > 0,
+        trial_active: false, // Will be set to true when mandate is authenticated
+        trial_days: trialDays,
       }, {
         onConflict: 'user_id' // Specify which column to use for upsert conflict resolution
       })

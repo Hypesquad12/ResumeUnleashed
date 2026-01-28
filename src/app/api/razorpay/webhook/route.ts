@@ -25,6 +25,33 @@ export async function POST(request: NextRequest) {
     console.log('Razorpay webhook event:', event.event)
 
     switch (event.event) {
+      case 'subscription.authenticated': {
+        const subscription = event.payload.subscription.entity
+        const userId = subscription.notes?.user_id
+
+        if (!userId) {
+          console.error('Missing user_id in subscription notes')
+          break
+        }
+
+        // Get trial_days from subscription notes
+        const trialDays = parseInt(subscription.notes?.trial_days || '0')
+
+        // Update subscription status to authenticated (mandate verified, trial active)
+        await supabase
+          .from('subscriptions')
+          .update({
+            status: 'authenticated',
+            razorpay_subscription_id: subscription.id,
+            razorpay_customer_id: subscription.customer_id,
+            trial_active: trialDays > 0,
+          })
+          .eq('user_id', userId)
+
+        console.log(`Subscription authenticated for user ${userId}, trial: ${trialDays} days`)
+        break
+      }
+
       case 'subscription.activated': {
         const subscription = event.payload.subscription.entity
         const userId = subscription.notes?.user_id
@@ -34,12 +61,13 @@ export async function POST(request: NextRequest) {
           break
         }
 
-        // Update subscription status to active
+        // Update subscription status to active (payment completed, trial ended)
         await supabase
           .from('subscriptions')
           .update({
             status: 'active',
             razorpay_subscription_id: subscription.id,
+            trial_active: false,
           })
           .eq('user_id', userId)
 
