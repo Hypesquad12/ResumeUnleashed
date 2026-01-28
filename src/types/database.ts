@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      conversion_tokens: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          expires_at: string | null
+          id: string
+          subscription_id: string | null
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          expires_at?: string | null
+          id?: string
+          subscription_id?: string | null
+          token: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          expires_at?: string | null
+          id?: string
+          subscription_id?: string | null
+          token?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversion_tokens_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customized_resumes: {
         Row: {
           ai_suggestions: Json | null
@@ -55,7 +96,36 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customized_resumes_job_description_id_fkey"
+            columns: ["job_description_id"]
+            isOneToOne: false
+            referencedRelation: "job_descriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customized_resumes_source_resume_id_fkey"
+            columns: ["source_resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customized_resumes_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "resume_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customized_resumes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       interview_sessions: {
         Row: {
@@ -115,7 +185,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "interview_sessions_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_applications: {
         Row: {
@@ -184,7 +262,22 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_customized_resume_id_fkey"
+            columns: ["customized_resume_id"]
+            isOneToOne: false
+            referencedRelation: "customized_resumes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_applications_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_descriptions: {
         Row: {
@@ -220,43 +313,56 @@ export type Database = {
           url?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "job_descriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       link_analytics: {
         Row: {
-          card_id: string | null
-          city: string | null
           country: string | null
+          created_at: string | null
+          device: string | null
           id: string
           ip_address: string | null
-          link_id: string | null
+          link_id: string
           referrer: string | null
           user_agent: string | null
-          viewed_at: string | null
         }
         Insert: {
-          card_id?: string | null
-          city?: string | null
           country?: string | null
+          created_at?: string | null
+          device?: string | null
           id?: string
           ip_address?: string | null
-          link_id?: string | null
+          link_id: string
           referrer?: string | null
           user_agent?: string | null
-          viewed_at?: string | null
         }
         Update: {
-          card_id?: string | null
-          city?: string | null
           country?: string | null
+          created_at?: string | null
+          device?: string | null
           id?: string
           ip_address?: string | null
-          link_id?: string | null
+          link_id?: string
           referrer?: string | null
           user_agent?: string | null
-          viewed_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "link_analytics_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "public_resume_links"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_transactions: {
         Row: {
@@ -301,7 +407,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -313,6 +427,8 @@ export type Database = {
           id: string
           phone: string | null
           role: string | null
+          subscription_region: string | null
+          subscription_tier: string | null
           updated_at: string | null
         }
         Insert: {
@@ -324,6 +440,8 @@ export type Database = {
           id: string
           phone?: string | null
           role?: string | null
+          subscription_region?: string | null
+          subscription_tier?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -335,6 +453,8 @@ export type Database = {
           id?: string
           phone?: string | null
           role?: string | null
+          subscription_region?: string | null
+          subscription_tier?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -379,47 +499,167 @@ export type Database = {
           user_id?: string
           view_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_resume_links_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_resume_links_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_ab_tests: {
+        Row: {
+          created_at: string | null
+          current_variant: string | null
+          id: string
+          metrics: Json | null
+          resume_a_id: string
+          resume_b_id: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_variant?: string | null
+          id?: string
+          metrics?: Json | null
+          resume_a_id: string
+          resume_b_id: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_variant?: string | null
+          id?: string
+          metrics?: Json | null
+          resume_a_id?: string
+          resume_b_id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_ab_tests_resume_a_id_fkey"
+            columns: ["resume_a_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_ab_tests_resume_b_id_fkey"
+            columns: ["resume_b_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_scores: {
+        Row: {
+          created_at: string | null
+          detailed_feedback: Json | null
+          id: string
+          improvement_suggestions: string[] | null
+          job_description_id: string
+          keyword_matches: Json | null
+          overall_score: number
+          resume_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          detailed_feedback?: Json | null
+          id?: string
+          improvement_suggestions?: string[] | null
+          job_description_id: string
+          keyword_matches?: Json | null
+          overall_score: number
+          resume_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          detailed_feedback?: Json | null
+          id?: string
+          improvement_suggestions?: string[] | null
+          job_description_id?: string
+          keyword_matches?: Json | null
+          overall_score?: number
+          resume_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_scores_job_description_id_fkey"
+            columns: ["job_description_id"]
+            isOneToOne: false
+            referencedRelation: "job_descriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_scores_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resume_templates: {
         Row: {
-          category: string | null
           created_at: string | null
+          css_styles: string | null
           description: string | null
+          html_template: string | null
           id: string
           is_active: boolean | null
           is_premium: boolean | null
           name: string
-          preview_image_url: string | null
-          template_data: Json
-          type: string | null
-          updated_at: string | null
+          slug: string
+          template_type: string | null
+          thumbnail_url: string | null
         }
         Insert: {
-          category?: string | null
           created_at?: string | null
+          css_styles?: string | null
           description?: string | null
+          html_template?: string | null
           id?: string
           is_active?: boolean | null
           is_premium?: boolean | null
           name: string
-          preview_image_url?: string | null
-          template_data?: Json
-          type?: string | null
-          updated_at?: string | null
+          slug: string
+          template_type?: string | null
+          thumbnail_url?: string | null
         }
         Update: {
-          category?: string | null
           created_at?: string | null
+          css_styles?: string | null
           description?: string | null
+          html_template?: string | null
           id?: string
           is_active?: boolean | null
           is_premium?: boolean | null
           name?: string
-          preview_image_url?: string | null
-          template_data?: Json
-          type?: string | null
-          updated_at?: string | null
+          slug?: string
+          template_type?: string | null
+          thumbnail_url?: string | null
         }
         Relationships: []
       }
@@ -481,19 +721,78 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "resumes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      salary_insights: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          experience_level: string | null
+          id: string
+          job_title: string
+          location: string | null
+          market_demand: string | null
+          negotiation_tips: Json | null
+          role_description: string | null
+          salary_max: number | null
+          salary_median: number | null
+          salary_min: number | null
+          skills: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          experience_level?: string | null
+          id?: string
+          job_title: string
+          location?: string | null
+          market_demand?: string | null
+          negotiation_tips?: Json | null
+          role_description?: string | null
+          salary_max?: number | null
+          salary_median?: number | null
+          salary_min?: number | null
+          skills?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          experience_level?: string | null
+          id?: string
+          job_title?: string
+          location?: string | null
+          market_demand?: string | null
+          negotiation_tips?: Json | null
+          role_description?: string | null
+          salary_max?: number | null
+          salary_median?: number | null
+          salary_min?: number | null
+          skills?: Json | null
+          user_id?: string
+        }
         Relationships: []
       }
       subscription_plans: {
         Row: {
           created_at: string | null
           currency: string
-          features: Json | null
+          features: Json
           id: string
           is_active: boolean | null
-          limits: Json | null
+          limits: Json
           name: string
-          price_annual: string
-          price_monthly: string
+          price_annual: number
+          price_monthly: number
           region: string
           tier: string
           updated_at: string | null
@@ -501,13 +800,13 @@ export type Database = {
         Insert: {
           created_at?: string | null
           currency: string
-          features?: Json | null
+          features: Json
           id?: string
           is_active?: boolean | null
-          limits?: Json | null
+          limits: Json
           name: string
-          price_annual: string
-          price_monthly: string
+          price_annual: number
+          price_monthly: number
           region: string
           tier: string
           updated_at?: string | null
@@ -515,13 +814,13 @@ export type Database = {
         Update: {
           created_at?: string | null
           currency?: string
-          features?: Json | null
+          features?: Json
           id?: string
           is_active?: boolean | null
-          limits?: Json | null
+          limits?: Json
           name?: string
-          price_annual?: string
-          price_monthly?: string
+          price_annual?: number
+          price_monthly?: number
           region?: string
           tier?: string
           updated_at?: string | null
@@ -540,7 +839,10 @@ export type Database = {
           plan_id: string
           razorpay_customer_id: string | null
           razorpay_subscription_id: string | null
+          region: string | null
           status: string
+          tier: string | null
+          trial_active: boolean | null
           updated_at: string | null
           user_id: string
         }
@@ -555,7 +857,10 @@ export type Database = {
           plan_id: string
           razorpay_customer_id?: string | null
           razorpay_subscription_id?: string | null
+          region?: string | null
           status: string
+          tier?: string | null
+          trial_active?: boolean | null
           updated_at?: string | null
           user_id: string
         }
@@ -570,7 +875,10 @@ export type Database = {
           plan_id?: string
           razorpay_customer_id?: string | null
           razorpay_subscription_id?: string | null
+          region?: string | null
           status?: string
+          tier?: string | null
+          trial_active?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
@@ -610,7 +918,15 @@ export type Database = {
           usage_count?: number | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "usage_tracking_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       visiting_cards: {
         Row: {
@@ -679,15 +995,129 @@ export type Database = {
           user_id?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "visiting_cards_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "resume_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visiting_cards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
-    Views: {}
-    Functions: {}
-    Enums: {}
-    CompositeTypes: {}
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      check_usage_limit: {
+        Args: { p_feature_type: string; p_user_id: string }
+        Returns: boolean
+      }
+      get_public_resume_by_slug: { Args: { slug: string }; Returns: Json }
+      increment_public_resume_view_count: {
+        Args: { link_id: string }
+        Returns: undefined
+      }
+      increment_usage: {
+        Args: { p_feature_type: string; p_user_id: string }
+        Returns: undefined
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
 
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
-export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
+type PublicSchema = Database[Extract<keyof Database, "public">]
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+        PublicSchema["Views"])
+    ? (PublicSchema["Tables"] &
+        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof PublicSchema["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never

@@ -21,18 +21,38 @@ export async function checkUsageLimit(userId: string, featureType: FeatureType):
       return false // No active subscription
     }
 
+    // Map feature type to limit key
+    const featureKey = featureType === 'ai_customization' ? 'customizations' : 
+                      featureType === 'cover_letter' ? 'coverLetters' : featureType
+
     // Get limits based on tier and trial status
     const { getPlanLimits, TRIAL_LIMITS } = await import('@/lib/pricing-config')
-    const limits = subscription.trial_active 
-      ? TRIAL_LIMITS 
-      : getPlanLimits(subscription.tier, subscription.region)
     
+    // If trial is active or tier/region is null, use trial limits
+    if (subscription.trial_active || !subscription.tier || !subscription.region) {
+      const limit = (TRIAL_LIMITS as any)[featureKey]
+      if (limit === -1) return true
+      if (limit === 0) return false
+      
+      const { data: usageData } = await supabase
+        .from('usage_tracking')
+        .select('usage_count')
+        .eq('user_id', userId)
+        .eq('feature_type', featureType)
+        .eq('period_start', subscription.current_period_start)
+        .eq('period_end', subscription.current_period_end)
+        .single()
+
+      const currentUsage = usageData?.usage_count ?? 0
+      return currentUsage < limit
+    }
+    
+    // TypeScript doesn't narrow types here, so we need to cast
+    const limits = getPlanLimits(subscription.tier as any, subscription.region as any)
     if (!limits) {
       return false
     }
 
-    const featureKey = featureType === 'ai_customization' ? 'customizations' : 
-                      featureType === 'cover_letter' ? 'coverLetters' : featureType
     const limit = (limits as any)[featureKey]
     
     // -1 means unlimited
