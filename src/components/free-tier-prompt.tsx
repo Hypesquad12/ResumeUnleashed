@@ -115,7 +115,6 @@ export function FreeTierPrompt() {
         name: 'Resume Unleashed',
         description: `${plan.name} Plan - 7 Day Trial`,
         image: '/logo.png',
-        callback_url: `${window.location.origin}/api/razorpay/subscription-callback`,
         prefill: {
           name: '',
           email: '',
@@ -128,6 +127,11 @@ export function FreeTierPrompt() {
             setIsLoading(false)
             setSelectedPlan(null)
           },
+        },
+        handler: async function (response: any) {
+          // Mandate setup successful - redirect to dashboard
+          // Webhook will handle trial activation
+          window.location.href = '/dashboard?subscription=success'
         },
       }
 
