@@ -168,7 +168,7 @@ export default function NewCardPage() {
       }
 
       toast.success('Card updated successfully!')
-      router.push(`/cards/${editCardId}`)
+      router.push('/cards')
     } else {
       // Create new card
       // Generate a unique slug
@@ -191,7 +191,7 @@ export default function NewCardPage() {
       }
 
       toast.success('Card created successfully!')
-      router.push(`/cards/${data.id}`)
+      router.push('/cards')
     }
   }
 
