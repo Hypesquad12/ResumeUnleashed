@@ -29,7 +29,7 @@ export function FreeTierPrompt() {
   const [region, setRegion] = useState<'india' | 'row'>('india')
 
   // Pages where we don't want to show the modal
-  const excludedPaths = ['/pricing', '/checkout', '/settings']
+  const excludedPaths = ['/pricing', '/checkout', '/settings', '/conversion/mandate-success']
 
   useEffect(() => {
     async function detectRegion() {
@@ -129,7 +129,8 @@ export function FreeTierPrompt() {
           },
         },
         handler: async function (response: any) {
-          // Mandate setup successful - redirect to success page
+          // Mandate setup successful - dismiss popup for this session
+          sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
           // Webhook will handle trial activation
           window.location.href = '/conversion/mandate-success'
         },
