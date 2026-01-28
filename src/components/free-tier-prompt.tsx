@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Sparkles, Check, Loader2, Crown, Calendar, Shield } from 'lucide-react'
 import { indiaPricing, rowPricing, formatPrice, calculateSavings, type BillingCycle, type PricingPlan } from '@/lib/pricing-config'
+import { detectUserRegion } from '@/lib/geo-detection'
 
 /**
  * Component that checks if user is on free tier and prompts them to upgrade
@@ -31,13 +32,16 @@ export function FreeTierPrompt() {
   const excludedPaths = ['/pricing', '/checkout', '/settings']
 
   useEffect(() => {
-    // Detect region from timezone
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    if (tz.includes('Kolkata') || tz.includes('India')) {
-      setRegion('india')
-    } else {
-      setRegion('row')
+    async function detectRegion() {
+      try {
+        const detected = await detectUserRegion()
+        setRegion(detected)
+      } catch (error) {
+        console.error('Failed to detect region:', error)
+        setRegion('row')
+      }
     }
+    detectRegion()
   }, [])
 
   useEffect(() => {
