@@ -271,20 +271,20 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link href={`/resumes/${resume.id}/preview`}>
+                      <Link href={`/resumes/${resume.source_resume_id || resume.id}/preview`}>
                         <Eye className="mr-2 h-4 w-4" />
                         Preview
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => resume.source_resume_id && handleDownload(resume.source_resume_id, 'pdf')}>
+                    <DropdownMenuItem onClick={() => handleDownload(resume.source_resume_id || resume.id, 'pdf')}>
                       <Download className="mr-2 h-4 w-4" />
                       Download PDF
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => resume.source_resume_id && handleDownload(resume.source_resume_id, 'docx')}>
+                    <DropdownMenuItem onClick={() => handleDownload(resume.source_resume_id || resume.id, 'docx')}>
                       <Download className="mr-2 h-4 w-4" />
                       Download DOCX
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => resume.source_resume_id && handleDownload(resume.source_resume_id, 'txt')}>
+                    <DropdownMenuItem onClick={() => handleDownload(resume.source_resume_id || resume.id, 'txt')}>
                       <Download className="mr-2 h-4 w-4" />
                       Download TXT
                     </DropdownMenuItem>
@@ -339,7 +339,7 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                 )}
                 
                 <div className="flex gap-2 mt-auto">
-                  <Link href={`/resumes/${resume.id}/preview`} className="flex-1">
+                  <Link href={`/resumes/${resume.source_resume_id || resume.id}/preview`} className="flex-1">
                     <Button variant="outline" className="w-full h-9 text-sm border-emerald-200 dark:border-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950">
                       <Eye className="h-3.5 w-3.5 mr-1.5" />
                       Preview
@@ -356,15 +356,15 @@ export function ResumesClient({ initialResumes, initialCustomizedResumes }: Resu
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(resume.id, 'pdf')}>
+                      <DropdownMenuItem onClick={() => handleDownload(resume.source_resume_id || resume.id, 'pdf')}>
                         <FileText className="mr-2 h-4 w-4" />
                         PDF
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDownload(resume.id, 'docx')}>
+                      <DropdownMenuItem onClick={() => handleDownload(resume.source_resume_id || resume.id, 'docx')}>
                         <FileText className="mr-2 h-4 w-4" />
                         DOCX
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDownload(resume.id, 'txt')}>
+                      <DropdownMenuItem onClick={() => handleDownload(resume.source_resume_id || resume.id, 'txt')}>
                         <FileText className="mr-2 h-4 w-4" />
                         TXT
                       </DropdownMenuItem>
