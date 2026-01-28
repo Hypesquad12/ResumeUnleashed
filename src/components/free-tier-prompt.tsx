@@ -129,9 +129,9 @@ export function FreeTierPrompt() {
           },
         },
         handler: async function (response: any) {
-          // Mandate setup successful - redirect to dashboard
+          // Mandate setup successful - redirect to success page
           // Webhook will handle trial activation
-          window.location.href = '/dashboard?subscription=success'
+          window.location.href = '/conversion/mandate-success'
         },
       }
 
