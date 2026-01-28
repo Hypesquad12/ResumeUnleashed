@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
             name: planName,
             amount: planAmount,
             currency: 'INR',
-            description: `${rowPlan.limits.resumes === -1 ? 'Unlimited' : rowPlan.limits.resumes} resumes, ${rowPlan.limits.customizations} customizations`,
+            description: `${rowPlan.limits.resumes} ${rowPlan.limits.resumes === 1 ? 'resume' : 'resumes'}, ${rowPlan.limits.customizations} AI customizations, ${rowPlan.limits.interviews} interviews, ${rowPlan.limits.coverLetters} cover letters`,
           },
           notes: {
             tier,
