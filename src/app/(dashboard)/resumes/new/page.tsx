@@ -107,31 +107,7 @@ export default function NewResumePage() {
       return
     }
 
-    // Check if user already has a resume (limit is 1)
-    const { count: existingResumeCount } = await supabase
-      .from('resumes')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-
-    if (existingResumeCount && existingResumeCount > 0) {
-      const confirmReplace = window.confirm(
-        '⚠️ You can only have 1 resume at a time.\n\n' +
-        'Creating a new resume will DELETE your existing resume.\n\n' +
-        'Are you sure you want to continue?'
-      )
-      
-      if (!confirmReplace) {
-        setLoading(false)
-        return
-      }
-      
-      // Delete existing resume(s)
-      await supabase
-        .from('resumes')
-        .delete()
-        .eq('user_id', user.id)
-    }
-
+    // Check subscription limits
     try {
       const { data: subscription } = await supabase
         .from('subscriptions')
