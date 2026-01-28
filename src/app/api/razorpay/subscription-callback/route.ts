@@ -48,12 +48,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update subscription status to authenticated
+    // Update subscription status to authenticated with trial active
     const { error: updateError } = await supabase
       .from('subscriptions')
       .update({
         status: 'authenticated',
         razorpay_subscription_id: razorpaySubscriptionId,
+        trial_active: true, // Activate trial after mandate setup
       })
       .eq('user_id', user.id)
 

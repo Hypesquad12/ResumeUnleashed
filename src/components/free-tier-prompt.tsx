@@ -44,18 +44,6 @@ export function FreeTierPrompt() {
     detectRegion()
   }, [])
 
-  // Check if user is returning from Razorpay and dismiss popup
-  useEffect(() => {
-    const razorpayRedirect = sessionStorage.getItem('razorpay_redirect')
-    if (razorpayRedirect === 'true') {
-      sessionStorage.removeItem('razorpay_redirect')
-      sessionStorage.removeItem('razorpay_plan')
-      // Dismiss the prompt for this session
-      sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
-      setShowModal(false)
-    }
-  }, [])
-
   useEffect(() => {
     async function checkTier() {
       // Don't check on excluded paths
@@ -104,14 +92,46 @@ export function FreeTierPrompt() {
         throw new Error(data.error || 'Failed to create subscription')
       }
 
-      // Store flag to detect return from Razorpay
-      sessionStorage.setItem('razorpay_redirect', 'true')
-      sessionStorage.setItem('razorpay_plan', JSON.stringify({ tier: plan.tier, billingCycle }))
-      
-      // Redirect to Razorpay checkout for mandate setup
-      if (data.shortUrl) {
-        window.location.href = data.shortUrl
+      // Load Razorpay Checkout script dynamically
+      const loadRazorpay = () => {
+        return new Promise((resolve) => {
+          const script = document.createElement('script')
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+          script.onload = () => resolve(true)
+          script.onerror = () => resolve(false)
+          document.body.appendChild(script)
+        })
       }
+
+      await loadRazorpay()
+
+      // Open Razorpay Standard Checkout modal for subscription authentication
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        subscription_id: data.subscriptionId,
+        name: 'Resume Unleashed',
+        description: `${plan.name} Plan - 7 Day Trial`,
+        image: '/logo.png',
+        callback_url: `${window.location.origin}/api/razorpay/subscription-callback`,
+        prefill: {
+          name: '',
+          email: '',
+        },
+        theme: {
+          color: '#8b5cf6',
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false)
+            setSelectedPlan(null)
+          },
+        },
+      }
+
+      // @ts-ignore - Razorpay is loaded dynamically
+      const razorpay = new window.Razorpay(options)
+      razorpay.open()
+      
     } catch (error) {
       console.error('Subscription error:', error)
       setIsLoading(false)
