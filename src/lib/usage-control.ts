@@ -9,10 +9,10 @@ export async function checkUsageLimit(userId: string, featureType: FeatureType):
   const supabase = await createClient()
   
   try {
-    // Get active subscription with plan_id
+    // Get active subscription with tier, region, trial_active
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select('plan_id, current_period_start, current_period_end')
+      .select('tier, region, trial_active, current_period_start, current_period_end')
       .eq('user_id', userId)
       .in('status', ['active', 'authenticated'])
       .single()
@@ -21,23 +21,28 @@ export async function checkUsageLimit(userId: string, featureType: FeatureType):
       return false // No active subscription
     }
 
-    // Get plan limits
-    const { data: plan } = await supabase
-      .from('subscription_plans')
-      .select('limits')
-      .eq('id', subscription.plan_id)
-      .single()
+    // Get limits based on tier and trial status
+    const { getPlanLimits, TRIAL_LIMITS } = await import('@/lib/pricing-config')
+    const limits = subscription.trial_active 
+      ? TRIAL_LIMITS 
+      : getPlanLimits(subscription.tier, subscription.region)
     
-    if (!plan?.limits) {
+    if (!limits) {
       return false
     }
 
-    const limits = plan.limits as any
-    const limit = limits[featureType === 'ai_customization' ? 'customizations' : featureType]
+    const featureKey = featureType === 'ai_customization' ? 'customizations' : 
+                      featureType === 'cover_letter' ? 'coverLetters' : featureType
+    const limit = (limits as any)[featureKey]
     
     // -1 means unlimited
     if (limit === -1) {
       return true
+    }
+    
+    // 0 means feature not available
+    if (limit === 0) {
+      return false
     }
 
     // Get current usage

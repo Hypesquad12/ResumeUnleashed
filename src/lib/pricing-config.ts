@@ -1,4 +1,4 @@
-export type SubscriptionTier = 'professional' | 'premium' | 'ultimate'
+export type SubscriptionTier = 'free' | 'trial' | 'professional' | 'premium' | 'ultimate'
 export type BillingCycle = 'monthly' | 'annual'
 export type Region = 'india' | 'row'
 
@@ -14,6 +14,8 @@ export interface PricingPlan {
   originalPriceAnnual?: number
   trialDays?: number
   trialDaysAnnual?: number
+  popular?: boolean
+  badge?: string
   features: {
     templates: number | 'all'
     aiCustomization: boolean
@@ -35,8 +37,22 @@ export interface PricingPlan {
     jobMatching: number // -1 for unlimited
     coverLetters?: number // -1 for unlimited
   }
-  popular?: boolean
-  badge?: string
+}
+
+// Trial tier limits (applied during authenticated status with trial_active=true)
+export const TRIAL_LIMITS = {
+  resumes: 1,
+  customizations: 2,
+  interviews: 1,
+  jobMatching: 0,
+  coverLetters: 0,
+} as const
+
+// Helper function to get plan limits by tier and region
+export function getPlanLimits(tier: SubscriptionTier, region: Region) {
+  const pricing = region === 'india' ? indiaPricing : rowPricing
+  const plan = pricing.find(p => p.tier === tier)
+  return plan?.limits || null
 }
 
 // India Pricing (INR)
