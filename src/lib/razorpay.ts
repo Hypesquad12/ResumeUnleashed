@@ -59,12 +59,12 @@ export function verifyWebhookSignature(
 // ROW plans are created dynamically based on live USD→INR conversion rates
 export const RAZORPAY_PLAN_IDS = {
   india: {
-    professional_monthly: 'plan_S9NdaEuLrMWRBf', // ₹499
-    professional_annual: 'plan_S9Ndazuhtb2CQF',   // ₹4,491
-    premium_monthly: 'plan_S9Ndbd6cZrqnRn',       // ₹799
-    premium_annual: 'plan_S9NdcQAbU7HdOL',        // ₹7,191
-    ultimate_monthly: 'plan_S9Ndd7i4pU5hTr',      // ₹1,099
-    ultimate_annual: 'plan_S9Nddo1q7DzYO3',       // ₹9,891
+    professional_monthly: 'plan_S9NmrJnKexiXyB', // ₹499
+    professional_annual: 'plan_S9NmrtcwTLSvEH',   // ₹4,491
+    premium_monthly: 'plan_S9NmsU4RkA7EhR',       // ₹799
+    premium_annual: 'plan_S9Nmt62v025Y9M',        // ₹7,191
+    ultimate_monthly: 'plan_S9NmtlgktraABU',      // ₹1,099
+    ultimate_annual: 'plan_S9NmuUyWQC7eAp',       // ₹9,891
   },
   // ROW subscriptions are created dynamically with live INR amounts
   // No predefined plan IDs - amount calculated at subscription time
