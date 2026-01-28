@@ -112,13 +112,13 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      {/* Quick Actions - Modern Card Design */}
-      <div>
+      {/* Quick Actions */}
+      <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Quick Actions</h2>
-          <span className="text-xs text-slate-500">Get started in seconds</span>
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Quick Actions</h2>
+          <span className="text-sm text-slate-500">Get started in seconds</span>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link href="/resumes/new" className="block group">
             <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300 cursor-pointer overflow-hidden">
               <CardContent className="p-5 relative">
@@ -163,8 +163,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activity - Three Column Layout with Usage Widget */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      {/* Recent Activity */}
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Resumes */}
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -282,9 +282,6 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
-
-        {/* Usage & Limits Widget */}
-        <UsageWidget />
       </div>
     </div>
     </DashboardClient>
