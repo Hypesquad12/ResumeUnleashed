@@ -113,7 +113,7 @@ export default function NewResumePage() {
         .from('subscriptions')
         .select('plan_id')
         .eq('user_id', user.id)
-        .in('status', ['active', 'authenticated', 'pending'])
+        .in('status', ['active', 'authenticated'])
         .single()
 
       let maxResumes = 1 // Default free tier limit

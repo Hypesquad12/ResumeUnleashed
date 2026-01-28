@@ -14,7 +14,7 @@ export async function checkUsageLimit(userId: string, featureType: FeatureType):
       .from('subscriptions')
       .select('plan_id, current_period_start, current_period_end')
       .eq('user_id', userId)
-      .eq('status', 'active')
+      .in('status', ['active', 'authenticated'])
       .single()
     
     if (!subscription) {
@@ -70,7 +70,7 @@ export async function incrementUsage(userId: string, featureType: FeatureType): 
       .from('subscriptions')
       .select('id, current_period_start, current_period_end')
       .eq('user_id', userId)
-      .eq('status', 'active')
+      .in('status', ['active', 'authenticated'])
       .single()
 
     if (!subscription) {
@@ -130,7 +130,7 @@ export async function getUserUsage(userId: string) {
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
-      .eq('status', 'active')
+      .in('status', ['active', 'authenticated'])
       .single()
     
     if (subError || !subscription) {
@@ -180,7 +180,7 @@ export async function checkResumeLimit(userId: string): Promise<boolean> {
       .from('subscriptions')
       .select('plan_id')
       .eq('user_id', userId)
-      .eq('status', 'active')
+      .in('status', ['active', 'authenticated'])
       .single()
     
     let resumeLimit = 1 // Default free tier
@@ -228,7 +228,7 @@ export async function getUserSubscriptionTier(userId: string): Promise<string> {
       .from('subscriptions')
       .select('plan_id')
       .eq('user_id', userId)
-      .eq('status', 'active')
+      .in('status', ['active', 'authenticated'])
       .single()
     
     if (error || !subscription?.plan_id) {
