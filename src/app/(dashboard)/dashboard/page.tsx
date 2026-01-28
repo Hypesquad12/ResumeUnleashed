@@ -160,20 +160,6 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
           </Link>
-
-          <Link href="/score" className="block group">
-            <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-cyan-300 dark:hover:border-cyan-700 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 cursor-pointer overflow-hidden">
-              <CardContent className="p-5 relative">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-3 shadow-md shadow-cyan-500/30 group-hover:scale-110 transition-transform">
-                  <Target className="h-6 w-6 text-white" />
-                </div>
-                <p className="font-semibold text-slate-800 dark:text-slate-200">Check Score</p>
-                <p className="text-sm text-slate-500 mt-1">ATS compatibility analysis</p>
-                <ChevronRight className="absolute bottom-5 right-5 h-5 w-5 text-slate-300 group-hover:text-cyan-500 group-hover:translate-x-1 transition-all" />
-              </CardContent>
-            </Card>
-          </Link>
         </div>
       </div>
 
