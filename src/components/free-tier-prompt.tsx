@@ -151,16 +151,16 @@ export function FreeTierPrompt() {
           </div>
         </div>
 
-        {/* Billing Summary */}
-        <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+        {/* Billing Summary - Enhanced */}
+        <div className="mb-4 bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-300 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-emerald-600" />
+              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center shadow-md">
+                <Shield className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-emerald-800">Due Today: {region === 'india' ? '₹0' : '$0'}</p>
-                <p className="text-xs text-emerald-600">No payment required now</p>
+                <p className="text-xl font-bold text-emerald-900">Due Today: {region === 'india' ? '₹0' : '$0'}</p>
+                <p className="text-sm font-medium text-emerald-700">No payment required now • Free 7-day trial</p>
               </div>
             </div>
             <div className="text-right">
