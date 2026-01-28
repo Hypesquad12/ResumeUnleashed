@@ -843,6 +843,7 @@ export type Database = {
           status: string
           tier: string | null
           trial_active: boolean | null
+          trial_days: number | null
           updated_at: string | null
           user_id: string
         }
@@ -861,6 +862,7 @@ export type Database = {
           status: string
           tier?: string | null
           trial_active?: boolean | null
+          trial_days?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -879,6 +881,7 @@ export type Database = {
           status?: string
           tier?: string | null
           trial_active?: boolean | null
+          trial_days?: number | null
           updated_at?: string | null
           user_id?: string
         }
