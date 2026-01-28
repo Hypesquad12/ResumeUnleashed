@@ -44,6 +44,18 @@ export function FreeTierPrompt() {
     detectRegion()
   }, [])
 
+  // Check if user is returning from Razorpay and dismiss popup
+  useEffect(() => {
+    const razorpayRedirect = sessionStorage.getItem('razorpay_redirect')
+    if (razorpayRedirect === 'true') {
+      sessionStorage.removeItem('razorpay_redirect')
+      sessionStorage.removeItem('razorpay_plan')
+      // Dismiss the prompt for this session
+      sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
+      setShowModal(false)
+    }
+  }, [])
+
   useEffect(() => {
     async function checkTier() {
       // Don't check on excluded paths
@@ -92,6 +104,10 @@ export function FreeTierPrompt() {
         throw new Error(data.error || 'Failed to create subscription')
       }
 
+      // Store flag to detect return from Razorpay
+      sessionStorage.setItem('razorpay_redirect', 'true')
+      sessionStorage.setItem('razorpay_plan', JSON.stringify({ tier: plan.tier, billingCycle }))
+      
       // Redirect to Razorpay checkout for mandate setup
       if (data.shortUrl) {
         window.location.href = data.shortUrl

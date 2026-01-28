@@ -148,6 +148,9 @@ export async function POST(request: NextRequest) {
       ? Math.floor(Date.now() / 1000) + 60 // Start 1 minute from now for returning customers
       : Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // Start after 7-day trial for new customers
     
+    // Get app URL for callback redirect
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.resumeunleashed.com'
+    
     const subscriptionParams: any = {
       plan_id: razorpayPlanId,
       total_count: billingCycle === 'annual' ? 1 : 12,
