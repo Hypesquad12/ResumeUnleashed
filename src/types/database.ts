@@ -836,14 +836,17 @@ export type Database = {
           current_period_end: string
           current_period_start: string
           id: string
+          next_billing_at: string | null
           plan_id: string
           razorpay_customer_id: string | null
           razorpay_subscription_id: string | null
           region: string | null
+          start_at: string | null
           status: string
           tier: string | null
           trial_active: boolean | null
           trial_days: number | null
+          trial_expires_at: string | null
           updated_at: string | null
           user_id: string
         }
@@ -855,14 +858,17 @@ export type Database = {
           current_period_end: string
           current_period_start: string
           id?: string
+          next_billing_at?: string | null
           plan_id: string
           razorpay_customer_id?: string | null
           razorpay_subscription_id?: string | null
           region?: string | null
+          start_at?: string | null
           status: string
           tier?: string | null
           trial_active?: boolean | null
           trial_days?: number | null
+          trial_expires_at?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -874,14 +880,17 @@ export type Database = {
           current_period_end?: string
           current_period_start?: string
           id?: string
+          next_billing_at?: string | null
           plan_id?: string
           razorpay_customer_id?: string | null
           razorpay_subscription_id?: string | null
           region?: string | null
+          start_at?: string | null
           status?: string
           tier?: string | null
           trial_active?: boolean | null
           trial_days?: number | null
+          trial_expires_at?: string | null
           updated_at?: string | null
           user_id?: string
         }

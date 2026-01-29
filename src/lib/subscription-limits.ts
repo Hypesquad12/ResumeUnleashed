@@ -36,9 +36,9 @@ export async function getUserSubscription(supabaseClient?: SupabaseClient): Prom
   // Check for active subscriptions first
   const { data: subscription } = await supabase
     .from('subscriptions')
-    .select('trial_active, status, plan_id, tier, region')
+    .select('trial_active, status, plan_id, tier, region, trial_expires_at')
     .eq('user_id', user.id)
-    .in('status', ['active', 'authenticated'])
+    .in('status', ['active', 'authenticated', 'pending'])
     .single()
 
   // Check user's subscription in profiles table
