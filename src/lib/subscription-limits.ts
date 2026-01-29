@@ -217,8 +217,9 @@ export async function canPerformAction(
     }
   }
 
-  // Free tier - always blocked
-  if (subscription.tier === 'free') {
+  // Free tier without active trial - blocked
+  // BUT: Allow trial users (those with trial_active=true and a paid tier subscription)
+  if (subscription.tier === 'free' && !subscription.isTrialActive) {
     return {
       allowed: false,
       reason: 'Please upgrade to a paid plan to access this feature',
