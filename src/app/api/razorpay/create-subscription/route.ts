@@ -186,19 +186,22 @@ export async function POST(request: NextRequest) {
     console.log('Razorpay subscription created:', subscription.id)
     console.log('Razorpay subscription response:', JSON.stringify(subscription, null, 2))
 
+    // Calculate trial expiry and billing dates
+    const startAt = new Date(firstChargeTime * 1000)
+    // Trial expires at start_at (when first charge happens), not NOW + trial_days
+    // Razorpay trial period = time between authentication and start_at
+    const trialExpiresAt = trialDays > 0 ? startAt : null
+    const nextBillingAt = startAt
+
     // Store subscription in database (pending status until payment)
-    const periodStart = new Date()
-    const periodEnd = new Date()
+    // Period dates should start from start_at (when billing actually begins), not NOW
+    const periodStart = startAt
+    const periodEnd = new Date(startAt)
     if (billingCycle === 'annual') {
       periodEnd.setFullYear(periodEnd.getFullYear() + 1)
     } else {
       periodEnd.setMonth(periodEnd.getMonth() + 1)
     }
-
-    // Calculate trial expiry and billing dates
-    const startAt = new Date(firstChargeTime * 1000)
-    const trialExpiresAt = trialDays > 0 ? new Date(Date.now() + (trialDays * 24 * 60 * 60 * 1000)) : null
-    const nextBillingAt = startAt
 
     const { error: dbError } = await supabase
       .from('subscriptions')

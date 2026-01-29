@@ -19,7 +19,8 @@ export async function POST(request: Request) {
 
     // Cancel the subscription in Razorpay
     // Note: This will cancel at the end of the current billing period
-    const cancelledSubscription = await razorpay.subscriptions.cancel(subscriptionId, false)
+    // true = cancel_at_cycle_end (user keeps access until period end)
+    const cancelledSubscription = await razorpay.subscriptions.cancel(subscriptionId, true)
 
     return NextResponse.json({
       success: true,

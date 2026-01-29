@@ -111,12 +111,15 @@ serve(async (req) => {
         const userId = subscription.notes?.user_id
         if (!userId) break
 
+        // Don't change trial_active here - trial remains active until first invoice is paid
+        // subscription.activated fires when billing cycle starts, but trial may still be active
         await supabase
           .from('subscriptions')
           .update({
             status: 'active',
             razorpay_subscription_id: subscription.id,
-            trial_active: false,
+            current_period_start: subscription.current_start ? new Date(subscription.current_start * 1000).toISOString() : null,
+            current_period_end: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : null,
           })
           .eq('user_id', userId)
 
