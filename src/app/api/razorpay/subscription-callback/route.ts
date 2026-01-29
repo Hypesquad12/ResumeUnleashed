@@ -48,13 +48,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update subscription status to authenticated with trial active
+    // Fetch existing subscription to check trial eligibility
+    const { data: existingSub, error: fetchError } = await supabase
+      .from('subscriptions')
+      .select('trial_days')
+      .eq('user_id', user.id)
+      .eq('razorpay_subscription_id', razorpaySubscriptionId)
+      .single()
+
+    if (fetchError) {
+       console.error('Failed to fetch subscription:', fetchError)
+       // Fallback: If we can't fetch, we assume trial is active if it was a new sub, 
+       // but safer to not activate trial blindly for returning users.
+       // However, to avoid blocking the user, we'll log it and proceed with caution.
+    }
+
+    const trialDays = existingSub?.trial_days || 0
+    const isTrialActive = trialDays > 0
+
+    // Update subscription status to authenticated
     const { error: updateError } = await supabase
       .from('subscriptions')
       .update({
         status: 'authenticated',
         razorpay_subscription_id: razorpaySubscriptionId,
-        trial_active: true, // Activate trial after mandate setup
+        trial_active: isTrialActive, // Only activate trial if user is eligible
       })
       .eq('user_id', user.id)
 

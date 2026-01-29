@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { indiaPricing, rowPricing } from '@/lib/pricing-config'
-import { getUsdToInrRate } from '@/lib/currency'
 
 /**
  * Detect payment method (card or upi) from subscription and customer data
@@ -186,22 +185,25 @@ export async function POST() {
 
     // Get correct pricing based on tier and region
     let planAmount: number
+    let currency: string
+    
     if (subscription.region === 'row') {
-      // ROW: Get USD price and convert to INR
+      // ROW: Use USD price directly
       const tierPricing = rowPricing.find(p => p.tier === subscription.tier)
       const monthlyPriceUsd = tierPricing?.priceMonthly || 12.99
       const annualPriceUsd = tierPricing?.priceAnnual || 116.91
-      const exchangeRate = await getUsdToInrRate()
       const priceUsd = subscription.billing_cycle === 'annual' ? annualPriceUsd : monthlyPriceUsd
-      planAmount = Math.round(priceUsd * exchangeRate * 100) // Convert to paise
-      console.log('[ACTIVATE-TRIAL] ROW pricing:', { tier: subscription.tier, priceUsd, exchangeRate, planAmount })
+      planAmount = Math.round(priceUsd * 100) // Convert to cents
+      currency = 'USD'
+      console.log('[ACTIVATE-TRIAL] ROW pricing:', { tier: subscription.tier, priceUsd, planAmount, currency })
     } else {
       // India: Use INR price directly
       const tierPricing = indiaPricing.find(p => p.tier === subscription.tier)
       const monthlyPrice = tierPricing?.priceMonthly || 799
       const annualPrice = tierPricing?.priceAnnual || 7191
       planAmount = subscription.billing_cycle === 'annual' ? annualPrice * 100 : monthlyPrice * 100 // Amount in paise
-      console.log('[ACTIVATE-TRIAL] India pricing:', { tier: subscription.tier, monthlyPrice, annualPrice, planAmount })
+      currency = 'INR'
+      console.log('[ACTIVATE-TRIAL] India pricing:', { tier: subscription.tier, monthlyPrice, annualPrice, planAmount, currency })
     }
 
     // FLOW 1: CARDS - Create invoice and charge on existing mandate
@@ -221,7 +223,7 @@ export async function POST() {
             type: 'invoice',
             customer_id: razorpaySubscription.customer_id,
             amount: planAmount,
-            currency: 'INR',
+            currency: currency,
             description: `Subscription activation - ${subscription.tier} plan (${subscription.billing_cycle})`,
             subscription_id: subscription.razorpay_subscription_id,
           })
@@ -310,7 +312,7 @@ export async function POST() {
               item: {
                 name: `${subscription.tier} Plan - First Payment`,
                 amount: planAmount,
-                currency: 'INR'
+                currency: currency
               }
             }
           ],

@@ -263,22 +263,49 @@ function PricingPageContent() {
             Get started with AI-powered resume building today
           </p>
 
-          {/* Billing Cycle Toggle */}
-          <div className="flex items-center justify-center gap-4">
-            <Label htmlFor="billing-cycle" className={billingCycle === 'monthly' ? 'font-semibold' : 'text-muted-foreground'}>
-              Monthly
-            </Label>
-            <Switch
-              id="billing-cycle"
-              checked={billingCycle === 'annual'}
-              onCheckedChange={(checked: boolean) => setBillingCycle(checked ? 'annual' : 'monthly')}
-            />
-            <Label htmlFor="billing-cycle" className={billingCycle === 'annual' ? 'font-semibold' : 'text-muted-foreground'}>
-              Annual
-              <span className="ml-2 text-green-600 dark:text-green-400 text-sm">
-                (Save up to 25%)
-              </span>
-            </Label>
+          {/* Billing Cycle & Region Toggles */}
+          <div className="flex flex-col items-center gap-6">
+            {/* Billing Cycle */}
+            <div className="flex items-center justify-center gap-4">
+              <Label htmlFor="billing-cycle" className={billingCycle === 'monthly' ? 'font-semibold' : 'text-muted-foreground'}>
+                Monthly
+              </Label>
+              <Switch
+                id="billing-cycle"
+                checked={billingCycle === 'annual'}
+                onCheckedChange={(checked: boolean) => setBillingCycle(checked ? 'annual' : 'monthly')}
+              />
+              <Label htmlFor="billing-cycle" className={billingCycle === 'annual' ? 'font-semibold' : 'text-muted-foreground'}>
+                Annual
+                <span className="ml-2 text-green-600 dark:text-green-400 text-sm">
+                  (Save up to 25%)
+                </span>
+              </Label>
+            </div>
+
+            {/* Region Toggle */}
+            <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-full">
+              <button
+                onClick={() => region !== 'india' && toggleRegion()}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  region === 'india'
+                    ? 'bg-white dark:bg-slate-700 text-violet-600 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                🇮🇳 INR
+              </button>
+              <button
+                onClick={() => region !== 'row' && toggleRegion()}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  region === 'row'
+                    ? 'bg-white dark:bg-slate-700 text-violet-600 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                🌍 USD
+              </button>
+            </div>
           </div>
 
         </div>

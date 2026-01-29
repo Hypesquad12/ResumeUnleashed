@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getRazorpayInstance, RAZORPAY_PLAN_IDS } from '@/lib/razorpay'
 import { createClient } from '@/lib/supabase/server'
 import { Region, BillingCycle, SubscriptionTier, rowPricing } from '@/lib/pricing-config'
-import { convertUsdToInr, getUsdToInrRate } from '@/lib/currency'
 import { hasHadPaidSubscription } from '@/lib/subscription-limits'
 
 // Razorpay subscription response type
@@ -67,8 +66,7 @@ export async function POST(request: NextRequest) {
         )
       }
     } else {
-      // ROW: Create plan dynamically with live exchange rate
-      // Find the USD price for this plan
+      // ROW: Create plan dynamically in USD
       const rowPlan = rowPricing.find(p => 
         p.tier === tier && 
         (billingCycle === 'monthly' ? p.priceMonthly > 0 : p.priceAnnual > 0)
@@ -83,19 +81,17 @@ export async function POST(request: NextRequest) {
 
       const usdPrice = billingCycle === 'monthly' ? rowPlan.priceMonthly : rowPlan.priceAnnual
       
-      // Get live exchange rate and convert to INR
-      exchangeRate = await getUsdToInrRate()
-      planAmount = Math.round(usdPrice * exchangeRate * 100) // Convert to paise
+      // Calculate amount in cents (USD)
+      planAmount = Math.round(usdPrice * 100)
 
-      console.log('ROW subscription:', {
+      console.log('ROW subscription (USD):', {
         usdPrice,
-        exchangeRate,
-        inrAmount: planAmount / 100,
+        planAmount, // cents
         tier,
         billingCycle
       })
 
-      // Create a Razorpay plan with the calculated amount
+      // Create a Razorpay plan with the calculated amount in USD
       const planName = `${tier.charAt(0).toUpperCase() + tier.slice(1)} ${billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)} (Global)`
       const period = billingCycle === 'monthly' ? 'monthly' : 'yearly'
       const interval = 1
@@ -107,21 +103,19 @@ export async function POST(request: NextRequest) {
           item: {
             name: planName,
             amount: planAmount,
-            currency: 'INR',
+            currency: 'USD',
             description: `${rowPlan.limits.resumes} ${rowPlan.limits.resumes === 1 ? 'resume' : 'resumes'}, ${rowPlan.limits.customizations} AI customizations, ${rowPlan.limits.interviews} interviews, ${rowPlan.limits.coverLetters} cover letters`,
           },
           notes: {
             tier,
             billing_cycle: billingCycle,
             region,
-            usd_price: usdPrice.toString(),
-            exchange_rate: exchangeRate.toString(),
             created_at: new Date().toISOString(),
           },
         }) as any
 
         razorpayPlanId = plan.id
-        console.log('Created dynamic Razorpay plan:', razorpayPlanId)
+        console.log('Created dynamic Razorpay plan (USD):', razorpayPlanId)
       } catch (planError: any) {
         console.error('Failed to create Razorpay plan:', planError)
         return NextResponse.json(
@@ -176,10 +170,6 @@ export async function POST(request: NextRequest) {
         ...(couponCode && {
           coupon_code: couponCode.toUpperCase(),
           coupon_note: 'Manual discount required - create offer in Razorpay Dashboard',
-        }),
-        ...(region === 'row' && {
-          exchange_rate: exchangeRate.toString(),
-          plan_amount_inr: (planAmount / 100).toString(),
         }),
       },
     }

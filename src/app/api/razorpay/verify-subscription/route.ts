@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get subscription details to extract tier
+    // Get subscription details to extract tier and trial info
     const { data: subscriptionData, error: fetchError } = await supabase
       .from('subscriptions')
       .select('*')
@@ -80,12 +80,17 @@ export async function POST(request: NextRequest) {
 
     console.log('Found subscription:', subscriptionData)
 
+    // Check trial eligibility
+    const trialDays = (subscriptionData as any).trial_days || 0
+    const isTrialActive = trialDays > 0
+
     // Update subscription status to authenticated
     const { data: updatedData, error: updateError } = await supabase
       .from('subscriptions')
       .update({
         status: 'authenticated',
         razorpay_subscription_id: razorpay_subscription_id,
+        trial_active: isTrialActive,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id)
@@ -103,12 +108,10 @@ export async function POST(request: NextRequest) {
     console.log('Updated subscription:', updatedData)
 
     // Determine if this is mandate authentication (initial setup) or actual payment
-    // Check if subscription has trial_active = true (indicates new signup mandate setup)
-    // Razorpay may pass payment_id even during mandate authentication with token amount
-    const isAuthentication = (subscriptionData as any).trial_active === true
-    
+    const isAuthentication = isTrialActive
+
     console.log(`Subscription ${isAuthentication ? 'authenticated (mandate setup)' : 'payment verified'}: ${razorpay_subscription_id} for user ${user.id}`)
-    console.log(`Trial active: ${(subscriptionData as any).trial_active}, Payment ID present: ${!!razorpay_payment_id}`)
+    console.log(`Trial active: ${isTrialActive}, Payment ID present: ${!!razorpay_payment_id}`)
 
     return NextResponse.json({ 
       success: true,
