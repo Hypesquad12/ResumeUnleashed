@@ -46,9 +46,12 @@ function PricingPageContent() {
   // Detect user region on mount
   useEffect(() => {
     async function detectRegion() {
+      console.log('[PRICING PAGE] Starting region detection...')
+      
       // Check stored preference first
       const stored = getStoredRegion()
       if (stored) {
+        console.log('[PRICING PAGE] Using stored region:', stored)
         setRegion(stored)
         setIsDetecting(false)
         return
@@ -57,15 +60,19 @@ function PricingPageContent() {
       // Try IP-based detection
       try {
         const detected = await detectUserRegion()
+        console.log('[PRICING PAGE] IP detection result:', detected)
         setRegion(detected)
         // Don't store auto-detected region
       } catch (error) {
+        console.error('[PRICING PAGE] IP detection failed:', error)
         // Fallback to timezone detection
         const fallback = detectRegionFromTimezone()
+        console.log('[PRICING PAGE] Timezone fallback result:', fallback)
         setRegion(fallback)
         // Don't store auto-detected region
       } finally {
         setIsDetecting(false)
+        console.log('[PRICING PAGE] Region detection complete')
       }
     }
 
