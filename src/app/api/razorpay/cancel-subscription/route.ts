@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
+import { createClient } from '@/lib/supabase/server'
 
 const razorpay = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
@@ -8,6 +9,14 @@ const razorpay = new Razorpay({
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient()
+    
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { subscriptionId } = await request.json()
 
     if (!subscriptionId) {
@@ -21,6 +30,15 @@ export async function POST(request: Request) {
     // Note: This will cancel at the end of the current billing period
     // true = cancel_at_cycle_end (user keeps access until period end)
     const cancelledSubscription = await razorpay.subscriptions.cancel(subscriptionId, true)
+
+    // Update database immediately (webhook will also update, but this prevents race conditions)
+    await supabase
+      .from('subscriptions')
+      .update({
+        cancelled_at: new Date().toISOString(),
+      })
+      .eq('user_id', user.id)
+      .eq('razorpay_subscription_id', subscriptionId)
 
     return NextResponse.json({
       success: true,

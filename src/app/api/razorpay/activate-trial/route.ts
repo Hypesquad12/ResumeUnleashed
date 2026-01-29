@@ -242,11 +242,12 @@ export async function POST() {
       const invoice = await invoiceResponse.json()
       console.log('[ACTIVATE-TRIAL] Invoice created:', invoice.id)
 
-      // Update database - mark trial as inactive
+      // Update database - mark trial as inactive and status as active
       const { error: updateError } = await supabase
         .from('subscriptions')
         .update({ 
           trial_active: false,
+          status: 'active',
           updated_at: new Date().toISOString()
         })
         .eq('id', subscription.id)

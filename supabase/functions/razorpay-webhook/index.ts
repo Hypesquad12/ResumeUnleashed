@@ -99,6 +99,9 @@ serve(async (req) => {
             razorpay_subscription_id: subscription.id,
             razorpay_customer_id: subscription.customer_id,
             trial_active: trialDays > 0,
+            current_period_start: subscription.current_start ? new Date(subscription.current_start * 1000).toISOString() : null,
+            current_period_end: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : null,
+            start_at: subscription.start_at ? new Date(subscription.start_at * 1000).toISOString() : null,
           })
           .eq('user_id', userId)
         
@@ -139,6 +142,8 @@ serve(async (req) => {
           .update({
             status: 'active',
             trial_active: false,
+            current_period_start: subscription.current_start ? new Date(subscription.current_start * 1000).toISOString() : null,
+            current_period_end: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : null,
             next_billing_at: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : null,
           })
           .eq('user_id', userId)
@@ -161,6 +166,26 @@ serve(async (req) => {
 
         console.log(`Invoice payment failed - subscription pending for user ${userId}`)
         // TODO: Send email notification to user to update payment method
+        break
+      }
+
+      case 'subscription.pending': {
+        const subscription = event.payload.subscription.entity
+        const userId = subscription.notes?.user_id
+        if (!userId) break
+
+        // Payment failed, retries in progress
+        await supabase
+          .from('subscriptions')
+          .update({ 
+            status: 'pending',
+            current_period_start: subscription.current_start ? new Date(subscription.current_start * 1000).toISOString() : null,
+            current_period_end: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : null,
+          })
+          .eq('user_id', userId)
+
+        console.log(`Subscription pending for user ${userId} - payment retries in progress`)
+        // TODO: Send email notification to user
         break
       }
 
@@ -249,6 +274,20 @@ serve(async (req) => {
           .from('subscriptions')
           .update({ status: 'paused' })
           .eq('user_id', userId)
+        break
+      }
+
+      case 'subscription.resumed': {
+        const subscription = event.payload.subscription.entity
+        const userId = subscription.notes?.user_id
+        if (!userId) break
+
+        await supabase
+          .from('subscriptions')
+          .update({ status: 'active' })
+          .eq('user_id', userId)
+        
+        console.log(`Subscription resumed for user ${userId}`)
         break
       }
 
