@@ -105,9 +105,6 @@ export function FreeTierPrompt() {
 
       await loadRazorpay()
 
-      // Close trial popup before opening Razorpay to prevent overlay blocking
-      setShowModal(false)
-
       // Open Razorpay Standard Checkout modal for subscription authentication
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -124,12 +121,15 @@ export function FreeTierPrompt() {
         },
         modal: {
           ondismiss: () => {
+            // Close trial popup when Razorpay is dismissed
+            setShowModal(false)
             setIsLoading(false)
             setSelectedPlan(null)
           },
         },
         handler: async function (response: any) {
-          // Mandate setup successful - dismiss popup for this session
+          // Mandate setup successful - close trial popup and dismiss for session
+          setShowModal(false)
           sessionStorage.setItem('free_tier_prompt_dismissed', 'true')
           // Webhook will handle trial activation
           window.location.href = '/conversion/mandate-success'
