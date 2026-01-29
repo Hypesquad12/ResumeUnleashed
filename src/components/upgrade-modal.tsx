@@ -45,6 +45,11 @@ export function UpgradeModal({ open, onClose, feature, current, limit, tier, isT
       // If new subscription requires authentication, open payment link
       if (data.requiresAuthentication && data.shortUrl) {
         toast.success('Opening payment authentication...')
+        // Don't close the modal - keep it open so user can retry if they close Razorpay
+        // Just reset the loading state after a delay
+        setTimeout(() => {
+          setIsActivating(false)
+        }, 2000)
         window.location.href = data.shortUrl
         return
       }
