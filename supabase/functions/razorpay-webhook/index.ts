@@ -67,6 +67,22 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+    // Idempotency check - prevent duplicate processing
+    const eventId = event.id || `${event.event}_${event.payload?.subscription?.entity?.id}_${Date.now()}`
+    const { data: existingEvent } = await supabase
+      .from('webhook_events')
+      .select('id')
+      .eq('razorpay_event_id', eventId)
+      .single()
+
+    if (existingEvent) {
+      console.log('Event already processed:', eventId)
+      return new Response(
+        JSON.stringify({ received: true, message: 'Event already processed' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Handle Events
     switch (event.event) {
       case 'subscription.authenticated': {
@@ -105,6 +121,59 @@ serve(async (req) => {
           .eq('user_id', userId)
 
         console.log(`Activated subscription for user ${userId}`)
+        break
+      }
+
+      case 'invoice.paid': {
+        const invoice = event.payload.invoice.entity
+        const subscription = event.payload.subscription.entity
+        const userId = subscription.notes?.user_id
+        if (!userId) break
+
+        // First invoice paid means trial ended and subscription is now active
+        await supabase
+          .from('subscriptions')
+          .update({
+            status: 'active',
+            trial_active: false,
+            next_billing_at: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : null,
+          })
+          .eq('user_id', userId)
+
+        console.log(`Invoice paid - subscription active for user ${userId}`)
+        break
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.payload.invoice.entity
+        const subscription = event.payload.subscription.entity
+        const userId = subscription.notes?.user_id
+        if (!userId) break
+
+        // Payment failed - set to pending, Razorpay will retry
+        await supabase
+          .from('subscriptions')
+          .update({ status: 'pending' })
+          .eq('user_id', userId)
+
+        console.log(`Invoice payment failed - subscription pending for user ${userId}`)
+        // TODO: Send email notification to user to update payment method
+        break
+      }
+
+      case 'subscription.halted': {
+        const subscription = event.payload.subscription.entity
+        const userId = subscription.notes?.user_id
+        if (!userId) break
+
+        // All payment retries exhausted - subscription halted
+        await supabase
+          .from('subscriptions')
+          .update({ status: 'halted' })
+          .eq('user_id', userId)
+
+        console.log(`Subscription halted for user ${userId} - payment retries exhausted`)
+        // TODO: Send urgent email notification
         break
       }
 
@@ -203,6 +272,13 @@ serve(async (req) => {
         break
       }
     }
+
+    // Record event as processed for idempotency
+    await supabase.from('webhook_events').insert({
+      razorpay_event_id: eventId,
+      event_type: event.event,
+      payload: event,
+    })
 
     return new Response(
       JSON.stringify({ received: true }),

@@ -70,7 +70,11 @@ export async function getUserSubscription(supabaseClient?: SupabaseClient): Prom
     }
   }
 
-  const isTrialActive = subscription?.trial_active === true && ['active', 'authenticated'].includes(subscription?.status)
+  // Check if trial is active: trial_active flag must be true, status must be valid, and trial must not be expired
+  const isTrialActive = 
+    subscription?.trial_active === true && 
+    ['active', 'authenticated', 'pending'].includes(subscription?.status) &&
+    (!subscription?.trial_expires_at || new Date() < new Date(subscription.trial_expires_at))
 
   // During trial period, enforce trial limits for all paid plans
   if (isTrialActive) {

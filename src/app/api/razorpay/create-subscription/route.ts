@@ -195,6 +195,11 @@ export async function POST(request: NextRequest) {
       periodEnd.setMonth(periodEnd.getMonth() + 1)
     }
 
+    // Calculate trial expiry and billing dates
+    const startAt = new Date(firstChargeTime * 1000)
+    const trialExpiresAt = trialDays > 0 ? new Date(Date.now() + (trialDays * 24 * 60 * 60 * 1000)) : null
+    const nextBillingAt = startAt
+
     const { error: dbError } = await supabase
       .from('subscriptions')
       .upsert({
@@ -210,6 +215,9 @@ export async function POST(request: NextRequest) {
         region: region,
         trial_active: false, // Will be set to true when mandate is authenticated
         trial_days: trialDays,
+        trial_expires_at: trialExpiresAt?.toISOString(),
+        next_billing_at: nextBillingAt.toISOString(),
+        start_at: startAt.toISOString(),
       }, {
         onConflict: 'user_id' // Specify which column to use for upsert conflict resolution
       })
