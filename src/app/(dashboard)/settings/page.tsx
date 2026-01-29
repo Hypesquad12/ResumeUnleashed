@@ -232,20 +232,7 @@ export default function SettingsPage() {
                 {subscription.trial_active && subscription.status === 'pending' && (
                   <Button 
                     className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-                    onClick={async () => {
-                      try {
-                        const response = await fetch('/api/razorpay/activate-trial', { method: 'POST' })
-                        const data = await response.json()
-                        
-                        if (data.requiresAuthentication && data.shortUrl) {
-                          window.location.href = data.shortUrl
-                        } else {
-                          toast.error(data.error || 'Failed to activate trial')
-                        }
-                      } catch (error) {
-                        toast.error('Failed to activate trial')
-                      }
-                    }}
+                    onClick={() => router.push('/settings/manage-subscription')}
                   >
                     <Crown className="h-4 w-4 mr-2" />
                     Activate Your Plan

@@ -299,31 +299,6 @@ function PricingPageContent() {
               </Label>
             </div>
 
-            {/* Region Toggle - Hide for users with active subscriptions */}
-            {!hasActiveSubscription && (
-              <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-full">
-                <button
-                  onClick={() => region !== 'india' && toggleRegion()}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                    region === 'india'
-                      ? 'bg-white dark:bg-slate-700 text-violet-600 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-900'
-                  }`}
-                >
-                  🇮🇳 INR
-                </button>
-                <button
-                  onClick={() => region !== 'row' && toggleRegion()}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                    region === 'row'
-                      ? 'bg-white dark:bg-slate-700 text-violet-600 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-900'
-                  }`}
-                >
-                  🌍 USD
-                </button>
-              </div>
-            )}
           </div>
 
         </div>
