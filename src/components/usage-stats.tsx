@@ -14,6 +14,8 @@ export function UsageStats() {
   const [tier, setTier] = useState<string>('free')
   const [limits, setLimits] = useState<UsageLimits | null>(null)
   const [usage, setUsage] = useState<CurrentUsage | null>(null)
+  const [isTrialActive, setIsTrialActive] = useState(false)
+  const [nextDueDate, setNextDueDate] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadUsage() {
@@ -24,6 +26,28 @@ export function UsageStats() {
       if (subscription) {
         setTier(subscription.tier)
         setLimits(subscription.limits)
+        setIsTrialActive(subscription.isTrialActive || false)
+        
+        // Get next due date from subscriptions table
+        const supabase = (await import('@/lib/supabase/client')).createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: subData } = await supabase
+            .from('subscriptions')
+            .select('current_period_end, trial_active')
+            .eq('user_id', user.id)
+            .in('status', ['active', 'authenticated', 'pending'])
+            .single()
+          
+          if (subData?.current_period_end) {
+            setNextDueDate(new Date(subData.current_period_end).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }))
+            setIsTrialActive(subData.trial_active || false)
+          }
+        }
       }
       setUsage(currentUsage)
       setLoading(false)
@@ -95,19 +119,22 @@ export function UsageStats() {
           <div>
             <CardTitle>Usage Statistics</CardTitle>
             <CardDescription>
-              Current plan: <span className="font-semibold capitalize text-slate-900">{tier}</span>
-              {tier === 'free' && <span className="text-amber-600"> (Trial)</span>}
+              Current plan: <span className="font-semibold capitalize text-slate-900">{tier === 'free' ? 'Free' : tier}</span>
+              {(tier === 'free' || isTrialActive) && <span className="text-amber-600"> (Trial)</span>}
+              {nextDueDate && (
+                <span className="block text-xs mt-1">
+                  Next due: {nextDueDate}
+                </span>
+              )}
             </CardDescription>
           </div>
-          {tier === 'free' && (
-            <Button 
-              onClick={() => router.push('/pricing')}
-              className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Upgrade Plan
-            </Button>
-          )}
+          <Button 
+            onClick={() => router.push('/pricing')}
+            className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            Upgrade Plan
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -142,7 +169,7 @@ export function UsageStats() {
           )
         })}
 
-        {tier === 'free' && (
+        {(tier === 'free' || isTrialActive) && (
           <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="flex items-start gap-3">
               <Sparkles className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />

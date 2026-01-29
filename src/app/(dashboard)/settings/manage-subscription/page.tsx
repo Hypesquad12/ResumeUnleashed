@@ -41,7 +41,7 @@ export default function ManageSubscriptionPage() {
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
-          .in('status', ['active', 'authenticated'])
+          .in('status', ['active', 'authenticated', 'pending'])
           .single()
         
         if (subscriptionData) {
@@ -143,8 +143,9 @@ export default function ManageSubscriptionPage() {
     )
   }
 
-  const planName = subscription.plan_id.split('-')[1]?.toUpperCase() || 'PREMIUM'
+  const planName = subscription.tier?.toUpperCase() || subscription.plan_id.split('-')[1]?.toUpperCase() || 'PREMIUM'
   const billingCycle = subscription.billing_cycle === 'annual' ? 'Annual' : 'Monthly'
+  const isTrialActive = subscription.trial_active || false
   const nextBillingDate = subscription.current_period_end 
     ? new Date(subscription.current_period_end).toLocaleDateString('en-US', { 
         year: 'numeric', 
@@ -176,10 +177,17 @@ export default function ManageSubscriptionPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Current Subscription</CardTitle>
-            <Badge className="bg-gradient-to-r from-violet-600 to-indigo-600">
-              <Crown className="h-3 w-3 mr-1" />
-              {planName}
-            </Badge>
+            <div className="flex gap-2">
+              {isTrialActive && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                  Trial Active
+                </Badge>
+              )}
+              <Badge className="bg-gradient-to-r from-violet-600 to-indigo-600">
+                <Crown className="h-3 w-3 mr-1" />
+                {planName}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -211,6 +219,7 @@ export default function ManageSubscriptionPage() {
                   <p className="text-sm font-medium">Status</p>
                   <p className="text-sm">
                     <span className="text-emerald-600 font-medium capitalize">{subscription.status}</span>
+                    {isTrialActive && <span className="text-amber-600 ml-2">(Trial Period)</span>}
                   </p>
                 </div>
               </div>
@@ -237,22 +246,35 @@ export default function ManageSubscriptionPage() {
         <CardHeader>
           <CardTitle className="text-red-600 flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
-            Discontinue Subscription
+            {isTrialActive ? 'Cancel Trial' : 'Discontinue Subscription'}
           </CardTitle>
           <CardDescription>
-            Cancel your subscription and stop future billing
+            {isTrialActive 
+              ? 'Cancel your trial and return to free plan'
+              : 'Cancel your subscription and stop future billing'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-800 mb-2">
-              <strong>Important:</strong> Cancelling your subscription will:
+              <strong>Important:</strong> {isTrialActive ? 'Cancelling your trial' : 'Cancelling your subscription'} will:
             </p>
             <ul className="text-sm text-red-700 space-y-1 ml-4 list-disc">
-              <li>Stop all future billing immediately</li>
-              <li>Allow you to use features until the end of your current billing period</li>
-              <li>Permanently delete your data 30 days after cancellation</li>
-              <li>Require a new subscription to regain access</li>
+              {isTrialActive ? (
+                <>
+                  <li>End your trial period immediately</li>
+                  <li>Revert your account to the free plan</li>
+                  <li>Limit your access to free tier features only</li>
+                  <li>You can start a new trial by subscribing again</li>
+                </>
+              ) : (
+                <>
+                  <li>Stop all future billing immediately</li>
+                  <li>Allow you to use features until the end of your current billing period</li>
+                  <li>Permanently delete your data 30 days after cancellation</li>
+                  <li>Require a new subscription to regain access</li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -267,6 +289,8 @@ export default function ManageSubscriptionPage() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Cancelling...
               </>
+            ) : isTrialActive ? (
+              'Cancel Trial'
             ) : (
               'Cancel Subscription'
             )}
@@ -284,16 +308,20 @@ export default function ManageSubscriptionPage() {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                This action will cancel your <strong>{planName}</strong> subscription. 
-                You will lose access to all premium features at the end of your current billing period.
+                This action will cancel your <strong>{planName}</strong> {isTrialActive ? 'trial' : 'subscription'}. 
+                {isTrialActive 
+                  ? 'You will immediately lose access to trial features and return to the free plan.'
+                  : 'You will lose access to all premium features at the end of your current billing period.'}
               </p>
               <p className="text-red-600 font-medium">
-                This action cannot be undone. You will need to create a new subscription to regain access.
+                {isTrialActive 
+                  ? 'You can start a new trial by subscribing to a paid plan again.'
+                  : 'This action cannot be undone. You will need to create a new subscription to regain access.'}
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={cancelling}>Keep Subscription</AlertDialogCancel>
+            <AlertDialogCancel disabled={cancelling}>{isTrialActive ? 'Keep Trial' : 'Keep Subscription'}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelSubscription}
               disabled={cancelling}
@@ -304,6 +332,8 @@ export default function ManageSubscriptionPage() {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Cancelling...
                 </>
+              ) : isTrialActive ? (
+                'Yes, Cancel Trial'
               ) : (
                 'Yes, Cancel Subscription'
               )}
