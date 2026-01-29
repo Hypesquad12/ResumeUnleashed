@@ -70,13 +70,13 @@ export async function POST() {
       )
     }
 
-    // Get user's active subscription (includes authenticated status after mandate setup)
+    // Get user's active subscription (includes authenticated and pending status for trial users)
     console.log('[ACTIVATE-TRIAL] Fetching subscription for user:', user.id)
     const { data: subscription, error: subError } = await (supabase as any)
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .in('status', ['active', 'authenticated'])
+      .in('status', ['active', 'authenticated', 'pending'])
       .single()
 
     console.log('[ACTIVATE-TRIAL] Subscription query result:', { 
