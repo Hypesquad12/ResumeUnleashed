@@ -262,17 +262,17 @@ export default function ManageSubscriptionPage() {
             <ul className="text-sm text-red-700 space-y-1 ml-4 list-disc">
               {isTrialActive ? (
                 <>
-                  <li>End your trial period immediately</li>
-                  <li>Revert your account to the free plan</li>
-                  <li>Limit your access to free tier features only</li>
-                  <li>You can start a new trial by subscribing again</li>
+                  <li>Cancel the mandate/payment authorization</li>
+                  <li>You'll keep trial access until {nextBillingDate}</li>
+                  <li>After trial ends, you'll be moved to the free plan</li>
+                  <li>No charges will be made to your account</li>
                 </>
               ) : (
                 <>
                   <li>Stop all future billing immediately</li>
-                  <li>Allow you to use features until the end of your current billing period</li>
-                  <li>Permanently delete your data 30 days after cancellation</li>
-                  <li>Require a new subscription to regain access</li>
+                  <li>You'll keep premium access until {nextBillingDate}</li>
+                  <li>After this period, you'll be moved to the free plan</li>
+                  <li>You can resubscribe anytime (trial already used)</li>
                 </>
               )}
             </ul>
@@ -310,13 +310,13 @@ export default function ManageSubscriptionPage() {
               <p>
                 This action will cancel your <strong>{planName}</strong> {isTrialActive ? 'trial' : 'subscription'}. 
                 {isTrialActive 
-                  ? 'You will immediately lose access to trial features and return to the free plan.'
-                  : 'You will lose access to all premium features at the end of your current billing period.'}
+                  ? ` You'll keep trial access until ${nextBillingDate}, then be moved to the free plan.`
+                  : ` You'll keep premium access until ${nextBillingDate}, then be moved to the free plan.`}
               </p>
-              <p className="text-red-600 font-medium">
+              <p className="text-amber-600 font-medium">
                 {isTrialActive 
-                  ? 'You can start a new trial by subscribing to a paid plan again.'
-                  : 'This action cannot be undone. You will need to create a new subscription to regain access.'}
+                  ? 'No charges will be made. Your trial has already been used.'
+                  : 'You can resubscribe anytime, but your trial has already been used.'}
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>

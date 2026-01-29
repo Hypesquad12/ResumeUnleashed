@@ -16,9 +16,10 @@ interface CheckoutModalProps {
   billingCycle: BillingCycle
   onProceed: (couponCode?: string) => void
   isLoading?: boolean
+  hasActiveTrial?: boolean
 }
 
-export function CheckoutModal({ open, onClose, plan, billingCycle, onProceed, isLoading }: CheckoutModalProps) {
+export function CheckoutModal({ open, onClose, plan, billingCycle, onProceed, isLoading, hasActiveTrial }: CheckoutModalProps) {
   const [couponCode, setCouponCode] = useState('')
   const [validatingCoupon, setValidatingCoupon] = useState(false)
   const [couponData, setCouponData] = useState<any>(null)
@@ -26,7 +27,7 @@ export function CheckoutModal({ open, onClose, plan, billingCycle, onProceed, is
 
   const baseAmount = billingCycle === 'monthly' ? plan.priceMonthly : plan.priceAnnual
   const originalPrice = billingCycle === 'monthly' ? plan.originalPriceMonthly : plan.originalPriceAnnual
-  const trialDays = billingCycle === 'monthly' ? plan.trialDays : plan.trialDaysAnnual
+  const trialDays = hasActiveTrial ? 0 : (billingCycle === 'monthly' ? plan.trialDays : plan.trialDaysAnnual)
   const finalAmount = couponData ? couponData.finalAmount : baseAmount
 
   const validateCoupon = async () => {

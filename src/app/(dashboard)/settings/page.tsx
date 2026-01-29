@@ -214,13 +214,43 @@ export default function SettingsPage() {
                   </p>
                   {subscription.current_period_end && (
                     <p className="text-xs text-muted-foreground">
-                      {subscription.trial_active ? 'Trial ends' : 'Renews'}: {new Date(subscription.current_period_end).toLocaleDateString()}
+                      {subscription.trial_active ? 'Trial ends' : 'Renews'}: {
+                        subscription.trial_active && subscription.trial_days && subscription.current_period_start
+                          ? (() => {
+                              const trialEnd = new Date(subscription.current_period_start)
+                              trialEnd.setDate(trialEnd.getDate() + subscription.trial_days)
+                              return trialEnd.toLocaleDateString()
+                            })()
+                          : new Date(subscription.current_period_end).toLocaleDateString()
+                      }
                     </p>
                   )}
                 </div>
                 <CreditCard className="h-8 w-8 text-muted-foreground" />
               </div>
               <div className="space-y-3">
+                {subscription.trial_active && subscription.status === 'pending' && (
+                  <Button 
+                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/razorpay/activate-trial', { method: 'POST' })
+                        const data = await response.json()
+                        
+                        if (data.requiresAuthentication && data.shortUrl) {
+                          window.location.href = data.shortUrl
+                        } else {
+                          toast.error(data.error || 'Failed to activate trial')
+                        }
+                      } catch (error) {
+                        toast.error('Failed to activate trial')
+                      }
+                    }}
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Activate Your Plan
+                  </Button>
+                )}
                 <Button 
                   variant="outline" 
                   className="w-full"

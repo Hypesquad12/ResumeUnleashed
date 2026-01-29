@@ -31,6 +31,7 @@ function PricingPageContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [hasActiveTrial, setHasActiveTrial] = useState(false)
   const [showCheckoutModal, setShowCheckoutModal] = useState(false)
   const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState<PricingPlan | null>(null)
   const [selectedCycleForCheckout, setSelectedCycleForCheckout] = useState<BillingCycle>('monthly')
@@ -89,6 +90,7 @@ function PricingPageContent() {
         
         console.log('Pricing page subscription check:', { subscription, error })
         setHasActiveSubscription(!!subscription)
+        setHasActiveTrial(subscription?.trial_active || false)
       }
       
       // Auto-select plan after signup
@@ -370,6 +372,7 @@ function PricingPageContent() {
             billingCycle={selectedCycleForCheckout}
             onProceed={handleCheckoutProceed}
             isLoading={isLoading}
+            hasActiveTrial={hasActiveTrial}
           />
         )}
       </div>
