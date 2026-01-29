@@ -36,7 +36,7 @@ export async function getUserSubscription(supabaseClient?: SupabaseClient): Prom
   // Check for active subscriptions first
   const { data: subscription } = await supabase
     .from('subscriptions')
-    .select('trial_active, status, plan_id, tier, region, trial_expires_at')
+    .select('trial_active, status, plan_id, tier, region, trial_expires_at, razorpay_customer_id')
     .eq('user_id', user.id)
     .in('status', ['active', 'authenticated', 'pending'])
     .single()
@@ -50,8 +50,19 @@ export async function getUserSubscription(supabaseClient?: SupabaseClient): Prom
 
   if (!profile) return null
 
-  // Determine tier: use subscription tier if available, otherwise profile tier
-  let tier: SubscriptionTier | 'free' = subscription?.tier || profile.subscription_tier || 'free'
+  // CRITICAL: Only grant premium tier if mandate is authenticated OR trial is active
+  // Users who just initiated subscription (pending status, no customer_id) should remain on free tier
+  const hasMandateSetup = subscription?.razorpay_customer_id != null
+  const hasTrialActive = subscription?.trial_active === true
+  
+  // Determine tier: use subscription tier ONLY if mandate is set up or trial is active
+  let tier: SubscriptionTier | 'free' = 'free'
+  if (subscription && (hasMandateSetup || hasTrialActive)) {
+    tier = subscription.tier
+  } else if (!subscription) {
+    tier = profile.subscription_tier || 'free'
+  }
+  
   const region = subscription?.region || profile.subscription_region || 'india'
 
   // Get limits based on tier
