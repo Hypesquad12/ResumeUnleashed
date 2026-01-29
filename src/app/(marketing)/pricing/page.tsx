@@ -80,13 +80,14 @@ function PricingPageContent() {
       
       // Check if user has active subscription
       if (user) {
-        const { data: subscription } = await supabase
+        const { data: subscription, error } = await supabase
           .from('subscriptions')
-          .select('id, status')
+          .select('id, status, trial_active')
           .eq('user_id', user.id)
           .in('status', ['active', 'authenticated', 'pending'])
           .single()
         
+        console.log('Pricing page subscription check:', { subscription, error })
         setHasActiveSubscription(!!subscription)
       }
       

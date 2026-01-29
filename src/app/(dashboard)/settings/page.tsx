@@ -45,12 +45,12 @@ export default function SettingsPage() {
           setFullName(profileData.full_name || '')
         }
 
-        // Fetch subscription (including authenticated for mandate setup)
+        // Fetch subscription (including authenticated and pending for trial users)
         const { data: subscriptionData } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
-          .in('status', ['active', 'authenticated'])
+          .in('status', ['active', 'authenticated', 'pending'])
           .single()
         
         if (subscriptionData) {
@@ -198,14 +198,23 @@ export default function SettingsPage() {
                 <div className="space-y-1">
                   <p className="font-medium">Current Plan</p>
                   <p className="text-sm text-muted-foreground capitalize">
-                    {subscription.plan_id.split('-')[1] || 'Premium'} - {subscription.billing_cycle}
+                    {(subscription.tier || subscription.plan_id.split('-')[1] || 'Premium').charAt(0).toUpperCase() + (subscription.tier || subscription.plan_id.split('-')[1] || 'Premium').slice(1)}
+                    {subscription.trial_active && ' (Trial)'}
+                    {' - '}
+                    {subscription.billing_cycle}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Status: <span className="text-emerald-600 font-medium">{subscription.status}</span>
+                    Status: <span className={`font-medium ${
+                      subscription.status === 'active' ? 'text-emerald-600' : 
+                      subscription.status === 'pending' || subscription.status === 'authenticated' ? 'text-amber-600' : 
+                      'text-gray-600'
+                    }`}>
+                      {subscription.status === 'authenticated' && subscription.trial_active ? 'Trial Active' : subscription.status}
+                    </span>
                   </p>
                   {subscription.current_period_end && (
                     <p className="text-xs text-muted-foreground">
-                      Renews: {new Date(subscription.current_period_end).toLocaleDateString()}
+                      {subscription.trial_active ? 'Trial ends' : 'Renews'}: {new Date(subscription.current_period_end).toLocaleDateString()}
                     </p>
                   )}
                 </div>
