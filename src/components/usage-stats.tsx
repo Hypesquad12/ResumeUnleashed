@@ -34,18 +34,38 @@ export function UsageStats() {
         if (user) {
           const { data: subData } = await supabase
             .from('subscriptions')
-            .select('current_period_end, trial_active')
+            .select('tier, current_period_start, current_period_end, trial_active, trial_days')
             .eq('user_id', user.id)
             .in('status', ['active', 'authenticated', 'pending'])
             .single()
           
-          if (subData?.current_period_end) {
-            setNextDueDate(new Date(subData.current_period_end).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }))
-            setIsTrialActive(subData.trial_active || false)
+          if (subData) {
+            // Use actual subscription tier instead of 'free'
+            if (subData.tier && subData.tier !== 'free') {
+              setTier(subData.tier)
+            }
+            
+            // Calculate correct trial end date (trial_days from start, not current_period_end)
+            const trialActive = subData.trial_active || false
+            setIsTrialActive(trialActive)
+            
+            if (trialActive && subData.trial_days && subData.current_period_start) {
+              // For trial: show trial end date (start + trial_days)
+              const trialEndDate = new Date(subData.current_period_start)
+              trialEndDate.setDate(trialEndDate.getDate() + subData.trial_days)
+              setNextDueDate(trialEndDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }))
+            } else if (subData.current_period_end) {
+              // For paid subscription: show next billing date
+              setNextDueDate(new Date(subData.current_period_end).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }))
+            }
           }
         }
       }
