@@ -29,7 +29,7 @@ export function Navbar() {
       <motion.nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-white/90 backdrop-blur-xl border-b border-slate-200 shadow-sm' 
+            ? 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm' 
             : 'bg-transparent'
         }`}
         initial={{ y: -100 }}
@@ -50,7 +50,7 @@ export function Navbar() {
                   alt="Resume Unleashed Logo" 
                   className="h-12 w-auto"
                 />
-                <span className="font-bold text-base text-slate-900">Resume Unleashed</span>
+                <span className="font-bold text-base text-slate-900 dark:text-slate-100">Resume Unleashed</span>
               </motion.div>
             </Link>
 
@@ -60,7 +60,7 @@ export function Navbar() {
                 <motion.a
                   key={item.label}
                   href={item.href}
-                  className="text-slate-600 hover:text-slate-900 transition-colors text-sm font-medium relative group"
+                  className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors text-sm font-medium relative group"
                   whileHover={{ y: -2 }}
                 >
                   {item.label}
@@ -72,7 +72,7 @@ export function Navbar() {
             {/* Desktop CTA - Primary conversion action */}
             <div className="hidden md:flex items-center gap-3">
               <Link to="/login">
-                <Button variant="ghost" className="text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                <Button variant="ghost" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
                   Sign in/Sign up
                 </Button>
               </Link>

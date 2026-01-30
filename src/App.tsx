@@ -25,7 +25,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="resume-builder-theme">
+    <ThemeProvider defaultTheme="light" storageKey="resume-builder-theme">
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />

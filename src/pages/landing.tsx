@@ -13,13 +13,13 @@ const Footer = lazy(() => import('@/components/landing/footer').then(mod => ({ d
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
       {/* Static background */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute w-[700px] h-[700px] bg-teal-200/40 rounded-full blur-3xl -top-40 -left-40" />
-        <div className="absolute w-[600px] h-[600px] bg-purple-200/30 rounded-full blur-3xl top-1/3 -right-60" />
-        <div className="absolute w-[500px] h-[500px] bg-cyan-200/30 rounded-full blur-3xl bottom-20 left-1/4" />
-        <div className="absolute w-[400px] h-[400px] bg-rose-200/25 rounded-full blur-3xl top-2/3 right-1/4" />
+        <div className="absolute w-[700px] h-[700px] bg-teal-200/40 dark:bg-teal-900/20 rounded-full blur-3xl -top-40 -left-40" />
+        <div className="absolute w-[600px] h-[600px] bg-purple-200/30 dark:bg-purple-900/20 rounded-full blur-3xl top-1/3 -right-60" />
+        <div className="absolute w-[500px] h-[500px] bg-cyan-200/30 dark:bg-cyan-900/20 rounded-full blur-3xl bottom-20 left-1/4" />
+        <div className="absolute w-[400px] h-[400px] bg-rose-200/25 dark:bg-rose-900/20 rounded-full blur-3xl top-2/3 right-1/4" />
       </div>
 
       <Navbar />

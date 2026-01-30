@@ -47,7 +47,7 @@ export function HeroSection() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 tracking-tight leading-[1.1]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-[1.1]">
               Free AI Resume Builder:{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
                 Create a Job-Winning Resume in Minutes
@@ -55,7 +55,7 @@ export function HeroSection() {
             </h1>
 
             {/* Subtitle */}
-            <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
+            <p className="mt-4 sm:mt-6 text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
               Use the online resume maker to build a professional, ATS-friendly resume that gets past applicant tracking systems and lands you more interviews. The free resume builder is the perfect tool to create a resume that stands out.
             </p>
 
@@ -71,7 +71,7 @@ export function HeroSection() {
               </div>
               
               {/* Microcopy */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4 text-emerald-500" />
                   Ready in 2 minutes
@@ -84,8 +84,8 @@ export function HeroSection() {
             </div>
 
             {/* Company logos */}
-            <div className="hidden sm:block mt-10 pt-8 border-t border-slate-200">
-              <p className="text-xs text-slate-500 uppercase tracking-wide font-medium mb-4">
+            <div className="hidden sm:block mt-10 pt-8 border-t border-slate-200 dark:border-slate-700">
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-4">
                 Our users landed jobs at
               </p>
               <div className="flex items-center gap-6 overflow-hidden relative">
