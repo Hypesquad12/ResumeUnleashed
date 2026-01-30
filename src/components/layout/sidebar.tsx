@@ -1,7 +1,4 @@
-'use client'
-
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import {
   FileText,
@@ -22,7 +19,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // Grouped navigation for better UX
@@ -61,23 +58,21 @@ const bottomNavigation = [
 ]
 
 export function Sidebar() {
-  const pathname = usePathname()
-  const router = useRouter()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const pathname = location.pathname
   const [collapsed, setCollapsed] = useState(false)
-  const [isPending, startTransition] = useTransition()
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
 
   const handleNavigation = (href: string) => {
     setNavigatingTo(href)
-    startTransition(() => {
-      router.push(href)
-    })
+    navigate(href)
   }
 
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/login')
+    navigate('/login')
     router.refresh()
   }
 
