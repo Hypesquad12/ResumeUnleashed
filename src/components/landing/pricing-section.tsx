@@ -5,27 +5,13 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Check, Sparkles, Zap, Crown, Gift } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { detectUserRegion } from '@/lib/geo-detection'
-import type { Region } from '@/lib/pricing-config'
-
 export function PricingSection() {
-  const [region, setRegion] = useState<Region>('india')
+  const [region, setRegion] = useState('india')
   const [billingCycle, setBillingCycle] = useState<'annual' | 'monthly'>('annual')
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    async function detectRegion() {
-      try {
-        const detected = await detectUserRegion()
-        setRegion(detected)
-      } catch (error) {
-        console.error('Failed to detect region:', error)
-        setRegion('row')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    detectRegion()
+    setIsLoading(false)
   }, [])
 
   // Define plans based on region
@@ -278,7 +264,7 @@ export function PricingSection() {
                   </div>
 
                   {/* CTA Button */}
-                  <Link href='/pricing' className="block mb-6">
+                  <Link to='/pricing' className="block mb-6">
                     <Button 
                       className={`w-full ${
                         plan.popular
