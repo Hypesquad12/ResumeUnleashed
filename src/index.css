@@ -57,4 +57,15 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+  
+  /* Force light mode - override dark class */
+  html.dark {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+  
+  html.dark body {
+    background-color: white;
+    color: #0f172a;
+  }
 }
