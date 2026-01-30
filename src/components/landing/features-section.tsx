@@ -1,4 +1,3 @@
-'use client'
 
 import { motion } from 'framer-motion'
 import { FileText, Sparkles, CreditCard, QrCode, Zap, Shield, Globe, Target, Mic, MessageSquare } from 'lucide-react'

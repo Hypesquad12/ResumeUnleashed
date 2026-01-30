@@ -1,4 +1,3 @@
-'use client'
 
 import type { TemplateProps, ResumeData } from './types'
 import { ClassicTemplate } from './templates/classic'

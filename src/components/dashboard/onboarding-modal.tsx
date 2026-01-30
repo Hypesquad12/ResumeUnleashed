@@ -1,7 +1,5 @@
-'use client'
-
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { 
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle 
@@ -16,17 +14,17 @@ interface OnboardingModalProps {
 }
 
 export function OnboardingModal({ open, onClose, userName }: OnboardingModalProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
 
   const handleStartFromScratch = () => {
     onClose()
-    router.push('/resumes/new')
+    navigate('/resumes/new')
   }
 
   const handleUploadResume = () => {
     onClose()
-    router.push('/resumes/new?method=upload')
+    navigate('/resumes/new?method=upload')
   }
 
   const handleExplore = () => {

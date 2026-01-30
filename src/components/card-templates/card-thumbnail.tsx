@@ -1,4 +1,3 @@
-'use client'
 
 import { CardTemplate, CARD_TEMPLATES } from './index'
 import type { CardData } from './types'

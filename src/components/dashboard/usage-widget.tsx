@@ -1,4 +1,3 @@
-'use client'
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -7,7 +6,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sparkles, FileText, MessageSquare, Briefcase, Crown } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 
 interface UsageData {
   feature_type: string
@@ -228,7 +227,7 @@ export function UsageWidget() {
 
         {tier === 'free' && (
           <div className="pt-4 border-t">
-            <Link href="/pricing">
+            <Link to="/pricing">
               <Button className="w-full" variant="default">
                 <Crown className="w-4 h-4 mr-2" />
                 Upgrade Plan

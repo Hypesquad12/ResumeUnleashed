@@ -1,4 +1,3 @@
-'use client'
 
 import { motion } from 'framer-motion'
 import { Users, Briefcase, Star, TrendingUp, CheckCircle, Award } from 'lucide-react'

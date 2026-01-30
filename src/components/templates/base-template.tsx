@@ -1,4 +1,3 @@
-'use client'
 
 import { cn } from '@/lib/utils'
 import type { ResumeData, ContactInfo, Experience, Education } from './types'

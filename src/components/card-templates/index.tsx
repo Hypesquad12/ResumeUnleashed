@@ -1,4 +1,3 @@
-'use client'
 
 import type { CardTemplateProps, CardData, CardTemplateInfo } from './types'
 import { ClassicCard } from './templates/classic-card'

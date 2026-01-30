@@ -1,4 +1,3 @@
-'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -11,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import type { Database } from '@/types/database'
@@ -24,13 +23,12 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+    navigate('/login')
   }
 
   const initials = user?.full_name
@@ -75,10 +73,10 @@ export function Header({ user }: HeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer rounded-lg mx-1">
+            <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer rounded-lg mx-1">
               Settings
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push('/resumes')} className="cursor-pointer rounded-lg mx-1">
+            <DropdownMenuItem onClick={() => navigate('/resumes')} className="cursor-pointer rounded-lg mx-1">
               My Resumes
             </DropdownMenuItem>
             <DropdownMenuSeparator />

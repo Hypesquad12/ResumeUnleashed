@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { FileText, Shield, Truck, Mail, RefreshCw } from 'lucide-react'
 
 export function Footer() {
@@ -33,7 +33,7 @@ export function Footer() {
               {legalLinks.map((link) => (
                 <li key={link.href}>
                   <Link
-                    href={link.href}
+                    to={link.href}
                     className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors flex items-center gap-2"
                   >
                     <link.icon className="h-3.5 w-3.5" />
@@ -49,27 +49,27 @@ export function Footer() {
             <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/dashboard" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+                <Link to="/dashboard" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/resumes" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+                <Link to="/resumes" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                   My Resumes
                 </Link>
               </li>
               <li>
-                <Link href="/customize" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+                <Link to="/customize" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                   AI Customize
                 </Link>
               </li>
               <li>
-                <Link href="/interview" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+                <Link to="/interview" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                   Interview Prep
                 </Link>
               </li>
               <li>
-                <Link href="/salary" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+                <Link to="/salary" className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                   Salary Guide
                 </Link>
               </li>
@@ -84,15 +84,15 @@ export function Footer() {
               © {currentYear} Resume Unleashed. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              <Link href="/terms" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+              <Link to="/terms" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
                 Terms
               </Link>
               <span className="text-slate-300 dark:text-slate-700">•</span>
-              <Link href="/privacy" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+              <Link to="/privacy" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
                 Privacy
               </Link>
               <span className="text-slate-300 dark:text-slate-700">•</span>
-              <Link href="/contact" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+              <Link to="/contact" className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
                 Contact
               </Link>
             </div>
