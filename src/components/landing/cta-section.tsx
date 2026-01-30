@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Sparkles, CheckCircle2, Clock, Shield, Users } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 
 export function CTASection() {
   return (
@@ -80,7 +80,7 @@ export function CTASection() {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="flex flex-col sm:flex-row gap-4 justify-center"
               >
-                <Link href="/signup" className="group">
+                <Link to="/signup" className="group">
                   <Button 
                     size="lg" 
                     className="w-full sm:w-auto text-lg px-12 h-16 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-2xl shadow-violet-500/40 font-semibold transition-all duration-300 hover:scale-105"
@@ -95,7 +95,7 @@ export function CTASection() {
                     </motion.span>
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Link to="/login">
                   <Button 
                     size="lg" 
                     variant="outline" 

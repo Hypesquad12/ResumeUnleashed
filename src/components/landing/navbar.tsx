@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Zap, Menu, X } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
 export function Navbar() {
@@ -40,7 +40,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo - Consistent with dashboard branding */}
-            <Link href="/">
+            <Link to="/">
               <motion.div 
                 className="flex items-center gap-2"
                 whileHover={{ scale: 1.02 }}
@@ -72,12 +72,12 @@ export function Navbar() {
 
             {/* Desktop CTA - Primary conversion action */}
             <div className="hidden md:flex items-center gap-3">
-              <Link href="/login">
+              <Link to="/login">
                 <Button variant="ghost" className="text-slate-600 hover:text-slate-900 hover:bg-slate-100">
                   Sign in/Sign up
                 </Button>
               </Link>
-              <Link href="/signup">
+              <Link to="/signup">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0 transition-all duration-300 text-white">
                     Get Started for Free
@@ -133,12 +133,12 @@ export function Navbar() {
               </a>
             ))}
             <div className="pt-4 border-t border-slate-200 space-y-3">
-              <Link href="/login" className="block">
+              <Link to="/login" className="block">
                 <Button variant="outline" className="w-full border-slate-300 text-slate-700">
                   Sign in/Sign up
                 </Button>
               </Link>
-              <Link href="/signup" className="block">
+              <Link to="/signup" className="block">
                 <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 border-0 text-white">
                   Get Started for Free
                 </Button>

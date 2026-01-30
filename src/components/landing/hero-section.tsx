@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { ArrowRight, CheckCircle2, Shield, Clock, Star, FileText, Sparkles, Target } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 
 // Company names for social proof - using text-based display for reliability
 const companyLogos = [
@@ -63,7 +63,7 @@ export function HeroSection() {
             {/* CTA */}
             <div className="mt-6 sm:mt-8 space-y-4">
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Link href="/signup" className="group">
+                <Link to="/signup" className="group">
                   <Button size="lg" className="w-full sm:w-auto text-base px-8 sm:px-10 h-12 sm:h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 text-white font-semibold transition-all duration-300 sm:hover:scale-105">
                     Get Started for Free
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

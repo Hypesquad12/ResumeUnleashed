@@ -8,7 +8,7 @@ import {
   ArrowRight, RotateCcw, CheckCircle, X, Timer, Flame,
   Crown, Rocket, Heart, Shield
 } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 
 // Keywords for the matching game
 const resumeKeywords = [
@@ -524,7 +524,7 @@ export function GameSection() {
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Try Different Job
                   </Button>
-                  <Link href="/signup">
+                  <Link to="/signup">
                     <Button className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white">
                       <Gift className="mr-2 h-4 w-4" />
                       Claim Rewards - Sign Up
@@ -580,7 +580,7 @@ export function GameSection() {
               <div className="text-white font-semibold">Sign up to keep your progress!</div>
               <div className="text-slate-400 text-sm">Plus get 500 bonus XP and unlock premium features</div>
             </div>
-            <Link href="/signup">
+            <Link to="/signup">
               <Button className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white">
                 Sign Up Free
                 <ArrowRight className="ml-2 h-4 w-4" />

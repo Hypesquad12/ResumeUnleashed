@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Check, Sparkles, Zap, Crown, Gift } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { detectUserRegion } from '@/lib/geo-detection'
 import type { Region } from '@/lib/pricing-config'
 

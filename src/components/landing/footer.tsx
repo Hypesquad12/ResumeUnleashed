@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { FileText } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 
 const footerLinks = {
   product: [
@@ -36,7 +36,7 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Brand */}
           <div className="col-span-2">
-            <Link href="/">
+            <Link to="/">
               <motion.div 
                 className="flex items-center gap-2 mb-4"
                 whileHover={{ scale: 1.05 }}
@@ -114,13 +114,13 @@ export function Footer() {
             © {new Date().getFullYear()} Resume Unleashed. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
+            <Link to="/privacy" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
+            <Link to="/terms" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
               Terms of Service
             </Link>
-            <Link href="/contact" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
+            <Link to="/contact" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
               Contact
             </Link>
           </div>
