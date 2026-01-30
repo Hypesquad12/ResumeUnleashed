@@ -73,7 +73,6 @@ export function Sidebar() {
     const supabase = createClient()
     await supabase.auth.signOut()
     navigate('/login')
-    router.refresh()
   }
 
   return (
@@ -86,13 +85,13 @@ export function Sidebar() {
       {/* Logo with gradient accent */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200 dark:border-slate-800">
         {!collapsed && (
-          <Link href="/dashboard" className="flex items-center gap-2 group">
+          <Link to="/dashboard" className="flex items-center gap-2 group">
             <img 
               src="/images/logo.png" 
               alt="Resume Unleashed Logo" 
               className="h-8 w-auto"
             />
-            <span className="font-bold text-lg text-slate-900">Resume Unleashed</span>
+            <span className="font-bold text-lg text-slate-900 dark:text-slate-100">Resume Unleashed</span>
           </Link>
         )}
         <Button
@@ -131,12 +130,11 @@ export function Sidebar() {
             </AnimatePresence>
             {group.items.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-              const isNavigating = isPending && navigatingTo === item.href
+              const isNavigating = navigatingTo === item.href
               return (
                 <Link
                   key={item.name}
-                  href={item.href}
-                  prefetch={true}
+                  to={item.href}
                   onClick={(e) => {
                     e.preventDefault()
                     handleNavigation(item.href)
@@ -188,12 +186,11 @@ export function Sidebar() {
       <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-1 bg-slate-50/50 dark:bg-slate-900/50">
         {bottomNavigation.map((item) => {
           const isActive = pathname === item.href
-          const isNavigating = isPending && navigatingTo === item.href
+          const isNavigating = navigatingTo === item.href
           return (
             <Link
               key={item.name}
-              href={item.href}
-              prefetch={true}
+              to={item.href}
               onClick={(e) => {
                 e.preventDefault()
                 handleNavigation(item.href)
